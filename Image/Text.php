@@ -1171,7 +1171,7 @@ class Image_Text {
      */
     function _processText()
     {
-        if (empty($this->_text)) {
+        if (!isset($this->_text)) {
             return false;
         }
         $this->_tokens = array();
