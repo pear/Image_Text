@@ -290,8 +290,8 @@ class Image_Text {
      *      'color_mode'        | The color rotation mode for your color sets. Does only apply if you
      *                          | defined multiple colors. Use 'line' or 'paragraph'.
      *
-     *      'font_path'         | Location of the font to use.
-     *      'font_file'         |
+     *      'font_path'         | Location of the font to use. The path only gives the directory path (ending with a /).
+     *      'font_file'         | The fontfile is given in the 'font_file' option.
      *
      *      'font_size'         | The font size to render text in (will be overwriten, if you use automeasurize).
      *
