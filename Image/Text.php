@@ -573,8 +573,8 @@ class Image_Text {
             
             
             case (is_array($this->options['canvas']) && 
-                    isset($this->options['canvas']['width']) &&
-                    ($this->options['canvas']['width'] = 'auto')):
+                    isset($this->options['canvas']['size']) &&
+                    ($this->options['canvas']['size'] = 'auto')):
                     
             case (is_string($this->options['canvas']) &&
                      ($this->options['canvas'] = 'auto')):
