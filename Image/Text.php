@@ -266,7 +266,7 @@ class Image_Text {
      
     function Image_Text($text, $options = null)
     {
-        $this->_text = $text;
+        $this->set('text', $text);
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
@@ -298,7 +298,11 @@ class Image_Text {
             switch ($opt) {
              case 'color': $this->setColors($val);
                       break;
-             case 'text':  $this->_text = $val;
+             case 'text':  if (is_array($val)) {
+                               $this->_text = implode('\n', $val);
+                           } else {
+                               $this->_text = $val;
+                           }
                       break;
              default: $this->options[$opt] = $val;
                       break;
@@ -340,7 +344,7 @@ class Image_Text {
                 $this->setColor($color,$i++);
             }
         } else {
-            $this->setColor($colors,$i);
+            $this->setColor($colors);
         }
         return true;
     }
@@ -452,6 +456,7 @@ class Image_Text {
         } elseif ($this->options['canvas']=='auto') {
             $this->_mode = 'auto';
         }
+
         $this->options['canvas'] = array();
         $this->options['canvas']['height'] = imagesx($this->_img);
         $this->options['canvas']['width'] = imagesy($this->_img);
@@ -513,6 +518,7 @@ class Image_Text {
         for ($i = $start; $i <= $end; $i++) {
             $this->options['font_size'] = $i;
             $res = $this->measurize();
+
             if ($res === false) {
                 if ($start == $i) {
                     $this->options['font_size'] = -1;
@@ -522,7 +528,7 @@ class Image_Text {
                 $this->_measurizedSize = $this->options['font_size'];
                 break;
             }
-            // Allways the last couple of lines is stored here.
+            // Always the last couple of lines is stored here.
             $this->_lines = $res;
         }
         return $this->options['font_size'];
@@ -580,6 +586,8 @@ class Image_Text {
 
         $i = 0;
         $para_cnt = 0;
+        
+        $beginning_of_line = true;
 
         // Run through tokens and order them in lines
         foreach($this->_tokens as $token) {
@@ -603,23 +611,29 @@ class Image_Text {
                                 'left_margin'   => $bounds[0],
                                 'color'         => $c
                             );
-                $text_height += (int)$space;
                 $text_width = max($text_width, ($bounds[2]-$bounds[0]));
-                if (($text_height >= $block_height) && !$force) {
+                $text_height += (int)$space;
+                if (($text_height > $block_height) && !$force) {
                     return false;
                 }
                 $para_cnt++;
                 $text_line = '';
+                $beginning_of_line = true;
                 continue;
             }
 
             // Usual lining up
 
-            $bounds = imagettfbbox($size, 0, $font,
-                    $text_line.(!empty($text_line)?' ':'').$token);
+            if ($beginning_of_line) {
+                $text_line_next = $token;
+                $beginning_of_line = false;
+            } else {
+                $text_line_next .= ' '.$token;
+            }
+            $bounds = imagettfbbox($size, 0, $font, $text_line_next);
             $prev_width = isset($prev_width)?$width:0;
             $width = $bounds[2]-$bounds[0];
-
+  
             // Handling of automatic new lines
             if ($width>$block_width) {
                 if ((++$lines_cnt>=$max_lines) && !$force) {
@@ -631,6 +645,7 @@ class Image_Text {
                     $c = $this->colors[$para_cnt%$colors_cnt];
                     $i++;
                 }
+
                 $lines[]  = array(
                                 'string'    => $text_line,
                                 'width'     => $prev_width,
@@ -641,16 +656,17 @@ class Image_Text {
                             );
                 $text_width = max($text_width, ($bounds[2]-$bounds[0]));
                 $text_height += (int)$space;
-                if (($text_height >= $block_height) && !$force) {
+                if (($text_height > $block_height) && !$force) {
                     return false;
                 }
 
-                $text_line = $token;
+                $text_line_next = $token;
+                $beginning_of_line = false;
             } else {
-                $text_line .= ($text_line!=''?' ':'').$token;
+                $text_line = $text_line_next;
             }
         }
-        // Store reminding line
+        // Store remaining line
         $bounds = imagettfbbox($size, 0, $font,$text_line);
         if ($this->options['color_mode']=='line') {
             $c = $this->colors[$i++%$colors_cnt];
@@ -663,18 +679,19 @@ class Image_Text {
                         'left_margin'   => $bounds[0],
                         'color'         => $c
                     );
-        // If non empty line, add last line height
-        if ($text_line !== "") {
-            $text_height += (int)$space;
-            $text_width = max($text_width, ($bounds[2]-$bounds[0]));
-        }
 
-        if (($text_height >= $block_height) && !$force) {
+        // add last line height, but without the line-spacing
+        $text_height += $this->options['font_size'];
+
+        $text_width = max($text_width, ($bounds[2]-$bounds[0]));
+
+        if (($text_height > $block_height) && !$force) {
             return false;
         }
 
         $this->_realTextSize = array('width' => $text_width, 'height' => $text_height);
         $this->_measurizedSize = $this->options['font_size'];
+
         return $lines;
     }
 
@@ -690,7 +707,7 @@ class Image_Text {
      * @return bool             True on success, otherwise PEAR::Error.
      */
 
-    function render( $force = false )
+    function render($force=false)
     {
         if (!$this->_init) {
             return PEAR::raiseError('Not initialized. Call ->init() first!');
@@ -766,10 +783,10 @@ class Image_Text {
         }
         
         $space = $line_spacing * $size * 1.5;
-        
+
         // Adjustment of align + translation of top-left-corner to bottom-left-corner of first line
-        $new_posx = $start_x + ($sinR * ($valign_space + $lines[0]['height']));
-        $new_posy = $start_y + ($cosR * ($valign_space + $lines[0]['height']));
+        $new_posx = $start_x + ($sinR * ($valign_space + $size));
+        $new_posy = $start_y + ($cosR * ($valign_space + $size));
 
         $lines_cnt = min($max_lines,sizeof($lines));
         
@@ -1021,13 +1038,13 @@ class Image_Text {
         foreach($paras as $para) {
             $words = explode(' ',$para);
             foreach($words as $word) {
-                $this->_tokens[] = empty($word)?"\n":$word;
+                $this->_tokens[] = $word;
             }
             // add a "\n" to mark the end of a paragraph
             $this->_tokens[] = "\n";
         }
         // we do not need an end paragraph as the last token
-        unset($this->_tokens[sizeof($this->_tokens)-1]);
+        array_pop($this->_tokens);
     }
 }
 
