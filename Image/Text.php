@@ -78,6 +78,52 @@ class Image_Text {
     /**
      * Options array. these options can be set through the constructor or the set() method.
      *
+     * Possible options to set are:
+     * <pre>
+     *
+     *      'x'                 | This sets the top left coordinates (using x/y) or the center point
+     *      'y'                 | coordinates (using cx/cy) for your text box. The values from
+     *      'cx'                | cx/cy will overwrite x/y.
+     *      'cy'                |
+     *
+     *      'canvas'            | You can set different values as a canvas:
+     *                          |   - A gd image resource.
+     *                          |   - An array with 'width' and 'height'.
+     *                          |   - Nothing (the canvas will be measured after the real text size).
+     *
+     *      'antialias'         | This is usually true. Set it to false to switch antialiasing off.
+     *
+     *      'width'             | The width and height for your text box.
+     *      'height'            |
+     *
+     *      'halign'            | Alignment of your text inside the textbox. Use alignmnet constants to define
+     *      'valign'            | vertical and horizontal alignment.
+     *
+     *      'angle'             | The angle to rotate your text box.
+     *
+     *      'color'             | An array of color values. Colors will be rotated in the mode you choose (linewise
+     *                          | or paragraphwise). Can be in the following formats:
+     *                          |   - String representing HTML style hex couples (+ unusual alpha couple in the first place, optional).
+     *                          |   - Array of int values using 'r', 'g', 'b' and optionally 'a' as keys.
+     *
+     *      'color_mode'        | The color rotation mode for your color sets. Does only apply if you
+     *                          | defined multiple colors. Use 'line' or 'paragraph'.
+     *
+     *      'font_path'         | Location of the font to use. The path only gives the directory path (ending with a /).
+     *      'font_file'         | The fontfile is given in the 'font_file' option.
+     *
+     *      'font_size'         | The font size to render text in (will be overwriten, if you use automeasurize).
+     *
+     *      'line_spacing'      | Measure for the line spacing to use. Default is 0.5.
+     *
+     *      'min_font_size'     | Automeasurize settings. Try to keep this area as small as possible to get better
+     *      'max_font_size'     | performance.
+     *
+     *      'image_type'        | The type of image (use image type constants). Is default set to PNG.
+     *
+     *      'dest_file'         | The destination to (optionally) save your file.
+     * </pre>
+     *
      * @access public
      * @var array
      * @see Image_Text::Image_Text(), Image_Text::set()
@@ -257,53 +303,9 @@ class Image_Text {
      * Set options
      *
      * Set a single or multiple options. It may happen that you have to reinitialize the Image_Text
-     * object after changing options.
+     * object after changing options. For possible options, please take a look at the class options
+     * array!
      *
-     * Possible options to set are:
-     * <pre>
-     *
-     *      'x'                 | This sets the top left coordinates (using x/y) or the center point
-     *      'y'                 | coordinates (using cx/cy) for your text box. The values from
-     *      'cx'                | cx/cy will overwrite x/y.
-     *      'cy'                |
-     *
-     *      'canvas'            | You can set different values as a canvas:
-     *                          |   - A gd image resource.
-     *                          |   - An array with 'width' and 'height'.
-     *                          |   - Nothing (the canvas will be measured after the real text size).
-     *
-     *      'antialias'         | This is usually true. Set it to false to switch antialiasing off.
-     *
-     *      'width'             | The width and height for your text box.
-     *      'height'            |
-     *
-     *      'halign'            | Alignment of your text inside the textbox. Use alignmnet constants to define
-     *      'valign'            | vertical and horizontal alignment.
-     *
-     *      'angle'             | The angle to rotate your text box.
-     *
-     *      'color'             | An array of color values. Colors will be rotated in the mode you choose (linewise
-     *                          | or paragraphwise). Can be in the following formats:
-     *                          |   - String representing HTML style hex couples (+ unusual alpha couple in the first place, optional).
-     *                          |   - Array of int values using 'r', 'g', 'b' and optionally 'a' as keys.
-     *
-     *      'color_mode'        | The color rotation mode for your color sets. Does only apply if you
-     *                          | defined multiple colors. Use 'line' or 'paragraph'.
-     *
-     *      'font_path'         | Location of the font to use. The path only gives the directory path (ending with a /).
-     *      'font_file'         | The fontfile is given in the 'font_file' option.
-     *
-     *      'font_size'         | The font size to render text in (will be overwriten, if you use automeasurize).
-     *
-     *      'line_spacing'      | Measure for the line spacing to use. Default is 0.5.
-     *
-     *      'min_font_size'     | Automeasurize settings. Try to keep this area as small as possible to get better
-     *      'max_font_size'     | performance.
-     *
-     *      'image_type'        | The type of image (use image type constants). Is default set to PNG.
-     *
-     *      'dest_file'         | The destination to (optionally) save your file.
-     * </pre>
      *
      * @param   mixed   $option     A single option name or the options array.
      * @param   mixed   $value      Option value if $option is string.
