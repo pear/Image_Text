@@ -16,26 +16,19 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.4</version>
-    <date>2004-02-20</date>
+    <version>0.4pl1</version>
+    <date>2004-02-22</date>
     <license>PHP License</license>
     <state>alpha</state>
-    <notes>Image_Text experienced extensive debugging and fixing, as well as small adjustments. The standard value
-                          for line_spacing changed to 0.5 but this does not matter for the standard output, since the calculation
-                          has changed.
-              
-                          The behavior of setColor() and setColors() has changed a bit to allow a new color format which defines
-                          RGB values through an array keyed with 0, 1 and 2 plus optionally 3 as the alpha value.
-              
-                          This release should work quite fine, since it has been extensively debugged. But since I plan to make some
-                          more improvements I can not promise a 100% stable API. The API should be fixed for about 95% now.</notes>
+    <notes>Bugfixing release.
+		          * Fixed color handling (using array format with key's 0,1,2 (optionally) 3.</notes>
     <deps>
       <dep type="ext" rel="has" optional="no">gd</dep>
     </deps>
     <filelist>
-      <file role="doc" baseinstalldir="" md5sum="9013afc7a9c471591fead71de8272994" name="example/example.php"/>
-      <file role="php" baseinstalldir="" md5sum="c05dc43b2513d411f1ea9f833ac855ec" name="Image/Text.php"/>
-      <file role="script" baseinstalldir="" md5sum="41b7cd02ea6253ade162d9fa53a61fda" name="make_docbook.sh"/>
+      <file role="doc" baseinstalldir="" md5sum="5dbad1fafc03a7f7f106a9ff2f99a691" name="example/example.php"/>
+      <file role="php" baseinstalldir="" md5sum="5e2f43d2888a5e256be5ffa338e2d7be" name="Image/Text.php"/>
+      <file role="script" baseinstalldir="" md5sum="38094762766b514958955a89e453e094" name="make_docbook.sh"/>
       <file role="script" baseinstalldir="" md5sum="80d87d7047524e42fb0f4abe5019c41a" name="make_dochtml.sh"/>
     </filelist>
   </release>
@@ -77,6 +70,14 @@
               
                           This release should work quite fine, since it has been extensively debugged. But since I plan to make some
                           more improvements I can not promise a 100% stable API. The API should be fixed for about 95% now.</notes>
+    </release>
+    <release>
+      <version>0.4pl1</version>
+      <date>2004-02-22</date>
+      <license>PHP License</license>
+      <state>alpha</state>
+      <notes>Bugfixing release.
+		          * Fixed color handling (using array format with key's 0,1,2 (optionally) 3.</notes>
     </release>
   </changelog>
 </package>
