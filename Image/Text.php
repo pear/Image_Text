@@ -473,9 +473,9 @@ class Image_Text {
         $this->options['angle'] = $angle;
         
         // Set the color values
-        $this->setColors($this->options['colors']);
-        if (PEAR::isError($this->options['colors'])) {
-            return $this->options['colors'];
+        $this->setColors($this->options['color']);
+        if (PEAR::isError($this->options['color'])) {
+            return $this->options['color'];
         }
 
         $this->_lines = null;
