@@ -337,7 +337,7 @@ class Image_Text {
      * @param   string  $text       Text to print.
      * @param   array   $options    Options.
      * @access public
-     * @see Image_Text::set(), Image_Text::set(), Image_Text::init()
+     * @see Image_Text::set(), Image_Text::construct(), Image_Text::init()
      */
 
     function Image_Text($text, $options = null)
@@ -348,6 +348,27 @@ class Image_Text {
         }
     }
 
+    /**
+     * Construct and initialize an Image_Text in one step.
+     * This method is called statically and creates plus initializes an Image_Text object.
+     * Beware: You will have to recall init() if you set an option afterwards manually.
+     *
+     * @param   string  $text       Text to print.
+     * @param   array   $options    Options.
+     * @access public
+     * @static
+     * @see Image_Text::set(), Image_Text::Image_Text(), Image_Text::init()
+     */
+    
+    function &construct ( $text, $options ) {
+        $itext = new Image_Text($text, $options);
+        $res = $itext->init();
+        if (PEAR::isError($res)) {
+            return $res;
+        }
+        return $itext;
+    }
+    
     /**
      * Set options
      *
