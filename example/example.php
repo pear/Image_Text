@@ -1,6 +1,8 @@
 <?php
 
-    require_once 'Image/Image_Text.php';
+	ini_set('include_path', '/cvs/pear/Image_Text:'.'/cvs/pear/Image_Tools:'.ini_get('include_path'));
+
+    require_once 'Image/Text.php';
 
     if (!isset($_GET['text'])) {
         $_GET['text'] = 0;
@@ -28,7 +30,7 @@
     $options = array('width' => 300,
                      'height' => 50,
                      'fontPath' => './',
-                     'fontFile' => 'tahomabd.ttf',
+                     'fontFile' => 'Vera.ttf',
                      'antiAliasing' => true);
 
     $test = new Image_Text($texts[$_GET['text']], $options);
