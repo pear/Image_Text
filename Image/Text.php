@@ -542,34 +542,57 @@ class Image_Text {
         }
 
         // Check and create canvas
-        if(empty($this->options['canvas'])) {
-            // Create new image from width && height of the clipping
-            $this->_img = imagecreatetruecolor(
-                        $this->options['width'], $this->options['width']);
-            if (!$this->_img) {
+        
+        switch (true) {
+            case (empty($this->options['canvas'])):
+                
+                // Create new image from width && height of the clipping
+                $this->_img = imagecreatetruecolor(
+                            $this->options['width'], $this->options['width']);
+                if (!$this->_img) {
+                    return PEAR::raiseError('Could not create image canvas.');
+                }
+                break;
+            
+            case (is_resource($this->options['canvas']) &&
+                    get_resource_type($this->options['canvas'])=='gd'):
+                // The canvas is an image resource
+                $this->_img = $this->options['canvas'];
+                break;
+            
+            case (is_array($this->options['canvas']) && 
+                    isset($this->options['canvas']['width']) &&
+                    isset($this->options['canvas']['height'])):
+                    
+                // Canvas must be a width and height measure
+                $this->_img = imagecreatetruecolor(
+                    $this->options['canvas']['width'],
+                    $this->options['canvas']['height']
+                );
+                break;
+            
+            
+            case (is_array($this->options['canvas']) && 
+                    isset($this->options['canvas']['width']) &&
+                    ($this->options['canvas']['width'] = 'auto')):
+                    
+            case (is_string($this->options['canvas']) &&
+                     ($this->options['canvas'] = 'auto')):
+                $this->_mode = 'auto';
+                break;
+                
+            default:
                 return PEAR::raiseError('Could not create image canvas.');
-            }
-        } elseif ( is_resource($this->options['canvas']) &&
-            get_resource_type($this->options['canvas'])=='gd'
-        ) {
-            // The canvas is an image resource
-            $this->_img = $this->options['canvas'];
-        } elseif (is_array($this->options['canvas'])) {
-            // Canvas must be a width and height measure
-            $this->_img = imagecreatetruecolor(
-                        $this->options['canvas']['width'],
-                        $this->options['canvas']['height']
-                    );
-            if (!$this->_img) {
-                return PEAR::raiseError('Could not create image cabvas.');
-            }
-        } elseif ($this->options['canvas']=='auto') {
-            $this->_mode = 'auto';
+            
         }
-
-        $this->options['canvas'] = array();
-        $this->options['canvas']['height'] = imagesx($this->_img);
-        $this->options['canvas']['width'] = imagesy($this->_img);
+        
+        
+        
+        if ($this->_img) {
+            $this->options['canvas'] = array();
+            $this->options['canvas']['height'] = imagesx($this->_img);
+            $this->options['canvas']['width'] = imagesy($this->_img);
+        }
 
         // Save and repair angle
         $angle = $this->options['angle'];
@@ -1174,4 +1197,4 @@ class Image_Text {
     }
 }
 
-?>
+
