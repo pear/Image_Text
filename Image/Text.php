@@ -12,10 +12,6 @@
  * @license The PHP License, version 3.0
  * @author Tobias Schlitt <toby@php.net>
  * @category images
- * @todo Definitly fixing the API.
- * @todo Improve speed.
- * @todo Improve option setting and init() stuff for better handling and error tollerance.
- * @todo Error codes.
  */
 
 
@@ -60,7 +56,7 @@ define("IMAGE_TEXT_ALIGN_MIDDLE", "middle", true);
 define("IMAGE_TEXT_ALIGN_BOTTOM", "bottom", true);
 
 /**
- * @todo This constant is useless until now, since justified alignment does not work yet
+ * TODO: This constant is useless until now, since justified alignment does not work yet
  */
 define("IMAGE_TEXT_ALIGN_JUSTIFY", "justify", true);
 
@@ -174,7 +170,7 @@ class Image_Text {
             'image_type'        => IMAGETYPE_PNG,
             'dest_file'         => ''
         );
-        
+
     /**
      * Contains option names, which can cause re-initialization force.
      *
@@ -456,7 +452,7 @@ class Image_Text {
     function init()
     {
         // Does the fontfile exist and is readable?
-        // @todo: with some versions of the GD-library it's also possible to leave font_path empty, add strip ".ttf" from
+        // todo: with some versions of the GD-library it's also possible to leave font_path empty, add strip ".ttf" from
         //        the fontname; the fontfile will then be automatically searched for in library-defined directories
         //        however this does not yet work if at this point we check for the existance of the fontfile
         if (!is_file($this->options['font_path'].$this->options['font_file']) || !is_readable($this->options['font_path'].$this->options['font_file'])) {
@@ -539,7 +535,6 @@ class Image_Text {
      * @param  int      $end    Fontsize to end testing with.
      * @return int              Fontsize measured or PEAR::Error.
      * @see Image_Text::measurize()
-     * @todo A better search algorithm should be used here. Performance tests to find the best.
      */
    
     function autoMeasurize($start=false, $end=false)
