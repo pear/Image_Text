@@ -19,23 +19,46 @@
  */
 
 
+/**
+ *
+ * Require PEAR file for error handling.
+ *
+ */
+ 
 require_once 'PEAR.php';
 
-// Regex to match HTML style hex triples    
+/**
+ * Regex to match HTML style hex triples.
+ */
+ 
 define("IMAGE_TEXT_REGEX_HTMLCOLOR", "/^[#|]([a-f0-9]{2})?([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i", true);
 
-// Alignment settings for vertical alignement
-
+/**
+ * Defines horizontal alignment to the left of the text box. (This is standard.)
+ */
 define("IMAGE_TEXT_ALIGN_LEFT", "left", true);
+/**
+ * Defines horizontal alignment to the center of the text box.
+ */
 define("IMAGE_TEXT_ALIGN_RIGHT", "right", true);
+/**
+ * Defines horizontal alignment to the center of the text box.
+ */
 define("IMAGE_TEXT_ALIGN_CENTER", "center", true);
 
-// Alignment settings for horizontal alignement
+/**
+ * Defines vertical alignment to the to the top of the text box. (This is standard.)
+ */
 define("IMAGE_TEXT_ALIGN_TOP", "top", true);
+/**
+ * Defines vertical alignment to the to the middle of the text box.
+ */
 define("IMAGE_TEXT_ALIGN_MIDDLE", "middle", true);
+/**
+ * Defines vertical alignment to the to the bottom of the text box.
+ */
 define("IMAGE_TEXT_ALIGN_BOTTOM", "bottom", true);
 
-// Not implemented yet
 /**
  * @todo This constant is useless until now, since justified alignment does not work yet
  */
@@ -50,6 +73,8 @@ define("IMAGE_TEXT_ALIGN_JUSTIFY", "justify", true);
  * let the class automatically determine lines, rotate text boxes around
  * their center or top left corner. These are only a couple of features
  * Image_Text provides. 
+ *
+ * @package Image_Text
  */
 
 class Image_Text {
@@ -149,7 +174,14 @@ class Image_Text {
             'image_type'        => IMAGETYPE_PNG,
             'dest_file'         => ''
         );
-    
+        
+    /**
+     * Contains option names, which can cause re-initialization force.
+     *
+     * @var array
+     * @access private
+     */
+        
     var $_reInits = array('width', 'height', 'canvas', 'angle', 'font_file', 'font_path', 'font_size');
         
     /**
@@ -209,11 +241,11 @@ class Image_Text {
     /**
      * Color indeces returned by imagecolorallocatealpha.
      *
-     * @access private
+     * @access public
      * @var array
      */
      
-    var $_colors = array();
+    var $colors = array();
     
     /**
      * Width and height of the (rendered) text.
@@ -296,16 +328,19 @@ class Image_Text {
         }
         foreach ($option as $opt => $val) {
             switch ($opt) {
-             case 'color': $this->setColors($val);
-                      break;
-             case 'text':  if (is_array($val)) {
-                               $this->_text = implode('\n', $val);
-                           } else {
-                               $this->_text = $val;
-                           }
-                      break;
-             default: $this->options[$opt] = $val;
-                      break;
+             case 'color': 
+                $this->setColors($val);
+                break;
+             case 'text':  
+                if (is_array($val)) {
+                    $this->_text = implode('\n', $val);
+                } else {
+                    $this->_text = $val;
+                }
+                break;
+             default: 
+                $this->options[$opt] = $val;
+                break;
             }
             if (isset($reInits[$opt])) {
                 $this->_init = false;
@@ -317,10 +352,11 @@ class Image_Text {
     /**
      * Set the color-set
      *
-     * Using this method you can set one or more colors for your text.
-     * If you set multiple colors, use a simple numeric array to determine
-     * their order and give it to this function. Multiple colors will be
-     * cycled by the options specified 'color_mode' option.
+     * Using this method you can set multiple colors for your text.
+     * Use a simple numeric array to determine their order and give 
+     * it to this function. Multiple colors will be
+     * cycled by the options specified 'color_mode' option. The given array
+     * will overwrite the existing color settings!
      *
      * The following colors syntaxes are understood by this method:
      * - "#ffff00" hexadecimal format (HTML style), with and without #.
@@ -339,12 +375,15 @@ class Image_Text {
     function setColors($colors)
     {
         $i = 0;
-        if (is_array($colors) && !isset($colors['r'])) {
+        if (is_array($colors)) {
             foreach ($colors as $color) {
-                $this->setColor($color,$i++);
+                $res = $this->setColor($color,$i++);
+                if (PEAR::isError($res)) {
+                    return $res;
+                }                
             }
         } else {
-            $this->setColor($colors);
+            return $this->setColor($colors, $i);
         }
         return true;
     }
@@ -359,7 +398,6 @@ class Image_Text {
      * - "#ffff00" hexadecimal format (HTML style), with and without #.
      * - "#08ffff00" hexadecimal format (HTML style) with alpha channel (08), with and without #.
      * - array with 'r','g','b' and (optionally) 'a' keys, using int values.
-     * - a GD color special color (tiled,...).
      *
      * @param   mixed    $color        Color value.
      * @param   mixed    $id           ID (in the color array) to set color to.
@@ -371,33 +409,33 @@ class Image_Text {
     function setColor($color, $id=0)
     {
         if(is_array($color)) {
-            if (isset($color['r']) &&
-                isset($color['g']) &&
-                isset($color['b'])
-            ) {
-                if (!isset($color['a'])) {
-                    $color['a'] = 0;
-                }
+            if (isset($color['r']) && isset($color['g']) && isset($color['b'])) {
+                $color['a'] = isset($color['a']) ? $color['a'] : 0;
                 $this->options['colors'][$id] = $color;
+            } else if (isset($color[0]) && isset($color[1]) && isset($color[2])) {
+                $this->options['color']['r'] = $color[0];
+                $this->options['color']['g'] = $color[1];
+                $this->options['color']['b'] = $color[2];
+                $this->options['color']['a'] = isset($color[3]) ? $color[3] : 0;
+            } else {
+                return PEAR::raiseError('Use keys 1,2,3 (optionally) 4 or r,g,b and (optionally) a.');
             }
         } elseif (is_string($color)) {
             $color = $this->_convertString2RGB($color);
             if ($color) {
-                $this->options['colors'][$id] = $color;
+                $this->options['color'][$id] = $color;
             } else {
-                return PEAR::raiseError('Invalid color');
+                return PEAR::raiseError('Invalid color.');
             }
-        } else {
-            $this->options['colors'][$id] = $color;
         }
-        $color = $this->options['colors'][$id];
-
-        if ($this->options['antialias']) {
-            $this->colors[$id] = imagecolorallocatealpha($this->_img,
-                               $color['r'],$color['g'],$color['b'],$color['a']);
-        } else {
-            $this->colors[$id] = -imagecolorallocatealpha($this->_img,
-                               $color['r'],$color['g'],$color['b'],$color['a']);
+        if ($this->_img) {
+            if ($this->options['antialias']) {
+                $this->colors[$id] = imagecolorallocatealpha($this->_img,
+                                   $color['r'],$color['g'],$color['b'],$color['a']);
+            } else {
+                $this->colors[$id] = -imagecolorallocatealpha($this->_img,
+                                   $color['r'],$color['g'],$color['b'],$color['a']);
+            }
         }
         return true;
     }
@@ -473,9 +511,9 @@ class Image_Text {
         $this->options['angle'] = $angle;
         
         // Set the color values
-        $this->setColors($this->options['color']);
-        if (PEAR::isError($this->options['color'])) {
-            return $this->options['color'];
+        $res = $this->setColors($this->options['color']);
+        if (PEAR::isError($res)) {
+            return $res;
         }
 
         $this->_lines = null;
@@ -738,6 +776,7 @@ class Image_Text {
             if (!$this->_img) {
                 return PEAR::raiseError('Could not create image cabvas.');
             }
+            $this->_mode = '';
             $this->setColors($this->_options['color']);
         }
 
@@ -759,9 +798,6 @@ class Image_Text {
         $im = $this->_img;
 
         $offset = $this->_getOffset();
-        if ($force) {
-            // var_dump($offset);
-        }
 
         $start_x = $offset['x'];
         $start_y = $offset['y'];
@@ -805,28 +841,24 @@ class Image_Text {
             }
 
             // Calc the position of the 1st letter. We can then get the left and bottom margins
-            // 'i' is really not the same than 'j' or 'g'
+            // 'i' is really not the same than 'j' or 'g'.
             $bottom_margin  = $lines[$i]['bottom_margin'];
             $left_margin    = $lines[$i]['left_margin'];
             $line_width     = $lines[$i]['width'];
 
             // Calc the position using the block width, the current line width and obviously
-            // the angle. That gives us the offset to slide the line
+            // the angle. That gives us the offset to slide the line.
             switch($align) {
                 case IMAGE_TEXT_ALIGN_LEFT:
-                    //$hyp = -1;
                     $hyp = 0;
                     break;
                 case IMAGE_TEXT_ALIGN_RIGHT:
-                    //$hyp = $block_width - $line_width - $left_margin -2;
                     $hyp = $block_width - $line_width - $left_margin;
                     break;
                 case IMAGE_TEXT_ALIGN_CENTER:
-                    //$hyp = ($block_width-$line_width)/2 - $left_margin -2;
                     $hyp = ($block_width-$line_width)/2 - $left_margin;
                     break;
                 default:
-                    //$hyp = -1;
                     $hyp = 0;
                     break;
             }
