@@ -6,8 +6,8 @@
     define("IMAGE_TEXT_ALIGN_RIGHT", "right", true);
     define("IMAGE_TEXT_ALIGN_CENTER", "center", true);
 
-    require_once 'Image/Image_Tools.php';
-    require_once 'Image/Image_Text/Image_Text_Line.php';
+    require_once 'Image/Tools.php';
+    require_once 'Image/Text/Line.php';
 
     /**
     * Image_Text
@@ -131,15 +131,18 @@
                 imagefilledrectangle($img, $x, $y, $x + $this->options['width'], $y + $this->options['height'], $bgCol);
             }
             if ($this->options['borderColor']) {
-                Image_Tools::addBorder ( $img,
-                                         $x + $this->options['borderWidth'],
-                                         $y + $this->options['borderWidth'],
-                                         $this->options['width'] + $border,
-                                         $this->options['height'] + $border - $this->options['borderWidth'],
-                                         $this->options['borderColor'],
-                                         $this->options['bgcolor'],
-                                         $this->options['borderWidth'],
-                                         $this->options['borderRoundWidth'] );
+            	$options = array (
+                	'x'				=> $x + $this->options['borderWidth'],
+                	'y'				=> $y + $this->options['borderWidth'],
+                	'width'			=> $this->options['width'] + $border,
+                	'height' 		=> $this->options['height'] + $border - $this->options['borderWidth'],
+                	'fgColor'		=> $this->options['borderColor'],
+                	'bgColor'		=> $this->options['bgcolor'],
+                	'lineWidth'		=> $this->options['borderWidth'],
+                	'roundWidth' 	=>$this->options['borderRoundWidth']);
+                $border = Image_Tools::factory('border', $options);
+                $border->setImage($img);
+                $border->draw();
             }
             $actX = $x + $this->options['borderSpacing'] + $this->options['borderWidth'];
             $actY = $y + $this->options['borderSpacing'] + $this->options['borderWidth'];
