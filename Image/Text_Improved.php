@@ -49,8 +49,8 @@ class Image_Text {
             'y'                 => 0,
                 // maybe youi better like center coordinates
                 // instead of usual top left corner
-            // 'xc'         => 400,
-            // 'yc'         => 250,
+            'cx'         => false,
+            'cy'         => false,
             
             // surface
                 // canvas = image resource or array with 'width' and 'height' as keys
@@ -291,7 +291,50 @@ class Image_Text {
         }
         return false;
     }
-
+    
+    function getOffset ( ) {
+        $width = $this->options['width'];
+        $height = $this->options['height'];
+        $angle = $this->options['angle'];
+        $x = $this->options['x'];
+        $y = $this->options['y'];
+        if (!empty($this->options['cx']) && !empty($this->options['cy'])) {
+            $cx = $this->options['cx'];
+            $cy = $this->options['cy'];
+            $x = $cx - ($width / 2);
+            $y = $cy - ($height / 2);
+            if ($angle) {
+                $ang = deg2rad($angle);
+                // vektor from the top left cornern ponting to the middle point
+                $vA = array( ($cx - $x), ($cy - $y) );
+                // var_dump($vA);
+                // matrix to rotate vektor
+                $mRot = array( 
+                    round(cos($ang), 14),   round((sin($ang) * -1), 10),
+                    round(sin($ang), 14),   round(cos($ang), 10)
+                );
+                // var_dump($mRot);
+                // multiply vektor with matrix to get the rotated vector
+                // this results in the location of the center point after rotation
+                $vB = array ( 
+                    ($mRot[0] * $vA[0] + $mRot[2] * $vA[0]),
+                    ($mRot[1] * $vA[1] + $mRot[3] * $vA[1])
+                );
+                // var_dump($vB);
+                // to get the movement vector, we subtract the original middle 
+                $vC = array (
+                    ($vA[0] - $vB[0]),
+                    ($vA[1] - $vB[1])
+                );
+                // var_dump($vC);
+                // finally we move the top left corner coords there
+                $x += $vC[0];
+                $y += $vC[1];
+            }
+        }
+        return array ('x' => $x, 'y' => $y);
+    }
+    
     /**
      * Initialiaze the datas
      *
@@ -538,7 +581,7 @@ class Image_Text {
         $max_lines = $this->options['max_lines'];
         
         $angle = $this->options['angle'];
-        $radians = deg2rad($angle);
+        $radians = round(deg2rad($angle), 3);
         
         $font = $this->_font;
         $size = (int)$this->options['font_size'];
@@ -549,19 +592,21 @@ class Image_Text {
         
         $im = $this->_img;
         
-        $cosX = abs(cos(deg2rad($this->options['angle'])));
-        $sinX = abs(sin(deg2rad($this->options['angle'])));
+        $cosX = cos(deg2rad($this->options['angle']));
+        $sinX = sin(deg2rad($this->options['angle']));
 
-        // $new_posx = $this->options['x'];
-        $new_posx = $this->options['x'] + ($this->options['width'] * $cosX);
-        // $new_posy = $this->options['y'] + $lines[0]['height'];
-        $new_posy = $this->options['y'] + ($this->options['height'] * $sinX);
-
-        $start_x = $this->options['x'];
-        $start_y = $this->options['y'] + $lines[0]['height'];
+        $offset = $this->getOffset();
+        
+        // var_dump($offset);
+        
+        $start_x = $offset['x'];
+        $start_y = $offset['y'];
         $end_x = $start_x + $block_width;
         $end_y = $start_y + $block_height;
-
+        
+        $new_posx = $start_x;
+        $new_posy = $start_y;
+        
         $lines_cnt = min($max_lines,sizeof($lines));
 
         $sinR = sin($radians);
@@ -572,11 +617,11 @@ class Image_Text {
              * Calc the new start X and Y (only for line>0)
              * the distance between the line above is used
              */
-            if($i>0){
+            // if($i>0){
                 $space = $line_spacing * $size*2;
                 $new_posx += $sinR * $space;
                 $new_posy += $cosR * $space;
-            }
+            // }
 
             /*
              * Calc the position of the 1st letter. We can then get the left and bottom margins
