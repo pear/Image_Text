@@ -1,3 +1,4 @@
+#!/usr/bin/php
 <?php
 
     $make = 1;
@@ -13,7 +14,7 @@
 	$category = 'Image';
 	$package = 'Image_Text';
 	
-	$version = '0.5.1';
+	$version = '0.5.1beta';
 	$state = 'beta';
 	
 	$summary = 'Image_Text - Advanced text maipulations in images.';
@@ -28,10 +29,17 @@ EOT;
 
 	$notes = <<<EOT
  * Fixed bug #1207 supporting old versions - fix included.
+ * Updated default color array regarding to bug #1203: mega bug summary / with some wishes.
+ * Added more docs for "font_path" and "font_file" regarding bug #1203: mega bug summary / with some wishes.
+ * Moved options docs to options array.
+ * Added simple example to the top.
+ * Fixed save() method accoriding to bug #1203: mega bug summary / with some wishes.
+ * Added construct() method according to bug #1203 [Opn->Asn]: mega bug summary / with some wishes.
 EOT;
 	
 	$e = $pkg->setOptions(
-		array('baseinstalldir'    => '',
+		array('simpleoutput'      => true,
+		      'baseinstalldir'    => '',
 		      'summary'           => $summary,
 		      'description'       => $description,
 		      'version'           => $version,
