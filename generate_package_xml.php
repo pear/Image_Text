@@ -17,12 +17,20 @@
 		                    Create text boxes inside your images, rotate them and let the class align your text
 		                    inside it in horizontal and vertical directions. Image_Text can although determine
 		                    the best font-size for a given text box.',
-		      'version' => '0.3pl1',
+		      'version' => '0.4',
 	          'packagedirectory' => $packagedir,
 	          'pathtopackagefile' => $packagedir,
               'state' => 'alpha',
               'filelistgenerator' => 'cvs',
-              'notes' => "This is a bugfixing release, replacing the broken example file.",
+              'notes' => "Image_Text experienced extensive debugging and fixing, as well as small adjustments. The standard value
+                          for line_spacing changed to 0.5 but this does not matter for the standard output, since the calculation
+                          has changed.
+              
+                          The behavior of setColor() and setColors() has changed a bit to allow a new color format which defines
+                          RGB values through an array keyed with 0, 1 and 2 plus optionally 3 as the alpha value.
+              
+                          This release should work quite fine, since it has been extensively debugged. But since I plan to make some
+                          more improvements I can not promise a 100% stable API. The API should be fixed for about 95% now.",
 			  'package' => 'Image_Text',
 			  'dir_roles' => array(
 			  		'example' => 'doc'),
