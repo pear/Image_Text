@@ -285,7 +285,8 @@ class Image_Text {
      * @see Image_Text::Image_Text(), Image_Text::$options
      */
     
-    function set ( $option, $value = null ) {
+    function set($option, $value=null)
+    {
         $reInits = array_flip($this->_reInits);
         if (!is_array($option)) {
             if (!isset($value)) {
@@ -388,11 +389,11 @@ class Image_Text {
         $color = $this->options['colors'][$id];
 
         if ($this->options['antialias']) {
-            $this->colors[] = imagecolorallocatealpha($this->_img,
-                            $color['r'],$color['g'],$color['b'],$color['a']);
+            $this->colors[$id] = imagecolorallocatealpha($this->_img,
+                               $color['r'],$color['g'],$color['b'],$color['a']);
         } else {
-            $this->colors[] = -imagecolorallocatealpha($this->_img,
-                            $color['r'],$color['g'],$color['b'],$color['a']);
+            $this->colors[$id] = -imagecolorallocatealpha($this->_img,
+                               $color['r'],$color['g'],$color['b'],$color['a']);
         }
         return true;
     }
@@ -413,6 +414,8 @@ class Image_Text {
     function init()
     {
         // Does the fontfile exist and is readable?
+        // @todo: on some/all?!? systems it's also possible to just access e.g. "arial" and the fontfile will be
+        //        found automatically ... however this does not work if here we check for the existance of the fontfile
         if (!is_file($this->options['font_path'].$this->options['font_file']) || !is_readable($this->options['font_path'].$this->options['font_file'])) {
             return PEAR::raiseError('Fontfile not found or not readable.');
         } else {
@@ -458,15 +461,15 @@ class Image_Text {
         while($angle < 0) {
             $angle += 360;
         }
-        if($angle > 359){
+        if($angle > 359) {
             $angle = $angle % 360;
         }
         $this->options['angle'] = $angle;
         
         // Set the color values
-        $this->setColors($this->options['color']);
-        if (PEAR::isError($this->options['color'])) {
-            return $this->options['color'];
+        $this->setColors($this->options['colors']);
+        if (PEAR::isError($this->options['colors'])) {
+            return $this->options['colors'];
         }
 
         $this->_lines = null;
@@ -495,7 +498,8 @@ class Image_Text {
      * @todo A better search algorithm should be used here. Performance tests to find the best.
      */
    
-    function autoMeasurize ( $start = false, $end = false) {
+    function autoMeasurize($start=false, $end=false)
+    {
         if (!$this->_init) {
             return PEAR::raiseError('Not initialized. Call ->init() first!');
         }
@@ -538,7 +542,8 @@ class Image_Text {
      * @see Image_Text::autoMeasurize()
      */
     
-    function measurize ( $force = false ) {
+    function measurize($force=false)
+    {
         if (!$this->_init) {
             return PEAR::raiseError('Not initialized. Call ->init() first!');
         }
@@ -841,7 +846,7 @@ class Image_Text {
      * @see Image_Text::save()
      */
 
-    function display($save = false, $free = false)
+    function display($save=false, $free=false)
     {
         if (!headers_sent()) {
             header("Content-type: " .image_type_to_mime_type($this->options['image_type']));
@@ -893,7 +898,8 @@ class Image_Text {
      * @see Image_Text::display()
      */
     
-    function save ( $destFile = false ) {
+    function save($destFile=false)
+    {
         if (!$dest_file) {
             $dest_file = $this->options['dest_file'];
         }
@@ -917,7 +923,8 @@ class Image_Text {
      * @return array    Array of x/y coordinates.
      */
 
-    function _getOffset ( ) {
+    function _getOffset()
+    {
         // Presaving data
         $width = $this->options['width'];
         $height = $this->options['height'];
