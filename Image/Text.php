@@ -626,10 +626,11 @@ class Image_Text {
             // Usual lining up
 
             if ($beginning_of_line) {
+                $text_line = '';
                 $text_line_next = $token;
                 $beginning_of_line = false;
             } else {
-                $text_line_next .= ' '.$token;
+                $text_line_next = $text_line.' '.$token;
             }
             $bounds = imagettfbbox($size, 0, $font, $text_line_next);
             $prev_width = isset($prev_width)?$width:0;
@@ -661,7 +662,9 @@ class Image_Text {
                     return false;
                 }
 
-                $text_line_next = $token;
+                $text_line      = $token;
+                $bounds = imagettfbbox($size, 0, $font, $text_line);
+                $width = $bounds[2]-$bounds[0];
                 $beginning_of_line = false;
             } else {
                 $text_line = $text_line_next;
