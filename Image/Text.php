@@ -1,578 +1,995 @@
 <?php
 
-    define("IMAGE_TEXT_REGEX_HTMLCOLOR", "/^.*([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})$/", true);
+/**
+ * Image_Text - Advanced text maipulations
+ * 
+ * Image_Text provides advanced text manipulation facilities for GD2
+ * image generation with PHP. Simply add text clippings to your images,
+ * let the class automatically determine lines, rotate text boxes around
+ * their center or top left corner. These are only a couple of features
+ * Image_Text provides. 
+ * @package Image_Text
+ * @license The PHP License, version 3.0
+ * @author Tobias Schlitt <toby@php.net>
+ * @category images
+ */
 
-    define("IMAGE_TEXT_ALIGN_LEFT", "left", true);
-    define("IMAGE_TEXT_ALIGN_RIGHT", "right", true);
-    define("IMAGE_TEXT_ALIGN_CENTER", "center", true);
 
-    require_once 'Image/Tools.php';
-    require_once 'Image/Text/Line.php';
+require_once 'PEAR.php';
+
+// Regex to match HTML style hex triples    
+define("IMAGE_TEXT_REGEX_HTMLCOLOR", "/^[#|]([a-f0-9]{2})?([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i", true);
+
+// Alignment settings for vertical alignement
+
+define("IMAGE_TEXT_ALIGN_LEFT", "left", true);
+define("IMAGE_TEXT_ALIGN_RIGHT", "right", true);
+define("IMAGE_TEXT_ALIGN_CENTER", "center", true);
+
+// Alignment settings for horizontal alignement
+define("IMAGE_TEXT_ALIGN_TOP", "top", true);
+define("IMAGE_TEXT_ALIGN_MIDDLE", "middle", true);
+define("IMAGE_TEXT_ALIGN_BOTTOM", "bottom", true);
+
+// Not implemented yet
+/**
+ * @todo This constant is useless until now, since justified alignment does not work yet
+ */
+define("IMAGE_TEXT_ALIGN_JUSTIFY", "justify", true);
+
+
+/**
+ * Image_Text - Advanced text maipulations
+ * 
+ * Image_Text provides advanced text manipulation facilities for GD2
+ * image generation with PHP. Simply add text clippings to your images,
+ * let the class automatically determine lines, rotate text boxes around
+ * their center or top left corner. These are only a couple of features
+ * Image_Text provides. 
+ */
+
+class Image_Text {
 
     /**
-    * Image_Text
-    * A generic class for text operations on images
-    * 
-    * @access public
-    * @package Image_Text
-    * @author Tobias Schlitt <tobias@schlitt.info>
-    * @categorie Image
-    * @license http://www.php.net/license/3_0.txt The PHP License, version 3.0
-    */
+     * Options array. these options can be set through the constructor or the set() method.
+     *
+     * Possible options to set are:
+     * <pre>
+     *
+     *      'x'                 | This sets the top left coordinates (using x/y) or the center point
+     *      'y'                 | coordinates (using cx/cy) for your text box. The values from
+     *      'cx'                | cx/cy will overwrite x/y.
+     *      'cy'                |
+     *
+     *      'canvas'            | You can set different values as a canvas:
+     *                          |   - A gd image resource
+     *                          |   - An array with 'width' and 'height'
+     *                          |   - Nothing (the canvas will be measured after the real text size)
+     *
+     *      'antialias'         | This is usually true. Set it to false to switch antialiasing off.
+     *
+     *      'width'             | The width and height for your text box-
+     *      'height'            |
+     *
+     *      'halign'            | Alignment of your text inside the textbox. Use alignmnet constants to define    
+     *      'valign'            | vertical and horizontal alignment.
+     *
+     *      'angle'             | The angle to rotate your text box.
+     *
+     *      'color'             | An array of color values. Colors will be rotated in the mode you choose (linewise 
+     *                          | or paragraphwise). Can be in the following formats:
+     *                          |   - String representing HTML style hex couples (+ unusual alpha couple in the first place, optional)
+     *                          |   - Array of int values using 'r', 'g', 'b' and optionally 'a' as keys
+     *
+     *      'color_mode'        | The color rotation mode for your color sets. Does only apply if you
+     *                          | defined multiple colors. Use 'line' or 'paragraph'.
+     *
+     *      'font_path'         | Location of the font to use.
+     *      'font_file'         |
+     *
+     *      'font_size'         | The font size to render text in (will be overwriten, if you use automeasurize).
+     *
+     *      'line_spacing'      | Measure for the line spacing to use. Default is 1.
+     *
+     *      'min_font_size'     | Automeasurize settings. Try to keep this area as small as possible to get better
+     *      'max_font_size'     | performance.
+     *
+     *      'image_type'        | The type of image (use image type constants). Is default set to PNG.
+     *
+     *      'dest_file'         | The destination to (optionally) save your file.
+     * </pre>
+     *
+     * @access public
+     * @var array
+     * @see Image_Text::Image_Text(), Image_Text::set()
+     */
+     
+    var $options = array(
+            // orientation
+            'x'                 => 0,
+            'y'                 => 0,
+            
+            // surface
+            'canvas'            => null,
+            'antialias'         => true,
+            
+            // text clipping
+            'width'             => 0,
+            'height'            => 0,
 
+            // text alignement inside the clipping
+            'halign'             => IMAGE_TEXT_ALIGN_LEFT,
+            'valign'             => IMAGE_TEXT_ALIGN_TOP,
+            
+            // angle to rotate the text clipping
+            'angle'             => 0,
+            
+            // color settings
+            'color'             => array(
+                                    'r' => 0, 'g' => 0, 'b' => 0, 'a'=>0
+                                   ),
 
-    class Image_Text {
+            'color_mode'        => 'line',
+            
+            // font settings
+            'font_path'         => "./",
+            'font_file'         => null,
+            'font_size'         => 2,
+            'line_spacing'      => 1,
 
-        /**
-        * The lines of the text
-        *
-        * @access public
-        * @var array object Image_Text_Lines
-        */
-
-        var $lines = array();
-
-        // Main settings
-
-        /**
-        * Options array, these options can be set through the constructor, fontFile and fontPath, width and height are obligatory
-        *
-        * @access public
-        * @var array
-        */
-
-        var $options = array(
-            'fontPath'          => "./",            // OBLIGATORY: Path to your fonts
-            'fontFile'          => "",              // OBLIGATORY: Font file to use
-            'width'             => 0,               // OBLIGATORY: Width of the text box
-            'height'            => 0,               // OBLIGATORY: Height of the text box
-            'fontSize'          => 1,               // OPTIONAL: Fontsize to use for rendering
-            'color'             => array('r' => 255, 'g' => 255, 'b' => 255), // OPTIONAL: Colorcode @see Image_Text::colorize()
-            'bgcolor'           => false,           // OPTIONAL: Colorcode for background color of the box @see Image_Text::colorize() (needed for addBorder)
-            'minFontSize'       => 1,               // OPTIONAL: Measurizing, min fontSize @see Image_Text::measurize()
-            'maxFontSize'       => 100,             // OPTIONAL: Measurizing, max fontSize @see Image_Text::measurize()
-            'maxLines'          => 100,             // OPTIONAL: Measurizing, max number of lines
-            'align'             => IMAGE_TEXT_ALIGN_LEFT,       // OPTIONAL: Standard alignement (has to be of ALIGNMENT constants)
-            'borderWidth'       => 0,               // OPTIONAL: Set the border width
-            'borderColor'       => false,           // OPTIONAL: Set the border color
-            'borderRoundWidth'  => 0,               // OPTIONAL: Round the border edges
-            'borderSpacing'     => 0,               // OPTIONAL: Space between text box and sourinding (use negative values for inner border)
-            'shadowX'           => false,           // OPTIONAL: X adjustment for a shadow
-            'shadowY'           => false,           // OPTIONAL: Y adjustment for a shadow
-            'shadowColor'       => false,           // OPTIONAL: Color for a shadow @see Image_Text::colorize()
-            'imageType'         => 'png',           // Type of image to generate
-            'antiAliasing'      => true);           // Switch antialiasing
-
-        /**
-        * The image generated
-        *
-        * @var resource image
-        */
-
-        var $img;
-
-        /**
-        * Stores the current line key (in lack of array_funtions returning references
-        *
-        * @var int
-        */
-
-        var $_current = 0;
-
-        /**
-        * Constructor
-        * Constructor
-        *
-        * @access public
-        * @param string $text The text to render as string, array of strings or array of ImageTextLine objects
-        * @param array $options Array of options (see public attributes). fontPath, fontFile, width and height are neccessary
-        */
-
-        function Image_Text ( $text, $options ) {
-            foreach ($options as $key => $value) {
-                if (isset($this->options[$key])) {
-                    $this->options[$key] = $value;
-                }
-            }
-            if (is_array($text)) {
-                foreach ($text as $key => $item) {
-                    if (is_object($item) && is_a($item, "Image_Text_Line")) {
-                        $this->lines[] = $item;
-                    } else {
-                        $this->lines[] = new Image_Text_Line($item, $this->options);
-                    }
-                }
-            } else {
-                $this->lines[] = new Image_Text_Line($text, $this->options);
-            }
-        }
-
-        /**
-        * Render the text to an image
-        * Render the text to an image
-        *
-        * @access public
-        * @param int $x The x position of the text box
-        * @param int $y The y position of the text box
-        * @param resource image $img The image to render to (optional, give false to create new)
-        */
-
-        function renderImage ( $x = 0, $y = 0, &$img ) {
-            $size = $this->getSize();
-            $border = (2 * $this->options['borderSpacing']);
-            if (!$img) {
-                if (!$this->image) {
-                    $this->img =& $this->_newImage( $x, $y );
-                }
-                $img =& $this->img;
-            }
-            if ($this->options['bgcolor']) {
-                $bgCol = imagecolorallocate($img, $this->options['bgcolor']['r'], $this->options['bgcolor']['g'], $this->options['bgcolor']['b']);
-                imagefilledrectangle($img, $x, $y, $x + $this->options['width'], $y + $this->options['height'], $bgCol);
-            }
-            if ($this->options['borderColor']) {
-            	$options = array (
-                	'x'				=> $x + $this->options['borderWidth'],
-                	'y'				=> $y + $this->options['borderWidth'],
-                	'width'			=> $this->options['width'] + $border,
-                	'height' 		=> $this->options['height'] + $border - $this->options['borderWidth'],
-                	'fgColor'		=> $this->options['borderColor'],
-                	'bgColor'		=> $this->options['bgcolor'],
-                	'lineWidth'		=> $this->options['borderWidth'],
-                	'roundWidth' 	=>$this->options['borderRoundWidth']);
-                $border = Image_Tools::factory('border', $options);
-                $border->setImage($img);
-                $border->draw();
-            }
-            $actX = $x + $this->options['borderSpacing'] + $this->options['borderWidth'];
-            $actY = $y + $this->options['borderSpacing'] + $this->options['borderWidth'];
-            foreach ($this->lines as $key => $line) {
-                $size = $this->lines[$key]->getSize($this->options['fontPath'].$this->options['fontFile']);
-                $actY += $size['height'] + round($this->_getLineSpace() / 2);
-                $this->lines[$key]->toImage($img, $actX, $actY, $this->options['fontPath'].$this->options['fontFile']);
-                $actY += round($this->_getLineSpace() / 2);
-            }
-        }
-
-        /**
-        * Output image to stdout (normaly browser)
-        * Output image to stdout (normaly browser)
-        *
-        * @param string $imageType a valig image-type (optional)
-        * @return bool True on success, otherwise failure
-        */
-
-        function outImage ( $imageType = null ) {
-            if (!isset($imageType)) {
-                $imageType = $this->options['imageType'];
-            }
-            $this->_prepareImage($imageType);
-            header("Content-type: image/".strtolower($imageType));
-            $function = "image".$imageType;
-            return $function($this->img);
-        }
-
-        /**
-        * Return the image resource (reference)
-        * Return the image resource (reference)
-        *
-        * @return mixed Resource image on success, otherwise false
-        */
-
-        function &getImage ( ) {
-            if (!$this->_prepareImage()) {
-                return false;
-            }
-            return $this->img;
-        }
-
-        /**
-        * Get the size of the text box
-        * Get the size of the text box
-        *
-        * @access public
-        * @param array $lines The lines in the text box (optional, takes the owned lines)
-        * @param int $fontsize The font size to check with (optional, takes the own)
-        * @return array The size of the box
-        */
-
-        function getSize ( $lines = null, $fontsize = null ) {
-            if (!isset($lines)) {
-                $lines = $this->lines;
-            }
-            if (!isset($fontsize)) {
-                $fontsize = $this->options['fontSize'];
-            }
-            $size['width'] = 0; $size['height'] = 0;
-            foreach ($lines as $key => $line) {
-                $lineSize = $lines[$key]->getSize($this->options['fontPath'].$this->options['fontFile'], $fontsize);
-                $size['width'] += $lineSize['width'];
-                $size['height'] += $lineSize['height'];
-            }
-            return $size;
-        }
-
-        /**
-        * Measure the text in the box
-        * This function trys to find out the best measures for a given text. It determines the
-        * optimal font size and the lines and their content in the box.
-        *
-        * @access public
-        * @return bool True on success, otherwise false
-        */
-
-        function measurize ( ) {
-            $tokens = $this->getAllTokens();
-            $lines = false;
-            for ($i = $this->options['maxFontSize']; $i > 1; $i--) {
-                $tmpTokens = $tokens;
-                $lines = false;
-
-                $lines = $this->_testMeasure( $lines, $tmpTokens, $this->options['fontPath'].$this->options['fontFile'], $i);
-
-                if ($lines) {
-                    break;
-                }
-            }
-            if ($lines) {
-                $this->options['fontSize'] = $i;
-                $this->lines = $lines;
-                return true;
-            }
-            return false;
-        }
-
-        /**
-        * Align all lines in the textbox
-        * Align all lines in the textbox
-        *
-        * @access public
-        * @param const $align The align to set (optional, takes the own)
-        */
-
-        function align ( $align = null ) {
-            if (!isset($align)) {
-                $align = $this->options['align'];
-            }
-            foreach ($this->lines as $key => $line) {
-                $this->lines[$key]->align($align, $this->options['width'], $this->options['fontPath'].$this->options['fontFile']);
-            }
-        }
-
-        /**
-        * Colorize the text box
-        * Colorize the lines in the text box. This method can take 2 color formats. It
-        * either gets an array with keys "r", "g" and "b" asigned to a decimal number or
-        * a HTML style hex code triple representing the color. It is althought possible to
-        * give this method an array of the mentioned color types to alternate the color of the lines.
-        * If there are more lines than colors, the colors are cycled.
-        *
-        * @access public
-        * @param mixed $color The color(s) to set
-        */
-
-        function colorize ( $color = null, $bgcolor = null ) {
-            if (!isset($color)) {
-                $color = $this->options['color'];
-            }
-            if (!is_array($color) || isset($color['r'])) {
-                $color = array($color);
-            }
-            if (isset($bgcolor)) {
-                $this->options['bgcolor'] = $this->_translateColor($bgcolor);
-            }
-            $i = 0;
-            foreach ($this->lines as $key => $array) {
-                $color[$i] = $this->_translateColor($color[$i]);
-                $this->lines[$key]->colorize($color[$i++]);
-                if ($i >= count($color)) {
-                    $i = 0;
-                }
-            }
-            $this->options['color'] =& $color;
-        }
-
-        /**
-        * Add a border to your text box
-        * This method adds a border with the given settings to your text box.
-        * The border is outlined for standard, if you want to have the border inlined,
-        * use a negative spacing value. Beware, that if you place a border inside an
-        * image, eveything under the textbox will be overwriten. If you use rounding,
-        * the border background has to have the same color as your image background.
-        *
-        * @access public
-        * @param int $lineWidth Width of the line for the border
-        * @param mixed color $fgColor Color of the border @see Imaget_Text::colorize() for color types
-        * @param mixed color $bgColor Background color of your @see Imaget_Text::colorize() for color types
-        * @param int $spacing Space between text and border
-        * @param int $roundWidth If you like rounded edges, set this to a positive value
-        */
+            // automasurizing settings
+            'min_font_size'     => 1,
+            'max_font_size'     => 100,
+            
+            // misc settings
+            'image_type'        => IMAGETYPE_PNG,
+            'dest_file'         => ''
+        );
+    
+    /**
+     * The text you want to render.
+     *
+     * @access private
+     * @var string
+     */
         
-        function addBorder ( $lineWidth, $fgColor, $bgColor, $spacing = 0, $roundWidth = 0 ) {
+    var $_text;
+        
+    /**
+     * Resource ID of the image canvas
+     *
+     * @access private
+     * @var ressource
+     */
+     
+    var $_img;
 
-            $this->options['borderWidth'] = $lineWidth;
-            $this->options['borderColor'] = $this->_translateColor($fgColor);
-            $this->options['bgcolor'] = $this->_translateColor($bgColor);
-            $this->options['borderSpacing'] = $spacing;
-            $this->options['borderRoundWidth'] = $roundWidth;
+    /**
+     * Tokens (each word)
+     *
+     * @access private
+     * @var array
+     */
+     
+    var $_tokens = array();
 
-        }
+    /**
+     * Fullpath to the font
+     *
+     * @access private
+     * @var string
+     */
+     
+    var $_font;
 
-        function addShadow ( $xAdjust, $yAdjust, $color = false ) {
-            foreach ($this->lines as $key => $line) {
-                $this->lines[$key]->addShadow($xAdjust, $yAdjust, $this->_translateColor($color));
+    /**
+     * Contains the bbox of each rendered lines
+     *
+     * @access private
+     * @var array
+     */
+     
+    var $bbox = array();
+
+    /**
+     * Defines in which mode the canvas has be set
+     *
+     * @access private
+     * @var array
+     */
+     
+    var $_mode = '';    
+
+    /**
+     * Color indeces returned by imagecolorallocatealpha
+     *
+     * @access private
+     * @var array
+     */
+     
+    var $_colors = array();
+    
+    /**
+     * Width and height of the (rendered) text
+     *
+     * @access private
+     * @var array
+     */
+    
+    var $_realTextSize = array('width' => false, 'height' => false);
+
+    /**
+     * Measurized lines
+     *
+     * @access private
+     * @var array
+     */
+    
+    var $_lines = false;
+    
+    /**
+     * Fontsize for which the last measuring process was done
+     *
+     * @access private
+     * @var array
+     */
+    
+    var $_measurizedSize = false;
+       
+    /**
+     * Is the text object initialized?
+     *
+     * @access private
+     * @var bool
+     */
+    
+    var $_init = false;
+
+    /**
+     * Constructor
+     *
+     * Set the text and options
+     *
+     * @param   string  $text       Text to print
+     * @param   array   $options    Options
+     * @access public
+     * @see Image_Text::$options, Image_Text::set()
+     */
+     
+    function Image_Text($text, $options)
+    {
+        $this->_text = $text;
+        $this->options = array_merge($this->options, $options);
+    }
+    
+    /**
+     * Set options
+     *
+     * Set a single or multiple options. It may happen that you have to reinitialize the Image_Text
+     * object after changing options.
+     *
+     * @param   mixed   $option     A single option name or the options array
+     * @param   mixed   $value      Option value if $option is string
+     * @return  bool                True on success, otherwise PEAR::Error
+     * @access public
+     * @see Image_Text::Image_Text(), Image_Text::$options
+     */
+    
+    function set ( $option, $value = null ) {
+        $reInits = array_flip($this->_reInits);
+        if (!is_array($option)) {
+            if (!isset($value)) {
+                return PEAR::raiseError('No value given.');
             }
+            $option = array($option => $value);
         }
-
-        /**
-        * NOT CORRECT IMPLEMENTED YET!!!
-        */
-
-        function rotate ( $angle ) {
-            foreach ($this->lines as $key => $line) {
-                $this->lines[$key]->rotate($angle);
-            }
-            $width = $this->options['width'];
-            $this->options['width'] = $this->options['height'];
-            $this->options['height'] = $width;
-        }
-
-        /**
-        * Get the current selected line (reference)
-        * Get the current selected line (reference)
-        *
-        * @return Image_Text_Line The current line as refernce
-        */
-
-
-        function &currentLine ( ) {
-            return $this->lines[$this->_current];
-        }
-
-        /**
-        * Get the next line and select it (reference)
-        * Get the next line and select it (reference)
-        *
-        * @return Image_Text_Line The next line as refernce
-        */
-
-        function &nextLine ( ) {
-            if (isset($this->_current)) {
-                return $this->currentLine();
+        foreach ($option as $opt => $val) {
+            if ($opt == 'color') {
+                $this->setColors($val);
             } else {
-                $this->_curent = 0;
+                $this->options[$opt] = $val;
             }
+            if (isset($reInits[$opt])) {
+                $this->_init = false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Set the color-set
+     *
+     * Using this method you can set one or more colors for your text.
+     * If you set multiple colors, use a simple numeric array to determine
+     * their order and give it to this function. Multiple colors will be 
+     * cycled by the options specified 'color_mode' option.
+     *
+     * The following colors syntaxes are understood by this method:
+     * - "#ffff00" hexadecimal format (HTML style), with and without #
+     * - "#08ffff00" hexadecimal format (HTML style) with alpha channel (08), with and without #
+     * - array with 'r','g','b' and (optionally) 'a' keys, using int values
+     * - a GD color special color (tiled,...)
+     *
+     * A single color or an array of colors are allowed here.
+     *
+     * @param   mixed  $colors       Single color or array of colors
+     * @return  bool                 True on success, otherwise PEAR::Error
+     * @access  public
+     * @see Image_Text::setColor(), Image_Text::$options
+     */
+    
+    function setColors($colors)
+    {
+        if (is_array($colors) && !isset($colors['r'])) {
+            $i = 0;
+            foreach ($colors as $color) {
+                $this->setColor($color,$i++);
+            }
+        } else {
+            $this->setColor($colors,$i);
+        }
+        return true;
+    }
+
+    /**
+     * Set a color
+     *
+     * This method is used to set a color at a specific color ID inside the
+     * color cycle.
+     *
+     * The following colors syntaxes are understood by this method:
+     * - "#ffff00" hexadecimal format (HTML style), with and without #
+     * - "#08ffff00" hexadecimal format (HTML style) with alpha channel (08), with and without #
+     * - array with 'r','g','b' and (optionally) 'a' keys, using int values
+     * - a GD color special color (tiled,...)
+     *
+     * @param   mixed    $color        Color value
+     * @param   mixed    $id           ID (in the color array) to set color to
+     * @return  bool                True on success, otherwise PEAR::Error
+     * @access  public
+     * @see Image_Text::setColors(), Image_Text::$options
+     */
+     
+    function setColor($color, $id=0)
+    {
+        if(is_array($color)) {
+            if (isset($color['r']) &&
+                isset($color['g']) &&
+                isset($color['b'])
+            ) {
+                if (!isset($color['a'])) {
+                    $color['a'] = 0;
+                }
+                $this->options['colors'][$id] = $color;
+            }
+        } elseif (is_string($color)) {
+            $color = $this->_convertString2RGB($color);
+            if ($color) {
+                $this->options['colors'][$id] = $color;
+            } else {
+                return PEAR::raiseError('Invalid color');
+            }
+        } else {
+            $this->options['colors'][$id] = $color;
+        }
+        $color = $this->options['colors'][$id];
+        if ($this->options['antialias']) {
+            $this->colors[] = imagecolorallocatealpha($this->_img,
+                            $color['r'],$color['g'],$color['b'],$color['a']);
+        } else {
+            $this->colors[] = -imagecolorallocatealpha($this->_img,
+                            $color['r'],$color['g'],$color['b'],$color['a']);
+        }
+        return true;
+    }
+        
+    /**
+     * Initialiaze the Image_Text object
+     *
+     * This method has to be called after setting the options for your Image_Text object.
+     * It initializes the canvas, normalizes some data and checks important options.
+     * Be shure to check the initialization after you switched some options. The
+     * {@see Image_Text::set()} method may force you to reinitialize the object.
+     *
+     * @access  public
+     * @return  bool  True on success, otherwise PEAR::Error
+     */
+     
+    function init()
+    {
+        // Does the fontfile exist and is readable?
+        if (!is_file($this->options['font_path'].$this->options['font_file']) || !is_readable($this->options['font_path'].$this->options['font_file'])) {
+            return PEAR::raiseError('Fontfile not found or not readable.');
+        } else {
+            $this->_font = $this->options['font_path'].$this->options['font_file'];
+        }
+        
+        // Is the font size to small?
+        if ($this->options['width'] < 1) {
+            return PEAR::raiseError('Font size to small. Has to be > 1.');
+        }
+    
+        // Check and create canvas
+        if(empty($this->options['canvas'])) {
+            // Create new image from width && height of the clipping
+            $this->_img = imagecreatetruecolor(
+                        $this->options['width'], $this->options['width']);
+            if (!$this->_img) {
+                return PEAR::raiseError('Could not create image canvas.');
+            }
+        } elseif ( is_resource($this->options['canvas']) &&
+            get_resource_type($this->options['canvas'])=='gd'
+        ) {
+            // The canvas is an image resource
+            $this->_img = $this->options['canvas'];
+        } elseif (is_array($this->options['canvas'])) {
+            // Canvas must be a width and height measure
+            $this->_img = imagecreatetruecolor(
+                        $this->options['canvas']['width'],
+                        $this->options['canvas']['height']
+                    );
+            if (!$this->_img) {
+                return PEAR::raiseError('Could not create image cabvas.');
+            }
+        } elseif ($this->options['canvas']=='auto') {
+            $this->_mode = 'auto';
+        }
+        
+        $this->options['canvas']['height'] = imagesx($this->_img);
+        $this->options['canvas']['width'] = imagesy($this->_img);
+        
+        // Save and repair angle
+        $angle = $this->options['angle'];
+        while($angle < 0) {
+            $angle += 360;
+        }
+        if($angle > 359){
+            $angle = $angle % 360;
+        }
+        $this->options['angle'] = $angle;
+        
+        // Set the color values
+        $this->setColors($this->options['color']);
+        if (PEAR::isError($this->options['color'])) {
+            return $this->options['color'];
+        }
+        
+        // Initialization is complete
+        $this->_init = true;
+        return true;
+    }
+    
+    /**
+     * Auto measurize text
+     *
+     * Automatically determines the greatest possible font size to
+     * fit the text into the text box. This method may be very resource
+     * intensive on your webserver. A good tweaking point are the $start
+     * and $end parameters, which specify the range of font sizes to search 
+     * through. Anyway, the results should be cached if possible.
+     *
+     * @access public
+     * @param  int      $start  Fontsize to start testing with
+     * @param  int      $end    Fontsize to end testing with
+     * @return int              Fontsize measured or PEAR::Error
+     * @see Image_Text::measurize()
+     */
+   
+    function autoMeasurize ( $start = false, $end = false) {
+        if (!$this->_init) {
+            return PEAR::raiseError('Not initialized. Call ->init() first!');
+        }
+        $this->_processText();
+        
+        $start = (empty($start)) ? $this->options['min_font_size'] : $start;
+        $end = (empty($end)) ? $this->options['max_font_size'] : $end;
+        
+        $res = false;
+        // Run through all possible font sizes until a measurize fails
+        // Not the optimal way. This can be tweaked!
+        for ($i = $start; $i <= $end; $i++) {
+            $this->options['font_size'] = $i;
+            $res = $this->measurize();
+            if ($res === false) {
+                if ($start == $i) {
+                    $this->options['font_size'] = -1;
+                    return PEAR::raiseError("No possible font size found");
+                }
+                $this->options['font_size'] -= 1;
+                $this->_measurizedSize = $this->options['font_size'];
+                break;
+            }
+            // Allways the last couple of lines is stored here.
+            $this->_lines = $res;
+        }
+        return $this->options['font_size'];
+    }
+    
+    /**
+     * Measurize text into the text box
+     *
+     * This method makes your text fit into the defined textbox by measurizing the
+     * lines for your given font-size. You can do this manually before rendering (or use
+     * even {@see Image_Text::autoMeasurize()}) or the renderer will do measurizing 
+     * automatically.
+     *
+     * @access public
+     * @param  bool  $force  Optionally, default is false, set true to force measurizing
+     * @return array         Array of measured lines or PEAR::Error
+     * @see Image_Text::autoMeasurize()
+     */
+    
+    function measurize ( $force = false ) {
+        if (!$this->_init) {
+            return PEAR::raiseError('Not initialized. Call ->init() first!');
+        }
+
+        // Precaching options
+        $font = $this->_font;
+        $size = $this->options['font_size'];
+
+        $line_spacing = $this->options['line_spacing'];
+        $space = $this->options['line_spacing'] * $this->options['font_size'] * 1.5;
+        
+        $max_lines = (int)$this->options['max_lines'];
+
+        if (($max_lines<1) && !$force) {
             return false;
         }
 
-        /**
-        * Get the first line and select it (reference)
-        * Get the first line and select it (reference)
-        *
-        * @return Image_Text_Line The first line as refernce
-        */
+        $block_width = $this->options['width'];
+        $block_height = $this->options['height'];
 
-        function &firstLine ( ) {
-            $this->_curent = 0;
-            return $this->currentLine();
-        }
-
-        /**
-        * Get number of lines in this object
-        * Get number of lines in this object
-        *
-        * @return int Number of lines
-        */
-
-        function countLines ( ) {
-            return count($this->lines);
-        }
-
-        /**
-        * Get all lines
-        * Get all lines
-        *
-        * @access public
-        * @return array string Array of Image_Text_Line objects
-        */
-
-        function &getAllLines ( ) {
-            return $this->lines;
-        }
-
-        /**
-        * Get all tokens of your text in one array
-        * Get all tokens of your text in one array
-        *
-        * @access public
-        * @return array string Array of tokens
-        */
-
-        function getAllTokens ( ) {
-            $tokens = array();
-            foreach ($this->lines as $key => $line) {
-                $tokens = array_merge($tokens, $line->getTokens());
-            }
-            return $tokens;
-        }
-
-        /**
-        * Check the options array
-        * Check the options array
-        *
-        * @param array $options The array of options
-        * @return bool True on success, otherwise failure
-        */
-
-        function _checkOptions ( $options, $initial = true ) {
-            if ($initial && (!isset($options['fontPath']) ||
-                    !isset($options['fontFile']) ||
-                    !isset($options['width']) ||
-                    !isset($options['height']))) {
-                return false;
-            }
-            if (!is_file($options['fontPath'].$options['fontFile'])) {
-                return false;
-            }
-            if (($options['width'] <= 0) || ($options['height'] <= 0)) {
-                return false;
-            }
-            return true;
-        }
-
-        /**
-        * Create a new image
-        * Create a new image
-        *
-        * @param int $x The x adjustment of the text box
-        * @param int $y The y adjustment of the text box
-        * @return resource image The new image resource
-        */
-
-        function &_newImage ( $x, $y ) {
-            $size = $this->getSize();
-            $border = (2 * $this->options['borderSpacing']) + $this->options['borderWidth'];
-            $x += $this->options['width'] + $border;
-            $y += $this->options['height'] + $border;
-            return imagecreate($x, $y);
-        }
-
-        /**
-        * Prepare the image for output
-        * Prepare the image for output
-        *
-        * @param string $imageType The type of image (see options, optional)
-        * @return bool True on succes, otherwise failure
-        */
-
-        function _prepareImage ( $imageType = null ) {
-            if (!isset($imageType)) {
-                if (!$this->_checkImageType($imageType)) {
+        $colors_cnt = sizeof($this->colors);
+        $c = $this->colors[0];
+                        
+        $text_line = '';
+        
+        $lines_cnt = 0;
+        $tokens_cnt = sizeof($this->_tokens);
+        
+        $lines = array();
+        
+        $text_height = 0;
+        $sizes = array();
+        
+        $i = 0;
+        $para_cnt = 0;
+        
+        // Run through tokens and order them in lines       
+        foreach($this->_tokens as $token) {
+            // Handle new paragraphs
+            if ($token=="\n") {
+                $bounds = imagettfbbox($size, 0, $font, $text_line);
+                if ((++$lines_cnt>=$max_lines) && !$force) {
                     return false;
                 }
-                $imageType = $this->options['imageType'];
-            }
-            $this->imageType = $imageType;
-            if (!isset($this->img)) {
-                If (!$this->renderImage(0,0)) {
+                if ($this->options['color_mode']=='paragraph') {
+                    $c = $this->colors[$para_cnt%$colors_cnt];
+                    $i++;
+                } else {
+                    $c = $this->colors[$i++%$colors_cnt];
+                }
+                $lines[]  = array(
+                                'string'        => $text_line,
+                                'width'         => $bounds[2]-$bounds[0],
+                                'height'        => $bounds[1]-$bounds[7],
+                                'bottom_margin' => $bounds[1],
+                                'left_margin'   => $bounds[0],
+                                'color'         => $c
+                            );
+                $text_height += (int)$space;
+                if (($text_height >= $block_height) && !$force) {
                     return false;
                 }
+                $para_cnt++;
+                $text_line = '';
+                continue;
             }
-            return true;
-        }
 
-        function _checkImageType ( $imageType )  {
-            switch ($imageType) {
-                case 'png':
-                case 'jpeg':
-                case 'xpm':
-                    return true;
+            // Usual lining up
+            
+            $bounds = imagettfbbox($size, 0, $font,
+                    $text_line.(!empty($text_line)?' ':'').$token);
+            $prev_width = $i>0?$width:0;
+            $width = $bounds[2]-$bounds[0];
+            
+            // Handling of automatic new lines
+            if ($width>$block_width) {
+                if ((++$lines_cnt>=$max_lines) && !$force) {
+                    return false;
+                }
+                if ($this->options['color_mode']=='line') {
+                    $c = $this->colors[$i++%$colors_cnt];
+                } else {
+                    $c = $this->colors[$para_cnt%$colors_cnt];
+                    $i++;
+                }   
+                $lines[]  = array(
+                                'string'    => $text_line,
+                                'width'     => $prev_width,
+                                'height'    => $bounds[1]-$bounds[7],
+                                'bottom_margin' => $bounds[1],
+                                'left_margin'   => $bounds[0],
+                                'color'         => $c
+                            );
+                            
+                $text_height += (int)$space;
+                if (($text_height >= $block_height) && !$force) {
+                    return false;
+                }
+
+                $text_line = $token;
+            } else {
+                $text_line .= ($text_line!=''?' ':'').$token;
+            }
+        }
+        // Store reminding line
+        $bounds = imagettfbbox($size, 0, $font,$text_line);
+        if ($this->options['color_mode']=='line') {
+            $c = $this->colors[$i++%$colors_cnt];
+        }
+        $lines[]  = array(
+                        'string'=> $text_line,
+                        'width' => $bounds[2]-$bounds[0],
+                        'height'=> $bounds[1]-$bounds[7],
+                        'bottom_margin' => $bounds[1],
+                        'left_margin'   => $bounds[0],
+                        'color'         => $c
+                    );
+        // If non empty line, add last line height
+        if ($text_line !== "") {
+            $text_height += (int)$space;
+        }
+        
+        if (($text_height >= $block_height) && !$force) {
+            return false;
+        }
+                
+        $this->_realTextSize = array('width' => $this->options['width'], 'height' => $text_height);        
+        return $lines;
+    }
+    
+    /**
+     * Render the text in the canvas using the given options.
+     *
+     * This renders the measurized text or automatically measures it first. The $force
+     * can be used to switch of measurizing problems (this may cause your text being rendered
+     * outside a given text box.
+     *
+     * @access public
+     * @param  bool     $force  Optional, initially false, set true to silence measurize errors
+     * @return bool             True on success, otherwise PEAR::Error
+     */
+     
+    function render( $force = false )
+    {
+        if (!$this->_init) {
+            return PEAR::raiseError('Not initialized. Call ->init() first!');
+        }
+        
+        if (!$this->_tokens) {
+            $this->_processText();
+        }
+        
+        if (empty($this->_lines) || ($this->_measurizedSize != $this->options['font_size'])) {
+            $this->_lines = $this->measurize( $force );
+        }
+        $lines = $this->_lines;
+        
+        if (PEAR::isError($this->_lines)) {
+            return $this->_lines;
+        }
+        
+        if ($this->_mode === 'auto') {
+            $this->_img = imagecreatetruecolor(
+                        $this->_realTextSize['width'],
+                        $this->_realTextSize['height']
+                    );
+            if (!$this->_img) {
+                return PEAR::raiseError('Could not create image cabvas.');
+            }
+            $this->setColors($this->_options['color']);
+        }
+        
+        $block_width = $this->options['width'];
+        $block_height = $this->options['height'];
+        
+        $max_lines = $this->options['max_lines'];
+        
+        $angle = $this->options['angle'];
+        $radians = round(deg2rad($angle), 3);
+        
+        $font = $this->_font;
+        $size = $this->options['font_size'];
+        
+        $line_spacing = $this->options['line_spacing'];
+        
+        $align = $this->options['halign'];
+        
+        $im = $this->_img;
+        
+        $offset = $this->_getOffset();
+        
+        $start_x = $offset['x'];
+        $start_y = $offset['y'];
+        
+        $end_x = $start_x + $block_width;
+        $end_y = $start_y + $block_height;
+        
+        $sinR = sin($radians);
+        $cosR = cos($radians);
+        
+        switch ($this->options['valign']) {
+            case IMAGE_TEXT_ALIGN_TOP:
+                $valign_space = 0;
+                break;
+            case IMAGE_TEXT_ALIGN_MIDDLE:
+                $valign_space = ($this->options['height'] - $this->_realTextSize['height']) / 2;
+                break;
+            case IMAGE_TEXT_ALIGN_BOTTOM:
+                $valign_space = $this->options['height'] - $this->_realTextSize['height'];
+                break;
+            default:
+                $valign_space = 0;
+        }
+        
+        $space = $line_spacing * $size * 1.5;
+        
+        // Adjustment of align + translation of top-left-corner to bottom-left-corner of first line
+        $new_posx = $start_x + ($sinR * ($valign_space + $lines[0]['height']));
+        $new_posy = $start_y + ($cosR * ($valign_space + $lines[0]['height']));
+                
+        $lines_cnt = min($max_lines,sizeof($lines));
+        
+        // Go thorugh lines for rendering
+        for($i=0; $i<$lines_cnt; $i++){
+            
+            // Calc the new start X and Y (only for line>0)
+            // the distance between the line above is used
+            if($i > 0){
+                $new_posx += $sinR * $space;
+                $new_posy += $cosR * $space;
+            }
+
+            // Calc the position of the 1st letter. We can then get the left and bottom margins
+            // 'i' is really not the same than 'j' or 'g'
+            $bottom_margin  = $lines[$i]['bottom_margin'];
+            $left_margin    = $lines[$i]['left_margin'];
+            $line_width     = $lines[$i]['width'];
+
+            // Calc the position using the block width, the current line width and obviously
+            // the angle. That gives us the offset to slide the line
+            switch($align) {
+                case IMAGE_TEXT_ALIGN_LEFT:
+                    $hyp = -1;
+                    break;
+                case IMAGE_TEXT_ALIGN_RIGHT:
+                    $hyp = $block_width - $line_width - $left_margin -2;
+                    break;
+                case IMAGE_TEXT_ALIGN_CENTER:
+                    $hyp = ($block_width-$line_width)/2 - $left_margin -2;
                     break;
                 default:
-                    return false;
+                    $hyp = -1;
                     break;
             }
+
+            $posx = $new_posx + $cosR * $hyp;
+            $posy = $new_posy - $sinR * $hyp;
+            
+            $c = $lines[$i]['color'];
+
+            // Render textline
+            $bboxes[] = imagettftext ($im, $size, $angle, $posx, $posy, $c, $font, $lines[$i]['string']);
         }
+        $this->bbox = $bboxes;
+    }
 
-        /**
-        * Get the linespace for rendering
-        * Get the linespace for rendering.
-        *
-        * @todo The linespace is currently determined by the half of the fontsize. This is
-        * neccessary, because lines may be differnet hight. Has to be changed when possible.
-        *
-        * @access private
-        * @return int The linespace
-        */
+    /**
+     * Return the image ressource
+     *
+     * Get the image canvas
+     *
+     * @access public
+     * @return resource Used image resource
+     */
+     
+    function &getImg()
+    {
+        return $this->_img;
+    }
 
-        function _getLineSpace ( ) {
-            return (int)round($this->options['fontSize'] / 2);
+    /**
+     * Display the image (send it to the browser)
+     *
+     * This will output the image to the users browser. It automatically determines the correct
+     * header type and stuff.
+     *
+     * @param   bool  $save  Save or not the image on printout
+     * @param   bool  $free  Free the image on exit
+     * @return  bool         True on success, otherwise PEAR::Error
+     * @access public
+     * @see Image_Text::save()
+     */
+
+    function display($save = false, $free = false)
+    {
+        if (!headers_sent()) {
+            header("Content-type: " .image_type_to_mime_type($this->options['image_type']));
+        } else {
+            PEAR::raiseError('Header already sent.');
         }
-
-        /**
-        * Translate HTML colorformat to array
-        * Translate HTML colorformat to array
-        *
-        * @access private
-        * @param string $color A single color value
-        * @returns array The translated color code
-        */
-
-        function _translateColor ( $color ) {
-
-            if (is_array($color) && isset($color['r']) && isset($color['g']) && isset($color['b'])) {
-                return $color;
+        switch ($this->options['image_type']) {
+            case IMAGETYPE_PNG:
+                $imgout = 'imagepng';
+                break;
+            case IMAGETYPE_JPEG:
+                $imgout = 'imagejpeg';
+                break;
+            case IMAGETYPE_BMP:
+                $imgout = 'imagebmp';
+                break;
+            default:
+                return PEAR::raiseError('Unsupported image type.');
+                break;
+        }
+        if ($save) {
+            $imgout($this->_img);
+            $res = $this->save();
+            if (PEAR::isError($res)) {
+                return $res;
+            }            
+        } else {
+           $imgout($this->_img);
+        }
+        
+        if ($free) {
+            $res = imagedestroy($this->image);
+            if (!$res) {
+                PEAR::raiseError('Destroying image failed.');
             }
-
-            if (!is_array($color) && preg_match(IMAGE_TEXT_REGEX_HTMLCOLOR, $color, $matches)) {
-                $color = array(
-                               'r' => hexdec($matches[1]),
-                               'g' => hexdec($matches[2]),
-                               'b' => hexdec($matches[3])
-                               );
-                return $color;
+        }
+        return true;
+    }
+    
+    /**
+     * Save image canvas
+     *
+     * Saves the image to a given destination. You can leave out the destination file path,
+     * if you have the option for that set correctly. Saving is possible with the 
+     * {@see Image_Text::display()} method, too.
+     *
+     * @param   string  $destFile   The destination to save to (optional, uses options value else)
+     * @return  bool                True on success, otherwise PEAR::Error
+     */
+    
+    function save ( $destFile = false ) {
+        if (!$dest_file) {
+            $dest_file = $this->options['dest_file'];
+        }
+        if (!$dest_file) {
+            return PEAR::raiseError("Invalid desitination file.");
+        }
+        $res = $imgout($this->_img, $this->options['dest_file']);
+        if (!$res) {
+            PEAR::raiseError('Saving file failed.');
+        }
+        return true;
+    }
+    
+    /**
+     * Get completely translated offset for text rendering
+     * Get completely translated offset for text rendering. Important
+     * for usage of center coords and angles
+     *
+     * @access private
+     * @return array    Array of x/y coordinates
+     */
+    
+    function _getOffset ( ) {
+        // Presaving data
+        $width = $this->options['width'];
+        $height = $this->options['height'];
+        $angle = $this->options['angle'];
+        $x = $this->options['x'];
+        $y = $this->options['y'];
+        // Using center coordinates
+        if (!empty($this->options['cx']) && !empty($this->options['cy'])) {
+            $cx = $this->options['cx'];
+            $cy = $this->options['cy'];
+            // Calculation top left corner
+            $x = $cx - ($width / 2);
+            $y = $cy - ($height / 2);
+            // Calculating movement to keep the center point on himslf after rotation
+            if ($angle) {
+                $ang = deg2rad($angle);
+                // Vector from the top left cornern ponting to the middle point
+                $vA = array( ($cx - $x), ($cy - $y) );
+                // Matrix to rotate vector
+                // sinus and cosinus
+                $sin = round(sin($ang), 14);
+                $cos = round(cos($ang), 14);
+                // matrix
+                $mRot = array(
+                    $cos, (-$sin),
+                    $sin, $cos
+                );
+                // Multiply vector with matrix to get the rotated vector
+                // This results in the location of the center point after rotation
+                $vB = array ( 
+                    ($mRot[0] * $vA[0] + $mRot[2] * $vA[0]),
+                    ($mRot[1] * $vA[1] + $mRot[3] * $vA[1])
+                );
+                // To get the movement vector, we subtract the original middle 
+                $vC = array (
+                    ($vA[0] - $vB[0]),
+                    ($vA[1] - $vB[1])
+                );
+                // Finally we move the top left corner coords there
+                $x += $vC[0];
+                $y += $vC[1];
             }
+        }
+        return array ('x' => $x, 'y' => $y);
+    }
+    
+    /**
+     * Convert a color to an array
+     *
+     * The following colors syntax must be used:
+     * "#08ffff00" hexadecimal format with alpha channel (08)
+     * array with 'r','g','b','a'(optionnal) keys
+     * A GD color special color (tiled,...)
+     * Only one color is allowed
+     * If $id is given, the color index $id is used
+     *
+     * @param   mixed  $colors       Array of colors
+     * @param   mixed  $id           Array of colors
+     * @access private
+     */
+    function _convertString2RGB($scolor)
+    {
+        if (preg_match(IMAGE_TEXT_REGEX_HTMLCOLOR, $scolor, $matches)) {
+            return array(
+                           'r' => hexdec($matches[2]),
+                           'g' => hexdec($matches[3]),
+                           'b' => hexdec($matches[4]),
+                           'a' => hexdec(!empty($matches[1])?$matches[1]:0),
+                           );
+        }
+        return false;
+    }
+    
+    /**
+     * Extract the tokens from the text.
+     *
+     * @access private
+     */
+    function _processText()
+    {
+        if (empty($this->_text)) {
             return false;
         }
+        // Normalize linebreak to "\n"
+        $this->_text = preg_replace("[\r\n]", "\n", $this->_text);
 
-        /**
-        * The actual measurizer process
-        * The actual measurizer process, called recursively for a special font and font size
-        * from attribute maxFontSize until it finds a fitting solution or attribute minFontSize
-        * is reached.
-        *
-        * @todo This could be optimized I think for performance and line division issues.
-        *
-        * @param bool $lines Has to be false (becomes the new lines array while recursing, has to be a reverence)
-        * @param array $tokens All current text tokens (copy of the actual but a reverence, because recursion)
-        * @param string $font The complete fontpath + file
-        * @param int $fontsize The fontsize to test with
-        */
+        // Get each paragraph
+        $paras = explode("\n",$this->_text);
 
-        function &_testMeasure ( &$lines, &$tokens, $font, $fontsize ) {
-            if (!$lines[0]) {
-                $lines[0] =& new Image_Text_Line(array_shift($tokens), $this->options);
-                $lines[0]->options['fontSize'] = $fontsize;
-                $line =& $lines[0];
-            } else {
-                $line =& $lines[(count($lines) - 1)];
-                $line->pushToken(array_shift($tokens));
+        // loop though the paragraphs
+        // and get each word (token)
+        foreach($paras as $para) {
+            $words = explode(' ',$para);
+            foreach($words as $word) {
+                $this->_tokens[] = empty($word)?"\n":$word;
             }
-            $lineSize = $line->getSize($font, $fontsize);
-            if ($lineSize['width'] > $this->options['width']) {
-                $lines[count($lines)] =& new Image_Text_Line($line->popToken(), $this->options);
-                $lines[(count($lines) - 1)]->options['fontSize'] = $fontsize;
-            }
-            $size = $this->getSize($lines, $fontsize);
-            if (($size['height'] + (count($lines) * ($fontsize / 2)) + ($fontsize / 2)) > $this->options['height']) {
-                return false;
-            }
-            if (count($tokens) == 0) {
-                return $lines;
-            } else {
-                return $this->_testMeasure( $lines, $tokens, $font, $fontsize );
-            }
+            // add a "\n" to mark the end of a paragraph
+            $this->_tokens[] = "\n";
         }
-
+        // we do not need an end paragraph as the last token
+        unset($this->_tokens[sizeof($this->_tokens)-1]);
     }
+}
+
 ?>
