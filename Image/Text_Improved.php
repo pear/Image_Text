@@ -6,6 +6,7 @@ define("IMAGE_TEXT_REGEX_HTMLCOLOR", "/^[#|]([a-fA-F0-9]{2})?([a-fA-F0-9]{2})([a
 define("IMAGE_TEXT_ALIGN_LEFT", "left", true);
 define("IMAGE_TEXT_ALIGN_RIGHT", "right", true);
 define("IMAGE_TEXT_ALIGN_CENTER", "center", true);
+define("IMAGE_TEXT_ALIGN_JUSTIFY", "justify", true);
 
 class Image_Text {
 
@@ -19,54 +20,90 @@ class Image_Text {
      * Required options:
      * canvas: Either an image ressource or an array with 'width' and 'height'
      *         keys
-     * - fontPath: Path to your fonts
-     * - fontFile: Font filename to use
+     * - font_path: Path to your fonts
+     * - font_file: Font filename to use
      * - width: width of the text block
      * - height: height of the text block
      * Optional options:
-     * - fontSize: Fontsize to use for rendering
+     * - font_size: font_size to use for rendering
      * - color: Colorcode (default white) see {@link Image_Text::colorize()}
      * - bgcolor: Background color of the block
      * - align: alignement (one of the alignement constants)
-     * - minFontSize: min font size see {@link Image_Text::colorize()}
-     * - maxFontSize: max font size see {@link Image_Text::colorize()}
-     * - maxLines: Maximum amount of lines
-     * - borderWidth: Border width
-     * - borderColor: Border color
+     * - min_font_size: min font size see {@link Image_Text::colorize()}
+     * - max_font_size: max font size see {@link Image_Text::colorize()}
+     * - max_lines: Maximum amount of lines
+     * - border_width: Border width
+     * - border_color: Border color
      * - borderRoundWith: Round the border edges
-     * - borderSpacing: Space between border and texts, use negative values
+     * - border_spacing: Space between border and texts, use negative values
      *                  for inner border
-     * - imageType: Type of image to output/store (see php IMAGETYPE constanst)
-     * - destFile: File path see (@link Image_Text::display())
+     * - image_type: Type of image to output/store (see php image_type constanst)
+     * - dest_file: File path see (@link Image_Text::display())
      *
      * @access public
      * @var array
      */
     var $options = array(
-            // Surface
+            // orientation
+            'x'                 => 0,
+            'y'                 => 0,
+                // maybe youi better like center coordinates
+                // instead of usual top left corner
+            // 'xc'         => 400,
+            // 'yc'         => 250,
+            
+            // surface
+                // canvas = image resource or array with 'width' and 'height' as keys
             'canvas'            => null,
-            'fontPath'          => "./",
-            'fontFile'          => "",
+                // swith on/off antialiasing
+            'antialias'         => true,
+            
+            // text clipping
+                // width and height determine the text clipping
+                // leaving this as is will cause to make the text clipping same size with the
+                // canvas
             'width'             => 0,
             'height'            => 0,
-            'fontSize'          => 1,
+                // text alignement inside the clipping
+            'halign'             => IMAGE_TEXT_ALIGN_LEFT,
+            //'valign'             => IMAGE_TEXT_ALIGN_TOP,
+                // angle to rotate the text clipping
             'angle'             => 0,
-            'antialias'         => true,
-            'linespacing'       => 1,
+                // color values can either be hex translated strings or array's of rgb + alpha
+                // you can define either 1 color value or an array of color values
+                // to be rotated as defined by 'color_mode'
             'color'             => array(
                                     'r' => 255, 'g' => 255, 'b' => 255, 'a'=>0
                                    ),
             'bgcolor'           => false,
-            'align'             => IMAGE_TEXT_ALIGN_LEFT,
-            'minFontSize'       => 1,
-            'maxFontSize'       => 100,
-            'maxLines'          => 100,
-            'borderWidth'       => 0,
-            'borderColor'       => false,
-            'borderRoundWidth'  => 0,
-            'borderSpacing'     => 0,
-            'imageType'         => IMAGETYPE_PNG,
-            'destFile'          => ''
+                // define the color rotation mode (either per line or per paragraph) using this two 
+                // strings
+            'color_mode'        => 'line',
+            
+            // font settings
+            'font_path'         => "./",
+            'font_file'         => "",
+            'font_size'         => 1,
+            'line_spacing'      => 1,
+
+            // automasurizing settings
+                // auto masurize enables you to make a given text fit into a given clipping
+                // with the best fitting font size (or in other ways: it determines the greatest
+                // possible font size a text can have in a given clipping
+                
+                // set the minimal and maximal value to test the measure
+            'min_font_size'     => 1,
+            'max_font_size'     => 100,
+            
+            // border
+                // image text enables you to set a border
+                // 
+            'border_width'      => 0,
+            'border_color'      => false,
+            'border_round_width' => 0,
+            'border_spacing'    => 0,
+            'image_type'        => IMAGETYPE_PNG,
+            'dest_file'         => ''
         );
 
     /**
@@ -118,17 +155,6 @@ class Image_Text {
      * @var array
      */
     var $colors = array();
-
-    /**
-     * Define the mode to used for colors
-     * 'lines' switches the color on each line
-     * 'paragraph' switches the color on each paragraph
-     *
-     * @access public
-     * @var array
-     */
-    var $colorMode = 'paragraph';
-
     
     var $_init = false;
 
@@ -161,9 +187,9 @@ class Image_Text {
     function setAlign($mode)
     {
         if (!in_array($mode,$this->aligns)) {
-            $this->options['align'] = $mode;
+            $this->options['halign'] = $mode;
         } else {
-            PEAR::raiseError('Invalid alignment');
+            return PEAR::raiseError('Invalid halignment');
         }
     }
 
@@ -223,8 +249,7 @@ class Image_Text {
             if ($color) {
                 $this->options['colors'][$id] = $color;
             } else {
-                PEAR::raiseError('Invalid color');
-                return false;
+                return PEAR::raiseError('Invalid color');
             }
         } else {
             $this->options['colors'][$id] = $color;
@@ -276,10 +301,10 @@ class Image_Text {
      */
     function init()
     {
-        if (!is_file($this->options['fontPath'].$this->options['fontFile'])) {
-            PEAR::raiseError('Font not found');
+        if (!is_file($this->options['font_path'].$this->options['font_file'])) {
+            return PEAR::raiseError('Font not found');
         } else {
-            $this->_font = $this->options['fontPath'].$this->options['fontFile'];
+            $this->_font = $this->options['font_path'].$this->options['font_file'];
         }
 
         if ($this->options['width'] < 1) {
@@ -307,6 +332,9 @@ class Image_Text {
         } elseif ($this->options['canvas']=='auto') {
             $this->_mode = 'auto';
         }
+        
+        $this->options['canvas']['height'] = imagesx($this->_img);
+        $this->options['canvas']['width'] = imagesy($this->_img);
 
         $angle = $this->options['angle'];
         while($angle < 0) {
@@ -349,25 +377,25 @@ class Image_Text {
         if (!$this->_init) {
             return PEAR::raiseError('Not initialized');
         }
-        $start = (empty($start)) ? $this->options['minFontSize'] : $start;
-        $end = (empty($end)) ? $this->options['maxFontSize'] : $end;
+        $start = (empty($start)) ? $this->options['min_font_size'] : $start;
+        $end = (empty($end)) ? $this->options['max_font_size'] : $end;
         $res = false;
         for ($i = $start; $i <= $end; $i++) {
-            $this->options['fontSize'] = $i;
+            $this->options['font_size'] = $i;
             $res = $this->measurize();
             if ($res === false) {
                 if ($start == $i) {
-                    $this->options['fontSize'] = -1;
+                    $this->options['font_size'] = -1;
                     return PEAR::raiseError("No possible font size found");
                 }
-                $this->options['fontSize'] -= 1;
+                $this->options['font_size'] -= 1;
                 break;
             }
         }
-        return $this->options['fontSize'];
+        return $this->options['font_size'];
     }
 
-    function measurize ( ) {
+    function measurize ( $force = false ) {
         if(!$this->_init) {
             return false;
         }
@@ -375,16 +403,16 @@ class Image_Text {
         $this->_processText();
 
         $font = $this->_font;
-        $size = $this->options['fontSize'];
+        $size = $this->options['font_size'];
 
-        if($size<2) {
+        if(($size<2) && !$force) {
             return false;
         }
 
-        $linespacing = $this->options['linespacing'];
+        $line_spacing = $this->options['line_spacing'];
 
-        $max_lines = (int)$this->options['maxLines'];
-        if ($max_lines<1) {
+        $max_lines = (int)$this->options['max_lines'];
+        if (($max_lines<1) && !$force) {
             return false;
         }
 
@@ -394,11 +422,13 @@ class Image_Text {
         $colors_cnt = sizeof($this->colors);
         $c = $this->colors[0];
 
+        $space = $this->options['line_spacing'] * $this->options['font_size'];
+        
         $text_line = '';
         $lines_cnt = 0;
         $tokens_cnt = sizeof($this->_tokens);
         $lines = array();
-        $lineHeight = 0;
+        $lineHeight = $space;
         $sizes = array();
 
         $i = 0;
@@ -408,8 +438,7 @@ class Image_Text {
             if ($token=="\n") {
                 // New paragraph
                 $bounds = imagettfbbox($size, 0, $font, $text_line);
-                if (++$lines_cnt>=$max_lines) {
-                    echo "TO MANY LINES!";
+                if ((++$lines_cnt>=$max_lines) && !$force) {
                     return false;
                 }
                 $lines[]  = array(
@@ -420,12 +449,16 @@ class Image_Text {
                                 'left_margin'   => $bounds[0],
                                 'color'         => $c
                             );
-                $lineHeight += (int)(($bounds[1]-$bounds[7]) + $bounds[1]);
-                if ($lineHeight > $block_height) {
+                if ((int)($bounds[1]-$bounds[7]) == 0) {
+                    $lineHeight += ($lineHeight / $lines_cnt);
+                } else {
+                    $lineHeight += (int)(($bounds[1]-$bounds[7]) + $space);
+                }
+                if (($lineHeight >= $block_height) && !$force) {
                     return false;
                 }
                 $text_line = '';
-                if ($this->colorMode=='paragraph') {
+                if ($this->options['color_mode']=='paragraph') {
                     $c = $this->colors[$para_cnt%$colors_cnt];
                     $t = $para_cnt++%$colors_cnt;
                 }
@@ -439,10 +472,10 @@ class Image_Text {
             $width = $bounds[2]-$bounds[0];
             if ($width>$block_width) {
                 // New Line
-                if (++$lines_cnt>=$max_lines) {
+                if ((++$lines_cnt>=$max_lines) && !$force) {
                     return false;
                 }
-                if ($this->colorMode=='line') {
+                if ($this->options['color_mode']=='line') {
                     $c = $this->colors[$i%$colors_cnt];
                     $t = $para_cnt++%$colors_cnt;
                     //echo "$t-$para_cnt-$text_line<br>";
@@ -455,8 +488,8 @@ class Image_Text {
                                 'left_margin'   => $bounds[0],
                                 'color'         => $c
                             );
-                $lineHeight += (int)(($bounds[1]-$bounds[7]) + $bounds[1]);
-                if ($lineHeight > $block_height) {
+                $lineHeight += (int)(($bounds[1]-$bounds[7]) + $space);
+                if (($lineHeight >= $block_height) && !$force) {
                     return false;
                 }
                 $text_line = $token;
@@ -475,6 +508,11 @@ class Image_Text {
                         'left_margin'   => $bounds[0],
                         'color'         => $c
                     );
+        $lineHeight += (int)(($bounds[1]-$bounds[7]) + $space);
+        if (($lineHeight >= $block_height) && !$force) {
+            return false;
+        }
+                    
         return $lines;
         
     }
@@ -485,11 +523,11 @@ class Image_Text {
      * @access public
      */
      
-    function render( )
+    function render( $force = false )
     {
         $this->_processText();
         
-        $lines = $this->measurize();
+        $lines = $this->measurize( $force );
         if (!$lines || !$this->_init) {
             return false;
         }
@@ -497,25 +535,30 @@ class Image_Text {
         $block_width = $this->options['width'];
         $block_height = $this->options['height'];
         
-        $max_lines = $this->options['maxLines'];
+        $max_lines = $this->options['max_lines'];
         
         $angle = $this->options['angle'];
         $radians = deg2rad($angle);
         
         $font = $this->_font;
-        $size = (int)$this->options['fontSize'];
+        $size = (int)$this->options['font_size'];
         
-        $linespacing = $this->options['linespacing'];
+        $line_spacing = $this->options['line_spacing'];
         
-        $align = $this->options['align'];
+        $align = $this->options['halign'];
         
         $im = $this->_img;
+        
+        $cosX = abs(cos(deg2rad($this->options['angle'])));
+        $sinX = abs(sin(deg2rad($this->options['angle'])));
 
-        $new_posx = $this->options['x'];
-        $new_posy = $this->options['y'];
+        // $new_posx = $this->options['x'];
+        $new_posx = $this->options['x'] + ($this->options['width'] * $cosX);
+        // $new_posy = $this->options['y'] + $lines[0]['height'];
+        $new_posy = $this->options['y'] + ($this->options['height'] * $sinX);
 
         $start_x = $this->options['x'];
-        $start_y = $this->options['y'];
+        $start_y = $this->options['y'] + $lines[0]['height'];
         $end_x = $start_x + $block_width;
         $end_y = $start_y + $block_height;
 
@@ -530,7 +573,7 @@ class Image_Text {
              * the distance between the line above is used
              */
             if($i>0){
-                $space = $linespacing * $size*2;
+                $space = $line_spacing * $size*2;
                 $new_posx += $sinR * $space;
                 $new_posy += $cosR * $space;
             }
@@ -557,8 +600,8 @@ class Image_Text {
                 case IMAGE_TEXT_ALIGN_CENTER:
                     $hyp = ($block_width-$line_width)/2 - $left_margin -2;
                     break;
-                case IMAGE_TEXT_ALIGN_JUSTIFY:
-                    break;
+                // case IMAGE_TEXT_ALIGN_JUSTIFY:
+                //    break;
             }
 
             $posx = $new_posx + $cosR * $hyp;
@@ -597,11 +640,11 @@ class Image_Text {
     function display($save=false, $free=false)
     {
         if (!headers_sent()) {
-            header("Content-type: " .image_type_to_mime_type($this->options['imageType']));
+            header("Content-type: " .image_type_to_mime_type($this->options['image_type']));
         } else {
             PEAR::raiseError('header already sent');
         }
-        switch ($this->options['imageType']) {
+        switch ($this->options['image_type']) {
             case IMAGETYPE_PNG:
                 $imgout = 'imagepng';
                 break;
@@ -617,7 +660,7 @@ class Image_Text {
         }
         if ($save) {
             $imgout($this->_img);
-            $imgout($this->_img,$this->options['destFile']);
+            $imgout($this->_img,$this->options['dest_file']);
         } else {
            $imgout($this->_img);
         }
