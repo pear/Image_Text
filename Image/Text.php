@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Image_Text - Advanced text maipulations
+ * Image_Text - Advanced text maipulations in images
  * 
  * Image_Text provides advanced text manipulation facilities for GD2
  * image generation with PHP. Simply add text clippings to your images,
@@ -12,6 +12,10 @@
  * @license The PHP License, version 3.0
  * @author Tobias Schlitt <toby@php.net>
  * @category images
+ * @todo Definitly fixing the API.
+ * @todo Improve speed.
+ * @todo Improve option setting and init() stuff for better handling and error tollerance.
+ * @todo Error codes.
  */
 
 
@@ -39,7 +43,7 @@ define("IMAGE_TEXT_ALIGN_JUSTIFY", "justify", true);
 
 
 /**
- * Image_Text - Advanced text maipulations
+ * Image_Text - Advanced text maipulations in images
  * 
  * Image_Text provides advanced text manipulation facilities for GD2
  * image generation with PHP. Simply add text clippings to your images,
@@ -62,13 +66,13 @@ class Image_Text {
      *      'cy'                |
      *
      *      'canvas'            | You can set different values as a canvas:
-     *                          |   - A gd image resource
-     *                          |   - An array with 'width' and 'height'
-     *                          |   - Nothing (the canvas will be measured after the real text size)
+     *                          |   - A gd image resource.
+     *                          |   - An array with 'width' and 'height'.
+     *                          |   - Nothing (the canvas will be measured after the real text size).
      *
      *      'antialias'         | This is usually true. Set it to false to switch antialiasing off.
      *
-     *      'width'             | The width and height for your text box-
+     *      'width'             | The width and height for your text box.
      *      'height'            |
      *
      *      'halign'            | Alignment of your text inside the textbox. Use alignmnet constants to define    
@@ -78,8 +82,8 @@ class Image_Text {
      *
      *      'color'             | An array of color values. Colors will be rotated in the mode you choose (linewise 
      *                          | or paragraphwise). Can be in the following formats:
-     *                          |   - String representing HTML style hex couples (+ unusual alpha couple in the first place, optional)
-     *                          |   - Array of int values using 'r', 'g', 'b' and optionally 'a' as keys
+     *                          |   - String representing HTML style hex couples (+ unusual alpha couple in the first place, optional).
+     *                          |   - Array of int values using 'r', 'g', 'b' and optionally 'a' as keys.
      *
      *      'color_mode'        | The color rotation mode for your color sets. Does only apply if you
      *                          | defined multiple colors. Use 'line' or 'paragraph'.
@@ -156,7 +160,7 @@ class Image_Text {
     var $_text;
         
     /**
-     * Resource ID of the image canvas
+     * Resource ID of the image canvas.
      *
      * @access private
      * @var ressource
@@ -165,7 +169,7 @@ class Image_Text {
     var $_img;
 
     /**
-     * Tokens (each word)
+     * Tokens (each word).
      *
      * @access private
      * @var array
@@ -174,7 +178,7 @@ class Image_Text {
     var $_tokens = array();
 
     /**
-     * Fullpath to the font
+     * Fullpath to the font.
      *
      * @access private
      * @var string
@@ -183,7 +187,7 @@ class Image_Text {
     var $_font;
 
     /**
-     * Contains the bbox of each rendered lines
+     * Contains the bbox of each rendered lines.
      *
      * @access private
      * @var array
@@ -192,7 +196,7 @@ class Image_Text {
     var $bbox = array();
 
     /**
-     * Defines in which mode the canvas has be set
+     * Defines in which mode the canvas has be set.
      *
      * @access private
      * @var array
@@ -201,7 +205,7 @@ class Image_Text {
     var $_mode = '';    
 
     /**
-     * Color indeces returned by imagecolorallocatealpha
+     * Color indeces returned by imagecolorallocatealpha.
      *
      * @access private
      * @var array
@@ -210,7 +214,7 @@ class Image_Text {
     var $_colors = array();
     
     /**
-     * Width and height of the (rendered) text
+     * Width and height of the (rendered) text.
      *
      * @access private
      * @var array
@@ -219,7 +223,7 @@ class Image_Text {
     var $_realTextSize = array('width' => false, 'height' => false);
 
     /**
-     * Measurized lines
+     * Measurized lines.
      *
      * @access private
      * @var array
@@ -228,7 +232,7 @@ class Image_Text {
     var $_lines = false;
     
     /**
-     * Fontsize for which the last measuring process was done
+     * Fontsize for which the last measuring process was done.
      *
      * @access private
      * @var array
@@ -248,18 +252,22 @@ class Image_Text {
     /**
      * Constructor
      *
-     * Set the text and options
+     * Set the text and options. This initializes a new Image_Text object. You must set your text
+     * here. Optinally you can set all options here using the $options parameter. If you finished switching
+     * all options you have to call the init() method first befor doing anything further!
      *
-     * @param   string  $text       Text to print
-     * @param   array   $options    Options
+     * @param   string  $text       Text to print.
+     * @param   array   $options    Options.
      * @access public
-     * @see Image_Text::$options, Image_Text::set()
+     * @see Image_Text::$options, Image_Text::set(), Image_Text::init()
      */
      
-    function Image_Text($text, $options)
+    function Image_Text($text, $options = null)
     {
         $this->_text = $text;
-        $this->options = array_merge($this->options, $options);
+        if (!empty($options)) {
+            $this->options = $this->set($options);
+        }
     }
     
     /**
@@ -268,9 +276,9 @@ class Image_Text {
      * Set a single or multiple options. It may happen that you have to reinitialize the Image_Text
      * object after changing options.
      *
-     * @param   mixed   $option     A single option name or the options array
-     * @param   mixed   $value      Option value if $option is string
-     * @return  bool                True on success, otherwise PEAR::Error
+     * @param   mixed   $option     A single option name or the options array.
+     * @param   mixed   $value      Option value if $option is string.
+     * @return  bool                True on success, otherwise PEAR::Error.
      * @access public
      * @see Image_Text::Image_Text(), Image_Text::$options
      */
@@ -305,15 +313,15 @@ class Image_Text {
      * cycled by the options specified 'color_mode' option.
      *
      * The following colors syntaxes are understood by this method:
-     * - "#ffff00" hexadecimal format (HTML style), with and without #
-     * - "#08ffff00" hexadecimal format (HTML style) with alpha channel (08), with and without #
-     * - array with 'r','g','b' and (optionally) 'a' keys, using int values
-     * - a GD color special color (tiled,...)
+     * - "#ffff00" hexadecimal format (HTML style), with and without #.
+     * - "#08ffff00" hexadecimal format (HTML style) with alpha channel (08), with and without #.
+     * - array with 'r','g','b' and (optionally) 'a' keys, using int values.
+     * - a GD color special color (tiled,...).
      *
      * A single color or an array of colors are allowed here.
      *
-     * @param   mixed  $colors       Single color or array of colors
-     * @return  bool                 True on success, otherwise PEAR::Error
+     * @param   mixed  $colors       Single color or array of colors.
+     * @return  bool                 True on success, otherwise PEAR::Error.
      * @access  public
      * @see Image_Text::setColor(), Image_Text::$options
      */
@@ -338,14 +346,14 @@ class Image_Text {
      * color cycle.
      *
      * The following colors syntaxes are understood by this method:
-     * - "#ffff00" hexadecimal format (HTML style), with and without #
-     * - "#08ffff00" hexadecimal format (HTML style) with alpha channel (08), with and without #
-     * - array with 'r','g','b' and (optionally) 'a' keys, using int values
-     * - a GD color special color (tiled,...)
+     * - "#ffff00" hexadecimal format (HTML style), with and without #.
+     * - "#08ffff00" hexadecimal format (HTML style) with alpha channel (08), with and without #.
+     * - array with 'r','g','b' and (optionally) 'a' keys, using int values.
+     * - a GD color special color (tiled,...).
      *
-     * @param   mixed    $color        Color value
-     * @param   mixed    $id           ID (in the color array) to set color to
-     * @return  bool                True on success, otherwise PEAR::Error
+     * @param   mixed    $color        Color value.
+     * @param   mixed    $id           ID (in the color array) to set color to.
+     * @return  bool                True on success, otherwise PEAR::Error.
      * @access  public
      * @see Image_Text::setColors(), Image_Text::$options
      */
@@ -384,15 +392,16 @@ class Image_Text {
     }
         
     /**
-     * Initialiaze the Image_Text object
+     * Initialiaze the Image_Text object.
      *
      * This method has to be called after setting the options for your Image_Text object.
      * It initializes the canvas, normalizes some data and checks important options.
      * Be shure to check the initialization after you switched some options. The
-     * {@see Image_Text::set()} method may force you to reinitialize the object.
+     * set() method may force you to reinitialize the object.
      *
      * @access  public
-     * @return  bool  True on success, otherwise PEAR::Error
+     * @return  bool  True on success, otherwise PEAR::Error.
+     * @see Image_Text::set()
      */
      
     function init()
@@ -466,13 +475,16 @@ class Image_Text {
      * fit the text into the text box. This method may be very resource
      * intensive on your webserver. A good tweaking point are the $start
      * and $end parameters, which specify the range of font sizes to search 
-     * through. Anyway, the results should be cached if possible.
+     * through. Anyway, the results should be cached if possible. You can 
+     * optionally set $start and $end here as a parameter or the settings of
+     * the options array are used.
      *
      * @access public
-     * @param  int      $start  Fontsize to start testing with
-     * @param  int      $end    Fontsize to end testing with
-     * @return int              Fontsize measured or PEAR::Error
+     * @param  int      $start  Fontsize to start testing with.
+     * @param  int      $end    Fontsize to end testing with.
+     * @return int              Fontsize measured or PEAR::Error.
      * @see Image_Text::measurize()
+     * @todo A better search algorithm should be used here. Performance tests to find the best.
      */
    
     function autoMeasurize ( $start = false, $end = false) {
@@ -510,12 +522,12 @@ class Image_Text {
      *
      * This method makes your text fit into the defined textbox by measurizing the
      * lines for your given font-size. You can do this manually before rendering (or use
-     * even {@see Image_Text::autoMeasurize()}) or the renderer will do measurizing 
+     * even Image_Text::autoMeasurize()) or the renderer will do measurizing 
      * automatically.
      *
      * @access public
-     * @param  bool  $force  Optionally, default is false, set true to force measurizing
-     * @return array         Array of measured lines or PEAR::Error
+     * @param  bool  $force  Optionally, default is false, set true to force measurizing.
+     * @return array         Array of measured lines or PEAR::Error.
      * @see Image_Text::autoMeasurize()
      */
     
@@ -653,13 +665,13 @@ class Image_Text {
     /**
      * Render the text in the canvas using the given options.
      *
-     * This renders the measurized text or automatically measures it first. The $force
+     * This renders the measurized text or automatically measures it first. The $force parameter
      * can be used to switch of measurizing problems (this may cause your text being rendered
-     * outside a given text box.
+     * outside a given text box or destroy your image completely).
      *
      * @access public
-     * @param  bool     $force  Optional, initially false, set true to silence measurize errors
-     * @return bool             True on success, otherwise PEAR::Error
+     * @param  bool     $force  Optional, initially false, set true to silence measurize errors.
+     * @return bool             True on success, otherwise PEAR::Error.
      */
      
     function render( $force = false )
@@ -787,9 +799,9 @@ class Image_Text {
     }
 
     /**
-     * Return the image ressource
+     * Return the image ressource.
      *
-     * Get the image canvas
+     * Get the image canvas.
      *
      * @access public
      * @return resource Used image resource
@@ -801,14 +813,15 @@ class Image_Text {
     }
 
     /**
-     * Display the image (send it to the browser)
+     * Display the image (send it to the browser).
      *
-     * This will output the image to the users browser. It automatically determines the correct
-     * header type and stuff.
+     * This will output the image to the users browser. You can use the standard IMAGETYPE_* 
+     * constants to determine which image type will be generated. Optionally you can save your 
+     * image to a destination you set in the options.     
      *
-     * @param   bool  $save  Save or not the image on printout
-     * @param   bool  $free  Free the image on exit
-     * @return  bool         True on success, otherwise PEAR::Error
+     * @param   bool  $save  Save or not the image on printout.
+     * @param   bool  $free  Free the image on exit.
+     * @return  bool         True on success, otherwise PEAR::Error.
      * @access public
      * @see Image_Text::save()
      */
@@ -854,14 +867,15 @@ class Image_Text {
     }
     
     /**
-     * Save image canvas
+     * Save image canvas.
      *
      * Saves the image to a given destination. You can leave out the destination file path,
-     * if you have the option for that set correctly. Saving is possible with the 
-     * {@see Image_Text::display()} method, too.
+     * if you have the option for that set correctly. Saving is possible with the save()
+     * method, too.
      *
-     * @param   string  $destFile   The destination to save to (optional, uses options value else)
-     * @return  bool                True on success, otherwise PEAR::Error
+     * @param   string  $destFile   The destination to save to (optional, uses options value else).
+     * @return  bool                True on success, otherwise PEAR::Error.
+     * @see Image_Text::display()
      */
     
     function save ( $destFile = false ) {
@@ -879,12 +893,13 @@ class Image_Text {
     }
     
     /**
-     * Get completely translated offset for text rendering
+     * Get completely translated offset for text rendering.
+     *
      * Get completely translated offset for text rendering. Important
      * for usage of center coords and angles
      *
      * @access private
-     * @return array    Array of x/y coordinates
+     * @return array    Array of x/y coordinates.
      */
     
     function _getOffset ( ) {
@@ -935,7 +950,7 @@ class Image_Text {
     }
     
     /**
-     * Convert a color to an array
+     * Convert a color to an array.
      *
      * The following colors syntax must be used:
      * "#08ffff00" hexadecimal format with alpha channel (08)
@@ -944,8 +959,8 @@ class Image_Text {
      * Only one color is allowed
      * If $id is given, the color index $id is used
      *
-     * @param   mixed  $colors       Array of colors
-     * @param   mixed  $id           Array of colors
+     * @param   mixed  $colors       Array of colors.
+     * @param   mixed  $id           Array of colors.
      * @access private
      */
     function _convertString2RGB($scolor)
