@@ -27,7 +27,7 @@
         * The lines of the text
         *
         * @access public
-        * @var array object ImageText
+        * @var array object Image_Text_Lines
         */
 
         var $lines = array();
@@ -60,7 +60,8 @@
             'shadowX'           => false,           // OPTIONAL: X adjustment for a shadow
             'shadowY'           => false,           // OPTIONAL: Y adjustment for a shadow
             'shadowColor'       => false,           // OPTIONAL: Color for a shadow @see Image_Text::colorize()
-            'imageType'         => 'png');          // Type of image to generate
+            'imageType'         => 'png',           // Type of image to generate
+            'antiAliasing'      => true);           // Switch antialiasing
 
         /**
         * The image generated
@@ -144,9 +145,9 @@
             $actY = $y + $this->options['borderSpacing'] + $this->options['borderWidth'];
             foreach ($this->lines as $key => $line) {
                 $size = $this->lines[$key]->getSize($this->options['fontPath'].$this->options['fontFile']);
-                $actY += $size['height'] + round($this->_getLineSpace / 2);
+                $actY += $size['height'] + round($this->_getLineSpace() / 2);
                 $this->lines[$key]->toImage($img, $actX, $actY, $this->options['fontPath'].$this->options['fontFile']);
-                $actY += round($this->_getLineSpace / 2);
+                $actY += round($this->_getLineSpace() / 2);
             }
         }
 
@@ -224,7 +225,7 @@
                 $tmpTokens = $tokens;
                 $lines = false;
 
-                $lines = $this->_testMeasure( $lines, $tmpTokens, $this->$options['fontPath'].$this->options['fontFile'], $i);
+                $lines = $this->_testMeasure( $lines, $tmpTokens, $this->options['fontPath'].$this->options['fontFile'], $i);
 
                 if ($lines) {
                     break;
