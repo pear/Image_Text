@@ -548,7 +548,7 @@ class Image_Text {
                 
                 // Create new image from width && height of the clipping
                 $this->_img = imagecreatetruecolor(
-                            $this->options['width'], $this->options['width']);
+                            $this->options['width'], $this->options['height']);
                 if (!$this->_img) {
                     return PEAR::raiseError('Could not create image canvas.');
                 }
