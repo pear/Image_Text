@@ -2,10 +2,13 @@
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
 <package version="1.0">
   <name>Image_Text</name>
-  <summary>Image_Text - Advanced text maipulations in images</summary>
-  <description>s the functionality and features are currently fixed and the API is frozen, I decided to 
-                          roll the first beta release. Thsi should give a) feedback and b) stability due to (hopefully)
-                          more test.</description>
+  <summary>Image_Text - Advanced text maipulations in images.</summary>
+  <description>Image_Text provides a comfortable interface to text manipulations in GD
+images. Beside common Freetype2 functionality it offers to handle texts
+in a graphic- or office-tool like way. For example it allows alignment of
+texts inside a text box, rotation (around the top left corner of a text
+box or it's center point) and the automatic measurizement of the optimal
+font size for a given text box.</description>
   <maintainers>
     <maintainer>
       <user>toby</user>
@@ -15,76 +18,28 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.5.0</version>
-    <date>2004-04-06</date>
+    <version>0.5.1</version>
+    <date>2004-04-14</date>
     <license>PHP License</license>
     <state>beta</state>
-    <notes>First beta release. The API is fixed (except possible feature additions) by now. Please test this
-                         release extensively to improve stability.</notes>
+    <notes> * Fixed bug #1207 supporting old versions - fix included.</notes>
     <deps>
       <dep type="ext" rel="has" optional="no">gd</dep>
     </deps>
     <filelist>
       <file role="doc" baseinstalldir="" md5sum="5dbad1fafc03a7f7f106a9ff2f99a691" name="example/example.php"/>
-      <file role="php" baseinstalldir="" md5sum="5e2f43d2888a5e256be5ffa338e2d7be" name="Image/Text.php"/>
-      <file role="script" baseinstalldir="" md5sum="38094762766b514958955a89e453e094" name="make_docbook.sh"/>
-      <file role="script" baseinstalldir="" md5sum="80d87d7047524e42fb0f4abe5019c41a" name="make_dochtml.sh"/>
+      <file role="php" baseinstalldir="" md5sum="1d86d72ef8ee5f119cd0be5fb120764d" name="Image/Text.php"/>
+      <file role="doc" baseinstalldir="" md5sum="38094762766b514958955a89e453e094" name="make_docbook.sh"/>
+      <file role="doc" baseinstalldir="" md5sum="80d87d7047524e42fb0f4abe5019c41a" name="make_dochtml.sh"/>
     </filelist>
   </release>
   <changelog>
     <release>
-      <version>0.3</version>
-      <date>2004-02-15</date>
-      <license>PHP License</license>
-      <state>alpha</state>
-      <notes>Summary:
-                          --------
-              
-                          * Great speed improvements.
-                          * Completely rewriten.
-              
-                          This release is a complete rewrite of the Image_Text package and therefor gives no cent on
-                          API BC issues. The Image_Text_Line class has been dropped completely for performance reasons.
-                          Thanks to the support of Pierre Alan Joye (pajoye@php.net)! The dependency to Image_Tools (which 
-                          will be the next for a rewrite) has been dropped, too.</notes>
-    </release>
-    <release>
-      <version>0.3pl1</version>
-      <date>2004-02-20</date>
-      <license>PHP License</license>
-      <state>alpha</state>
-      <notes>This is a bugfixing release, replacing the broken example file.</notes>
-    </release>
-    <release>
-      <version>0.4</version>
-      <date>2004-02-20</date>
-      <license>PHP License</license>
-      <state>alpha</state>
-      <notes>Image_Text experienced extensive debugging and fixing, as well as small adjustments. The standard value
-                          for line_spacing changed to 0.5 but this does not matter for the standard output, since the calculation
-                          has changed.
-              
-                          The behavior of setColor() and setColors() has changed a bit to allow a new color format which defines
-                          RGB values through an array keyed with 0, 1 and 2 plus optionally 3 as the alpha value.
-              
-                          This release should work quite fine, since it has been extensively debugged. But since I plan to make some
-                          more improvements I can not promise a 100% stable API. The API should be fixed for about 95% now.</notes>
-    </release>
-    <release>
-      <version>0.4pl1</version>
-      <date>2004-04-06</date>
-      <license>PHP License</license>
-      <state>alpha</state>
-      <notes>Bugfixing release.
-		          * Fixed color handling (using array format with key's 0,1,2 (optionally) 3).</notes>
-    </release>
-    <release>
-      <version>0.5.0</version>
-      <date>2004-04-06</date>
+      <version>0.5.1</version>
+      <date>2004-04-14</date>
       <license>PHP License</license>
       <state>beta</state>
-      <notes>First beta release. The API is fixed (except possible feature additions) by now. Please test this
-                         release extensively to improve stability.</notes>
+      <notes> * Fixed bug #1207 supporting old versions - fix included.</notes>
     </release>
   </changelog>
 </package>
