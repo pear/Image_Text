@@ -15,20 +15,14 @@
 	
 	$e = $pkg->setOptions(
 		array('baseinstalldir' => '',
-		      'version' => '0.2',
+		      'version' => '0.3',
 	          'packagedirectory' => $packagedir,
 	          'pathtopackagefile' => $packagedir,
               'state' => 'alpha',
               'filelistgenerator' => 'cvs',
-              'notes' => "Implements the new Image_Tools package structure and fixes
-              			  the following bugs:
-              			  176, Antialiasing done wrong
-              			  177, correction for Image_Text-constructor
-              			  178, error in comment-block
-              			  179, textsize and position
-              			  180, Antialiasing-setting don't get through
-              			  188, Typo in Image_Text.php
-              			  189, Methods called as class variables",
+              'notes' => "Implements heavy perfomance improvements (thanks Pierre!). Following his recommendation I dropped the
+                          Line class. Text tokens are now simply stored in an array. Rendering works more cleanly now in respect
+                          to line spacing. The API has changed due to refactoring. Text rotation now works fine.",
 			  'package' => 'Image_Text',
 			  'dir_roles' => array(
 			  		'doc' => 'doc',
