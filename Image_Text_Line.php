@@ -81,18 +81,18 @@
         */
 
         function toImage ( &$img, $x, $y, $font ) {
-            $a = ($this->options['antiAliasing']) ? 1 : -1;
+            $antiAliasing = ($this->options['antiAliasing']) ? 1 : -1;
             $x += $this->_x;
             if ($this->options['shadowX'] && $this->options['shadowX']) {
                 if (!$this->options['shadowColor']) {
                     $shadowCol = imagecolorclosestalpha( $img, $this->options['color']['r'], $this->options['color']['g'], $this->options['color']['b'], 50);
                 } else {
-                    $shadowCol = imagecolorallocate( $img, $a * $this->options['shadowColor']['r'], $a * $this->options['shadowColor']['g'], $a * $this->options['shadowColor']['b']);
+                    $shadowCol = imagecolorallocate( $img, $this->options['shadowColor']['r'], $this->options['shadowColor']['g'], $this->options['shadowColor']['b']);
                 }
-                imagettftext($img, $this->options['fontSize'], $this->options['angle'], $x + $this->options['shadowX'], $y + $this->options['shadowX'], $shadowCol, $font, $this->getText());
+                imagettftext($img, $this->options['fontSize'], $this->options['angle'], $x + $this->options['shadowX'], $y + $this->options['shadowX'], $antiAliasing * $shadowCol, $font, $this->getText());
             }
-            $col = imagecolorallocate($img, $a * $this->options['color']['r'], $a * $this->options['color']['g'], $a * $this->options['color']['b']);
-            imagettftext($img, $this->options['fontSize'], $this->options['angle'], $x, $y, $col, $font, $this->getText());
+            $col = imagecolorallocate($img, $this->options['color']['r'], $this->options['color']['g'], $this->options['color']['b']);
+            imagettftext($img, $this->options['fontSize'], $this->options['angle'], $x, $y, $antiAliasing * $col, $font, $this->getText());
             
         }
 
