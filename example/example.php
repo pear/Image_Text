@@ -1,6 +1,6 @@
 <?php
 
-	ini_set('include_path', '.:/cvs/pear/Image_Text:/usr/share/pear');
+	// ini_set('include_path', '.:/cvs/pear/Image_Text:/usr/share/pear');
 
     require_once 'Image/Text.php';
        
