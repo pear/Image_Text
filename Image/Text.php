@@ -418,8 +418,9 @@ class Image_Text {
     function init()
     {
         // Does the fontfile exist and is readable?
-        // @todo: on some/all?!? systems it's also possible to just access e.g. "arial" and the fontfile will be
-        //        found automatically ... however this does not work if here we check for the existance of the fontfile
+        // @todo: with some versions of the GD-library it's also possible to leave font_path empty, add strip ".ttf" from
+        //        the fontname; the fontfile will then be automatically searched for in library-defined directories
+        //        however this does not yet work if at this point we check for the existance of the fontfile
         if (!is_file($this->options['font_path'].$this->options['font_file']) || !is_readable($this->options['font_path'].$this->options['font_file'])) {
             return PEAR::raiseError('Fontfile not found or not readable.');
         } else {
@@ -810,16 +811,20 @@ class Image_Text {
             // the angle. That gives us the offset to slide the line
             switch($align) {
                 case IMAGE_TEXT_ALIGN_LEFT:
-                    $hyp = -1;
+                    //$hyp = -1;
+                    $hyp = 0;
                     break;
                 case IMAGE_TEXT_ALIGN_RIGHT:
-                    $hyp = $block_width - $line_width - $left_margin -2;
+                    //$hyp = $block_width - $line_width - $left_margin -2;
+                    $hyp = $block_width - $line_width - $left_margin;
                     break;
                 case IMAGE_TEXT_ALIGN_CENTER:
-                    $hyp = ($block_width-$line_width)/2 - $left_margin -2;
+                    //$hyp = ($block_width-$line_width)/2 - $left_margin -2;
+                    $hyp = ($block_width-$line_width)/2 - $left_margin;
                     break;
                 default:
-                    $hyp = -1;
+                    //$hyp = -1;
+                    $hyp = 0;
                     break;
             }
 
