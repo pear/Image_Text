@@ -1004,7 +1004,7 @@ class Image_Text {
      * @see Image_Text::display()
      */
 
-    function save($destFile=false)
+    function save($dest_file=false)
     {
         if (!$dest_file) {
             $dest_file = $this->options['dest_file'];
@@ -1012,7 +1012,23 @@ class Image_Text {
         if (!$dest_file) {
             return PEAR::raiseError("Invalid desitination file.");
         }
-        $res = $imgout($this->_img, $this->options['dest_file']);
+        
+        switch ($this->options['image_type']) {
+            case IMAGETYPE_PNG:
+                $imgout = 'imagepng';
+                break;
+            case IMAGETYPE_JPEG:
+                $imgout = 'imagejpeg';
+                break;
+            case IMAGETYPE_BMP:
+                $imgout = 'imagebmp';
+                break;
+            default:
+                return PEAR::raiseError('Unsupported image type.');
+                break;
+        }
+        
+        $res = $imgout($this->_img, $dest_file);
         if (!$res) {
             PEAR::raiseError('Saving file failed.');
         }
