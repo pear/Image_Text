@@ -18,19 +18,31 @@ font size for a given text box.</description>
     </maintainer>
   </maintainers>
   <release>
-    <version>0.5.1</version>
-    <date>2004-04-14</date>
+    <version>0.5.1beta</version>
+    <date>2004-04-18</date>
     <license>PHP License</license>
     <state>beta</state>
-    <notes> * Fixed bug #1207 supporting old versions - fix included.</notes>
+    <notes> * Fixed bug #1207 supporting old versions - fix included.
+ * Updated default color array regarding to bug #1203: mega bug summary / with some wishes.
+ * Added more docs for &quot;font_path&quot; and &quot;font_file&quot; regarding bug #1203: mega bug summary / with some wishes.
+ * Moved options docs to options array.
+ * Added simple example to the top.
+ * Fixed save() method accoriding to bug #1203: mega bug summary / with some wishes.
+ * Added construct() method according to bug #1203 [Opn-&gt;Asn]: mega bug summary / with some wishes.</notes>
     <deps>
       <dep type="ext" rel="has" optional="no">gd</dep>
     </deps>
     <filelist>
-      <file role="doc" baseinstalldir="" md5sum="5dbad1fafc03a7f7f106a9ff2f99a691" name="example/example.php"/>
-      <file role="php" baseinstalldir="" md5sum="1d86d72ef8ee5f119cd0be5fb120764d" name="Image/Text.php"/>
-      <file role="doc" baseinstalldir="" md5sum="38094762766b514958955a89e453e094" name="make_docbook.sh"/>
-      <file role="doc" baseinstalldir="" md5sum="80d87d7047524e42fb0f4abe5019c41a" name="make_dochtml.sh"/>
+      <dir baseinstalldir="" name="/">
+       <dir name="example">
+        <file role="doc" name="example.php"/>
+       </dir> <!-- example -->
+       <dir name="Image">
+        <file role="php" name="Text.php"/>
+       </dir> <!-- Image -->
+       <file role="doc" name="make_docbook.sh"/>
+       <file role="doc" name="make_dochtml.sh"/>
+      </dir> <!-- / -->
     </filelist>
   </release>
   <changelog>
@@ -39,7 +51,20 @@ font size for a given text box.</description>
       <date>2004-04-14</date>
       <license>PHP License</license>
       <state>beta</state>
-      <notes> * Fixed bug #1207 supporting old versions - fix included.</notes>
+      <notes>* Fixed bug #1207 supporting old versions - fix included.</notes>
+    </release>
+    <release>
+      <version>0.5.1beta</version>
+      <date>2004-04-18</date>
+      <license>PHP License</license>
+      <state>beta</state>
+      <notes> * Fixed bug #1207 supporting old versions - fix included.
+ * Updated default color array regarding to bug #1203: mega bug summary / with some wishes.
+ * Added more docs for &quot;font_path&quot; and &quot;font_file&quot; regarding bug #1203: mega bug summary / with some wishes.
+ * Moved options docs to options array.
+ * Added simple example to the top.
+ * Fixed save() method accoriding to bug #1203: mega bug summary / with some wishes.
+ * Added construct() method according to bug #1203 [Opn-&gt;Asn]: mega bug summary / with some wishes.</notes>
     </release>
   </changelog>
 </package>
