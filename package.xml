@@ -18,17 +18,11 @@ font size for a given text box.</description>
     </maintainer>
   </maintainers>
   <release>
-    <version>0.5.1beta</version>
-    <date>2004-04-18</date>
+    <version>0.5.2beta2</version>
+    <date>2004-09-23</date>
     <license>PHP License</license>
     <state>beta</state>
-    <notes> * Fixed bug #1207 supporting old versions - fix included.
- * Updated default color array regarding to bug #1203: mega bug summary / with some wishes.
- * Added more docs for &quot;font_path&quot; and &quot;font_file&quot; regarding bug #1203: mega bug summary / with some wishes.
- * Moved options docs to options array.
- * Added simple example to the top.
- * Fixed save() method accoriding to bug #1203: mega bug summary / with some wishes.
- * Added construct() method according to bug #1203 [Opn-&gt;Asn]: mega bug summary / with some wishes.</notes>
+    <notes> * Fixed bug 2265: Init a heigth without a canvas.</notes>
     <deps>
       <dep type="ext" rel="has" optional="no">gd</dep>
     </deps>
@@ -55,16 +49,31 @@ font size for a given text box.</description>
     </release>
     <release>
       <version>0.5.1beta</version>
-      <date>2004-04-18</date>
+      <date>2004-07-11</date>
       <license>PHP License</license>
       <state>beta</state>
-      <notes> * Fixed bug #1207 supporting old versions - fix included.
- * Updated default color array regarding to bug #1203: mega bug summary / with some wishes.
- * Added more docs for &quot;font_path&quot; and &quot;font_file&quot; regarding bug #1203: mega bug summary / with some wishes.
- * Moved options docs to options array.
- * Added simple example to the top.
- * Fixed save() method accoriding to bug #1203: mega bug summary / with some wishes.
- * Added construct() method according to bug #1203 [Opn-&gt;Asn]: mega bug summary / with some wishes.</notes>
+      <notes>* Fixed bug #1207 supporting old versions - fix included.
+* Updated default color array regarding to bug #1203: mega bug summary / with some wishes.
+* Added more docs for &quot;font_path&quot; and &quot;font_file&quot; regarding bug #1203: mega bug summary / with some wishes.
+* Moved options docs to options array.
+* Added simple example to the top.
+* Fixed save() method accoriding to bug #1203: mega bug summary / with some wishes.
+* Added construct() method according to bug #1203 [Opn-&gt;Asn]: mega bug summary / with some wishes.</notes>
+    </release>
+    <release>
+      <version>0.5.2beta1</version>
+      <date>2004-09-01</date>
+      <license>PHP License</license>
+      <state>beta</state>
+      <notes>* Fixed bug #2182: problems displaying &quot;0&quot;
+* Fixed bug #2161: Notice</notes>
+    </release>
+    <release>
+      <version>0.5.2beta2</version>
+      <date>2004-09-23</date>
+      <license>PHP License</license>
+      <state>beta</state>
+      <notes> * Fixed bug 2265: Init a heigth without a canvas.</notes>
     </release>
   </changelog>
 </package>
