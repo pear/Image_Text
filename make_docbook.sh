@@ -6,5 +6,5 @@
 
 
 rm -rf ./docbook/
-phpdoc -d ./ -i doc* generate* make* *.xml CVS/ -t ./docbook/ -o XML:DocBook/peardoc2 -s -p -dc images -dn Image_Text
+phpdoc -d ./ -i example.php,generate_package_xml.php *.xml CVS/ -t ./docbook/ -o XML:DocBook/peardoc2 -s -p -dc images -dn Image_Text -it @todo
 
