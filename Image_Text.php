@@ -88,6 +88,11 @@
         */
 
         function Image_Text ( $text, $options ) {
+            foreach ($options as $key => $value) {
+                if (isset($this->options[$key])) {
+                    $this->options[$key] = $value;
+                }
+            }
             if (is_array($text)) {
                 foreach ($text as $key => $item) {
                     if (is_object($item) && is_a($item, "Image_Text_Line")) {
@@ -98,11 +103,6 @@
                 }
             } else {
                 $this->lines[] = new Image_Text_Line($text, $this->options);
-            }
-            foreach ($options as $key => $value) {
-                if (isset($this->options[$key])) {
-                    $this->options[$key] = $value;
-                }
             }
         }
 
