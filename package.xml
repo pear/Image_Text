@@ -2,95 +2,60 @@
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
 <package version="1.0">
   <name>Image_Text</name>
-  <summary>Tool collection for images.</summary>
-  <description>A collection of comon image manipulations.</description>
+  <summary>Image_Text - Advanced text maipulations in images</summary>
+  <description>Image_Text enables you to deal more comfortable with texts inside GD 2 based images.
+		                    Create text boxes inside your images, rotate them and let the class align your text
+		                    inside it in horizontal and vertical directions. Image_Text can although determine
+		                    the best font-size for a given text box.</description>
   <maintainers>
     <maintainer>
       <user>toby</user>
       <name>Tobias Schlitt</name>
-      <email>tobias@schlitt.info</email>
+      <email>toby@php.net</email>
       <role>lead</role>
     </maintainer>
   </maintainers>
   <release>
-    <version>0.2</version>
-    <date>2003-11-13</date>
+    <version>0.3</version>
+    <date>2004-02-15</date>
     <license>PHP License</license>
     <state>alpha</state>
-    <notes>Implements the new Image_Tools package structure and fixes
-              			  the following bugs:
-              			  176, Antialiasing done wrong
-              			  177, correction for Image_Text-constructor
-              			  178, error in comment-block
-              			  179, textsize and position
-              			  180, Antialiasing-setting don't get through
-              			  188, Typo in Image_Text.php
-              			  189, Methods called as class variables</notes>
+    <notes>Summary:
+                          --------
+              
+                          * Great speed improvements.
+                          * Completely rewriten.
+              
+                          This release is a complete rewrite of the Image_Text package and therefor gives no cent on
+                          API BC issues. The Image_Text_Line class has been dropped completely for performance reasons.
+                          Thanks to the support of Pierre Alan Joye (pajoye@php.net)! The dependency to Image_Tools (which 
+                          will be the next for a rewrite) has been dropped, too.</notes>
     <deps>
-      <dep type="ext" rel="has" version="2">gd</dep>
-      <dep type="pkg" rel="has" version="0.2">Image_Tools</dep>
+      <dep type="ext" rel="has" optional="no">gd</dep>
     </deps>
-    <provides type="class" name="Image_Text" />
-    <provides type="function" name="Image_Text::renderImage" />
-    <provides type="function" name="Image_Text::outImage" />
-    <provides type="function" name="Image_Text::getImage" />
-    <provides type="function" name="Image_Text::getSize" />
-    <provides type="function" name="Image_Text::measurize" />
-    <provides type="function" name="Image_Text::align" />
-    <provides type="function" name="Image_Text::colorize" />
-    <provides type="function" name="Image_Text::addBorder" />
-    <provides type="function" name="Image_Text::addShadow" />
-    <provides type="function" name="Image_Text::rotate" />
-    <provides type="function" name="Image_Text::currentLine" />
-    <provides type="function" name="Image_Text::nextLine" />
-    <provides type="function" name="Image_Text::firstLine" />
-    <provides type="function" name="Image_Text::countLines" />
-    <provides type="function" name="Image_Text::getAllLines" />
-    <provides type="function" name="Image_Text::getAllTokens" />
-    <provides type="class" name="Image_Text_Line" />
-    <provides type="function" name="Image_Text_Line::toImage" />
-    <provides type="function" name="Image_Text_Line::align" />
-    <provides type="function" name="Image_Text_Line::colorize" />
-    <provides type="function" name="Image_Text_Line::rotate" />
-    <provides type="function" name="Image_Text_Line::addShadow" />
-    <provides type="function" name="Image_Text_Line::getText" />
-    <provides type="function" name="Image_Text_Line::getTokens" />
-    <provides type="function" name="Image_Text_Line::getSize" />
-    <provides type="function" name="Image_Text_Line::pushToken" />
-    <provides type="function" name="Image_Text_Line::popToken" />
-    <provides type="function" name="Image_Text_Line::currentToken" />
-    <provides type="function" name="Image_Text_Line::nextToken" />
-    <provides type="function" name="Image_Text_Line::firstToken" />
     <filelist>
-      <file role="doc" baseinstalldir="" md5sum="e5931b3e458569abf90b8db58401081e" name="doc/readme.txt"/>
-      <file role="doc" baseinstalldir="" md5sum="e59468c689a9e921c6fdf024f8d03437" name="example/example.php"/>
-      <file role="php" baseinstalldir="" md5sum="f34ec3bcf30894ffd088b15ae13ceffd" name="Image/Text.php"/>
-      <file role="php" baseinstalldir="" md5sum="0cc32cfa73ae098df996224d25297fe0" name="Image/Text/Line.php"/>
+      <file role="doc" baseinstalldir="" md5sum="1c67aabf79c97e9931f015752fde8bbd" name="example/example.php"/>
+      <file role="php" baseinstalldir="" md5sum="af8669c61fe557a5ac6b2e11b97d0312" name="Image/Text.php"/>
+      <file role="script" baseinstalldir="" md5sum="08a2429ba557f8643025ced033da7fb0" name="make_docbook.sh"/>
+      <file role="script" baseinstalldir="" md5sum="80d87d7047524e42fb0f4abe5019c41a" name="make_dochtml.sh"/>
     </filelist>
   </release>
   <changelog>
     <release>
-      <version>0.1</version>
-      <date>2003-11-04</date>
+      <version>0.3</version>
+      <date>2004-02-15</date>
       <license>PHP License</license>
       <state>alpha</state>
-      <notes>3rd try for initial release. All releases before were broken, so I decided to delete all of 
-them and start new with 0.1</notes>
-    </release>
-    <release>
-      <version>0.2</version>
-      <date>2003-11-13</date>
-      <license>PHP License</license>
-      <state>alpha</state>
-      <notes>Implements the new Image_Tools package structure and fixes
-              			  the following bugs:
-              			  176, Antialiasing done wrong
-              			  177, correction for Image_Text-constructor
-              			  178, error in comment-block
-              			  179, textsize and position
-              			  180, Antialiasing-setting don't get through
-              			  188, Typo in Image_Text.php
-              			  189, Methods called as class variables</notes>
+      <notes>Summary:
+                          --------
+              
+                          * Great speed improvements.
+                          * Completely rewriten.
+              
+                          This release is a complete rewrite of the Image_Text package and therefor gives no cent on
+                          API BC issues. The Image_Text_Line class has been dropped completely for performance reasons.
+                          Thanks to the support of Pierre Alan Joye (pajoye@php.net)! The dependency to Image_Tools (which 
+                          will be the next for a rewrite) has been dropped, too.</notes>
     </release>
   </changelog>
 </package>

@@ -1,9 +1,6 @@
 <?php
 
-	$make = true;
-
-	echo ini_get('include_path');
-
+	$make = false;
 	require_once('PEAR/PackageFileManager.php');
 
 	$pkg = new PEAR_PackageFileManager;
@@ -15,20 +12,42 @@
 	
 	$e = $pkg->setOptions(
 		array('baseinstalldir' => '',
+		      'summary' => 'Image_Text - Advanced text maipulations in images',
+		      'description' => 'Image_Text enables you to deal more comfortable with texts inside GD 2 based images.
+		                    Create text boxes inside your images, rotate them and let the class align your text
+		                    inside it in horizontal and vertical directions. Image_Text can although determine
+		                    the best font-size for a given text box.',
 		      'version' => '0.3',
 	          'packagedirectory' => $packagedir,
 	          'pathtopackagefile' => $packagedir,
               'state' => 'alpha',
               'filelistgenerator' => 'cvs',
-              'notes' => "Implements heavy perfomance improvements (thanks Pierre!). Following his recommendation I dropped the
-                          Line class. Text tokens are now simply stored in an array. Rendering works more cleanly now in respect
-                          to line spacing. The API has changed due to refactoring. Text rotation now works fine.",
+              'notes' => "Summary:
+                          --------
+              
+                          * Great speed improvements.
+                          * Completely rewriten.
+              
+                          This release is a complete rewrite of the Image_Text package and therefor gives no cent on
+                          API BC issues. The Image_Text_Line class has been dropped completely for performance reasons.
+                          Thanks to the support of Pierre Alan Joye (pajoye@php.net)! The dependency to Image_Tools (which 
+                          will be the next for a rewrite) has been dropped, too.",
 			  'package' => 'Image_Text',
 			  'dir_roles' => array(
-			  		'doc' => 'doc',
 			  		'example' => 'doc'),
-		      'ignore' => array('package.xml'),
+		      'ignore' => array('package.xml',
+		                        'doc*', 
+		                        'generate_package_xml.php',
+		                        '*.tgz'),
 	));
+	
+	if (PEAR::isError($e)) {
+    	echo $e->getMessage();
+    	exit;
+	}
+	
+	$e = $pkg->addMaintainer('toby', 'lead', 'Tobias Schlitt', 'toby@php.net');
+	
 	
 	if (PEAR::isError($e)) {
     	echo $e->getMessage();
@@ -36,7 +55,6 @@
 	}
 		
 	$e = $pkg->addDependency('gd', '2', 'has', 'ext');
-	$e = $pkg->addDependency('Image_Tools', '0.2', 'has', 'pkg');
 	
 	if (PEAR::isError($e)) {
     	echo $e->getMessage();
