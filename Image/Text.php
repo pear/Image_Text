@@ -104,9 +104,7 @@ class Image_Text {
             'angle'             => 0,
 
             // color settings
-            'color'             => array(
-                                    'r' => 0, 'g' => 0, 'b' => 0, 'a'=>0
-                                   ),
+            'color'             => array( '#000000' ),
 
             'color_mode'        => 'line',
 
