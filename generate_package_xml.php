@@ -1,6 +1,6 @@
 <?php
 
-	$make = false;
+    $make = 1;
 	require_once('PEAR/PackageFileManager.php');
 
 	$pkg = new PEAR_PackageFileManager;
@@ -8,22 +8,39 @@
 	// directory that PEAR CVS is located in
 	$cvsdir  = '/cvs/pear/';
 	$packagedir = $cvsdir . 'Image_Text/';
-	$category = 'Image';	
+	
+	// Filemanager settings
+	$category = 'Image';
+	$package = 'Image_Text';
+	
+	$version = '0.5.1';
+	$state = 'beta';
+	
+	$summary = 'Image_Text - Advanced text maipulations in images.';
+	$description = <<<EOT
+Image_Text provides a comfortable interface to text manipulations in GD
+images. Beside common Freetype2 functionality it offers to handle texts
+in a graphic- or office-tool like way. For example it allows alignment of
+texts inside a text box, rotation (around the top left corner of a text
+box or it's center point) and the automatic measurizement of the optimal
+font size for a given text box.
+EOT;
+
+	$notes = <<<EOT
+ * Fixed bug #1207 supporting old versions - fix included.
+EOT;
 	
 	$e = $pkg->setOptions(
-		array('baseinstalldir' => '',
-		      'summary' => 'Image_Text - Advanced text maipulations in images',
-		      'description' => 's the functionality and features are currently fixed and the API is frozen, I decided to 
-                          roll the first beta release. Thsi should give a) feedback and b) stability due to (hopefully)
-                          more test.',
-		      'version' => '0.5.0',
-	          'packagedirectory' => $packagedir,
+		array('baseinstalldir'    => '',
+		      'summary'           => $summary,
+		      'description'       => $description,
+		      'version'           => $version,
+	          'packagedirectory'  => $packagedir,
 	          'pathtopackagefile' => $packagedir,
-              'state' => 'beta',
+              'state'             => $state,
               'filelistgenerator' => 'cvs',
-              'notes' => "First beta release. The API is fixed (except possible feature additions) by now. Please test this
-                         release extensively to improve stability.",
-			  'package' => 'Image_Text',
+              'notes'             => $notes,
+			  'package'           => $package,
 			  'dir_roles' => array(
 			  		'example' => 'doc'),
 		      'ignore' => array('package.xml',
@@ -38,7 +55,6 @@
 	}
 	
 	$e = $pkg->addMaintainer('toby', 'lead', 'Tobias Schlitt', 'toby@php.net');
-	
 	
 	if (PEAR::isError($e)) {
     	echo $e->getMessage();
@@ -65,7 +81,7 @@
 	$pkg->addRole('pkg', 'doc');
 	$pkg->addRole('cls', 'doc');
 	$pkg->addRole('proc', 'doc');
-	$pkg->addRole('sh', 'script');
+	$pkg->addRole('sh', 'doc');
 	
 	if (isset($make)) {
     	$e = $pkg->writePackageFile();
