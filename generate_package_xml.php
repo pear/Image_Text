@@ -13,17 +13,16 @@
 	$e = $pkg->setOptions(
 		array('baseinstalldir' => '',
 		      'summary' => 'Image_Text - Advanced text maipulations in images',
-		      'description' => 'Image_Text enables you to deal more comfortable with texts inside GD 2 based images.
-		                    Create text boxes inside your images, rotate them and let the class align your text
-		                    inside it in horizontal and vertical directions. Image_Text can although determine
-		                    the best font-size for a given text box.',
-		      'version' => '0.4pl1',
+		      'description' => 's the functionality and features are currently fixed and the API is frozen, I decided to 
+                          roll the first beta release. Thsi should give a) feedback and b) stability due to (hopefully)
+                          more test.',
+		      'version' => '0.5.0',
 	          'packagedirectory' => $packagedir,
 	          'pathtopackagefile' => $packagedir,
-              'state' => 'alpha',
+              'state' => 'beta',
               'filelistgenerator' => 'cvs',
-              'notes' => "Bugfixing release.
-		          * Fixed color handling (using array format with key's 0,1,2 (optionally) 3.",
+              'notes' => "First beta release. The API is fixed (except possible feature additions) by now. Please test this
+                         release extensively to improve stability.",
 			  'package' => 'Image_Text',
 			  'dir_roles' => array(
 			  		'example' => 'doc'),
