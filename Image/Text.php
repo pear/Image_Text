@@ -485,7 +485,7 @@ class Image_Text {
                 $color['r'] = $color[0];
                 $color['g'] = $color[1];
                 $color['b'] = $color[2];
-                $color['color']['a'] = isset($color[3]) ? $color[3] : 0;
+                $color['a'] = isset($color[3]) ? $color[3] : 0;
                 $this->options['colors'][$id] = $color;
             } else {
                 return PEAR::raiseError('Use keys 1,2,3 (optionally) 4 or r,g,b and (optionally) a.');
