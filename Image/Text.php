@@ -93,7 +93,7 @@ class Image_Text {
      *
      *      'font_size'         | The font size to render text in (will be overwriten, if you use automeasurize).
      *
-     *      'line_spacing'      | Measure for the line spacing to use. Default is 1.
+     *      'line_spacing'      | Measure for the line spacing to use. Default is 0.5.
      *
      *      'min_font_size'     | Automeasurize settings. Try to keep this area as small as possible to get better
      *      'max_font_size'     | performance.
@@ -139,7 +139,7 @@ class Image_Text {
             'font_path'         => "./",
             'font_file'         => null,
             'font_size'         => 2,
-            'line_spacing'      => 1,
+            'line_spacing'      => 0.5,
 
             // automasurizing settings
             'min_font_size'     => 1,
@@ -561,7 +561,7 @@ class Image_Text {
         $size = $this->options['font_size'];
 
         $line_spacing = $this->options['line_spacing'];
-        $space = $this->options['line_spacing'] * $this->options['font_size'] * 1.5;
+        $space = (1 + $this->options['line_spacing']) * $this->options['font_size'];
 
         $max_lines = (int)$this->options['max_lines'];
 
@@ -786,7 +786,7 @@ class Image_Text {
                 $valign_space = 0;
         }
         
-        $space = $line_spacing * $size * 1.5;
+        $space = (1 + $line_spacing) * $size;
 
         // Adjustment of align + translation of top-left-corner to bottom-left-corner of first line
         $new_posx = $start_x + ($sinR * ($valign_space + $size));
