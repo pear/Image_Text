@@ -2,12 +2,12 @@
 
 /**
  * Image_Text - Advanced text maipulations in images
- * 
+ *
  * Image_Text provides advanced text manipulation facilities for GD2
  * image generation with PHP. Simply add text clippings to your images,
  * let the class automatically determine lines, rotate text boxes around
  * their center or top left corner. These are only a couple of features
- * Image_Text provides. 
+ * Image_Text provides.
  * @package Image_Text
  * @license The PHP License, version 3.0
  * @author Tobias Schlitt <toby@php.net>
@@ -20,13 +20,13 @@
  * Require PEAR file for error handling.
  *
  */
- 
+
 require_once 'PEAR.php';
 
 /**
  * Regex to match HTML style hex triples.
  */
- 
+
 define("IMAGE_TEXT_REGEX_HTMLCOLOR", "/^[#|]([a-f0-9]{2})?([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i", true);
 
 /**
@@ -68,7 +68,7 @@ define("IMAGE_TEXT_ALIGN_JUSTIFY", "justify", true);
  * image generation with PHP. Simply add text clippings to your images,
  * let the class automatically determine lines, rotate text boxes around
  * their center or top left corner. These are only a couple of features
- * Image_Text provides. 
+ * Image_Text provides.
  *
  * @package Image_Text
  */
@@ -82,16 +82,16 @@ class Image_Text {
      * @var array
      * @see Image_Text::Image_Text(), Image_Text::set()
      */
-     
+
     var $options = array(
             // orientation
             'x'                 => 0,
             'y'                 => 0,
-            
+
             // surface
             'canvas'            => null,
             'antialias'         => true,
-            
+
             // text clipping
             'width'             => 0,
             'height'            => 0,
@@ -99,17 +99,17 @@ class Image_Text {
             // text alignement inside the clipping
             'halign'             => IMAGE_TEXT_ALIGN_LEFT,
             'valign'             => IMAGE_TEXT_ALIGN_TOP,
-            
+
             // angle to rotate the text clipping
             'angle'             => 0,
-            
+
             // color settings
             'color'             => array(
                                     'r' => 0, 'g' => 0, 'b' => 0, 'a'=>0
                                    ),
 
             'color_mode'        => 'line',
-            
+
             // font settings
             'font_path'         => "./",
             'font_file'         => null,
@@ -119,7 +119,7 @@ class Image_Text {
             // automasurizing settings
             'min_font_size'     => 1,
             'max_font_size'     => 100,
-            
+
             // misc settings
             'image_type'        => IMAGETYPE_PNG,
             'dest_file'         => ''
@@ -131,25 +131,25 @@ class Image_Text {
      * @var array
      * @access private
      */
-        
+
     var $_reInits = array('width', 'height', 'canvas', 'angle', 'font_file', 'font_path', 'font_size');
-        
+
     /**
      * The text you want to render.
      *
      * @access private
      * @var string
      */
-        
+
     var $_text;
-        
+
     /**
      * Resource ID of the image canvas.
      *
      * @access private
      * @var ressource
      */
-     
+
     var $_img;
 
     /**
@@ -158,7 +158,7 @@ class Image_Text {
      * @access private
      * @var array
      */
-     
+
     var $_tokens = array();
 
     /**
@@ -167,7 +167,7 @@ class Image_Text {
      * @access private
      * @var string
      */
-     
+
     var $_font;
 
     /**
@@ -176,7 +176,7 @@ class Image_Text {
      * @access private
      * @var array
      */
-     
+
     var $bbox = array();
 
     /**
@@ -185,8 +185,8 @@ class Image_Text {
      * @access private
      * @var array
      */
-     
-    var $_mode = '';    
+
+    var $_mode = '';
 
     /**
      * Color indeces returned by imagecolorallocatealpha.
@@ -194,16 +194,16 @@ class Image_Text {
      * @access public
      * @var array
      */
-     
+
     var $colors = array();
-    
+
     /**
      * Width and height of the (rendered) text.
      *
      * @access private
      * @var array
      */
-    
+
     var $_realTextSize = array('width' => false, 'height' => false);
 
     /**
@@ -212,25 +212,25 @@ class Image_Text {
      * @access private
      * @var array
      */
-    
+
     var $_lines = false;
-    
+
     /**
      * Fontsize for which the last measuring process was done.
      *
      * @access private
      * @var array
      */
-    
+
     var $_measurizedSize = false;
-       
+
     /**
      * Is the text object initialized?
      *
      * @access private
      * @var bool
      */
-    
+
     var $_init = false;
 
     /**
@@ -238,7 +238,7 @@ class Image_Text {
      *
      * Set the text and options. This initializes a new Image_Text object. You must set your text
      * here. Optinally you can set all options here using the $options parameter. If you finished switching
-     * all options you have to call the init() method first befor doing anything further! See Image_Text::set() 
+     * all options you have to call the init() method first befor doing anything further! See Image_Text::set()
      * for further information.
      *
      * @param   string  $text       Text to print.
@@ -246,7 +246,7 @@ class Image_Text {
      * @access public
      * @see Image_Text::set(), Image_Text::set(), Image_Text::init()
      */
-     
+
     function Image_Text($text, $options = null)
     {
         $this->set('text', $text);
@@ -254,7 +254,7 @@ class Image_Text {
             $this->options = array_merge($this->options, $options);
         }
     }
-    
+
     /**
      * Set options
      *
@@ -279,12 +279,12 @@ class Image_Text {
      *      'width'             | The width and height for your text box.
      *      'height'            |
      *
-     *      'halign'            | Alignment of your text inside the textbox. Use alignmnet constants to define    
+     *      'halign'            | Alignment of your text inside the textbox. Use alignmnet constants to define
      *      'valign'            | vertical and horizontal alignment.
      *
      *      'angle'             | The angle to rotate your text box.
      *
-     *      'color'             | An array of color values. Colors will be rotated in the mode you choose (linewise 
+     *      'color'             | An array of color values. Colors will be rotated in the mode you choose (linewise
      *                          | or paragraphwise). Can be in the following formats:
      *                          |   - String representing HTML style hex couples (+ unusual alpha couple in the first place, optional).
      *                          |   - Array of int values using 'r', 'g', 'b' and optionally 'a' as keys.
@@ -313,7 +313,7 @@ class Image_Text {
      * @access public
      * @see Image_Text::Image_Text()
      */
-    
+
     function set($option, $value=null)
     {
         $reInits = array_flip($this->_reInits);
@@ -325,17 +325,17 @@ class Image_Text {
         }
         foreach ($option as $opt => $val) {
             switch ($opt) {
-             case 'color': 
+             case 'color':
                 $this->setColors($val);
                 break;
-             case 'text':  
+             case 'text':
                 if (is_array($val)) {
                     $this->_text = implode('\n', $val);
                 } else {
                     $this->_text = $val;
                 }
                 break;
-             default: 
+             default:
                 $this->options[$opt] = $val;
                 break;
             }
@@ -345,12 +345,12 @@ class Image_Text {
         }
         return true;
     }
-    
+
     /**
      * Set the color-set
      *
      * Using this method you can set multiple colors for your text.
-     * Use a simple numeric array to determine their order and give 
+     * Use a simple numeric array to determine their order and give
      * it to this function. Multiple colors will be
      * cycled by the options specified 'color_mode' option. The given array
      * will overwrite the existing color settings!
@@ -368,16 +368,18 @@ class Image_Text {
      * @access  public
      * @see Image_Text::setColor(), Image_Text::set()
      */
-    
+
     function setColors($colors)
     {
         $i = 0;
-        if (is_array($colors)) {
+        if (is_array($colors) &&
+            (is_string($colors[0]) || is_array($colors[0]))
+           ) {
             foreach ($colors as $color) {
                 $res = $this->setColor($color,$i++);
                 if (PEAR::isError($res)) {
                     return $res;
-                }                
+                }
             }
         } else {
             return $this->setColor($colors, $i);
@@ -402,7 +404,7 @@ class Image_Text {
      * @access  public
      * @see Image_Text::setColors(), Image_Text::set()
      */
-     
+
     function setColor($color, $id=0)
     {
         if(is_array($color)) {
@@ -410,10 +412,11 @@ class Image_Text {
                 $color['a'] = isset($color['a']) ? $color['a'] : 0;
                 $this->options['colors'][$id] = $color;
             } else if (isset($color[0]) && isset($color[1]) && isset($color[2])) {
-                $this->options['color']['r'] = $color[0];
-                $this->options['color']['g'] = $color[1];
-                $this->options['color']['b'] = $color[2];
-                $this->options['color']['a'] = isset($color[3]) ? $color[3] : 0;
+                $color['r'] = $color[0];
+                $color['g'] = $color[1];
+                $color['b'] = $color[2];
+                $color['color']['a'] = isset($color[3]) ? $color[3] : 0;
+                $this->options['colors'][$id] = $color;
             } else {
                 return PEAR::raiseError('Use keys 1,2,3 (optionally) 4 or r,g,b and (optionally) a.');
             }
@@ -436,7 +439,7 @@ class Image_Text {
         }
         return true;
     }
-        
+
     /**
      * Initialiaze the Image_Text object.
      *
@@ -449,7 +452,7 @@ class Image_Text {
      * @return  bool  True on success, otherwise PEAR::Error.
      * @see Image_Text::set()
      */
-     
+
     function init()
     {
         // Does the fontfile exist and is readable?
@@ -506,7 +509,7 @@ class Image_Text {
             $angle = $angle % 360;
         }
         $this->options['angle'] = $angle;
-        
+
         // Set the color values
         $res = $this->setColors($this->options['color']);
         if (PEAR::isError($res)) {
@@ -519,7 +522,7 @@ class Image_Text {
         $this->_init = true;
         return true;
     }
-    
+
     /**
      * Auto measurize text
      *
@@ -527,7 +530,7 @@ class Image_Text {
      * fit the text into the text box. This method may be very resource
      * intensive on your webserver. A good tweaking point are the $start
      * and $end parameters, which specify the range of font sizes to search
-     * through. Anyway, the results should be cached if possible. You can 
+     * through. Anyway, the results should be cached if possible. You can
      * optionally set $start and $end here as a parameter or the settings of
      * the options array are used.
      *
@@ -537,7 +540,7 @@ class Image_Text {
      * @return int              Fontsize measured or PEAR::Error.
      * @see Image_Text::measurize()
      */
-   
+
     function autoMeasurize($start=false, $end=false)
     {
         if (!$this->_init) {
@@ -546,7 +549,7 @@ class Image_Text {
 
         $start = (empty($start)) ? $this->options['min_font_size'] : $start;
         $end = (empty($end)) ? $this->options['max_font_size'] : $end;
-        
+
         $res = false;
         // Run through all possible font sizes until a measurize fails
         // Not the optimal way. This can be tweaked!
@@ -568,13 +571,13 @@ class Image_Text {
         }
         return $this->options['font_size'];
     }
-    
+
     /**
      * Measurize text into the text box
      *
      * This method makes your text fit into the defined textbox by measurizing the
      * lines for your given font-size. You can do this manually before rendering (or use
-     * even Image_Text::autoMeasurize()) or the renderer will do measurizing 
+     * even Image_Text::autoMeasurize()) or the renderer will do measurizing
      * automatically.
      *
      * @access public
@@ -582,7 +585,7 @@ class Image_Text {
      * @return array         Array of measured lines or PEAR::Error.
      * @see Image_Text::autoMeasurize()
      */
-    
+
     function measurize($force=false)
     {
         if (!$this->_init) {
@@ -621,7 +624,7 @@ class Image_Text {
 
         $i = 0;
         $para_cnt = 0;
-        
+
         $beginning_of_line = true;
 
         // Run through tokens and order them in lines
@@ -669,7 +672,7 @@ class Image_Text {
             $bounds = imagettfbbox($size, 0, $font, $text_line_next);
             $prev_width = isset($prev_width)?$width:0;
             $width = $bounds[2]-$bounds[0];
-  
+
             // Handling of automatic new lines
             if ($width>$block_width) {
                 if ((++$lines_cnt>=$max_lines) && !$force) {
@@ -817,7 +820,7 @@ class Image_Text {
             default:
                 $valign_space = 0;
         }
-        
+
         $space = (1 + $line_spacing) * $size;
 
         // Adjustment of align + translation of top-left-corner to bottom-left-corner of first line
@@ -825,10 +828,10 @@ class Image_Text {
         $new_posy = $start_y + ($cosR * ($valign_space + $size));
 
         $lines_cnt = min($max_lines,sizeof($lines));
-        
+
         // Go thorugh lines for rendering
         for($i=0; $i<$lines_cnt; $i++){
-            
+
             // Calc the new start X and Y (only for line>0)
             // the distance between the line above is used
             if($i > 0){
@@ -861,7 +864,7 @@ class Image_Text {
 
             $posx = $new_posx + $cosR * $hyp;
             $posy = $new_posy - $sinR * $hyp;
-            
+
             $c = $lines[$i]['color'];
 
             // Render textline
@@ -888,9 +891,9 @@ class Image_Text {
     /**
      * Display the image (send it to the browser).
      *
-     * This will output the image to the users browser. You can use the standard IMAGETYPE_* 
-     * constants to determine which image type will be generated. Optionally you can save your 
-     * image to a destination you set in the options.     
+     * This will output the image to the users browser. You can use the standard IMAGETYPE_*
+     * constants to determine which image type will be generated. Optionally you can save your
+     * image to a destination you set in the options.
      *
      * @param   bool  $save  Save or not the image on printout.
      * @param   bool  $free  Free the image on exit.
@@ -925,11 +928,11 @@ class Image_Text {
             $res = $this->save();
             if (PEAR::isError($res)) {
                 return $res;
-            }            
+            }
         } else {
            $imgout($this->_img);
         }
-        
+
         if ($free) {
             $res = imagedestroy($this->image);
             if (!$res) {
@@ -938,7 +941,7 @@ class Image_Text {
         }
         return true;
     }
-    
+
     /**
      * Save image canvas.
      *
@@ -950,7 +953,7 @@ class Image_Text {
      * @return  bool                True on success, otherwise PEAR::Error.
      * @see Image_Text::display()
      */
-    
+
     function save($destFile=false)
     {
         if (!$dest_file) {
@@ -965,7 +968,7 @@ class Image_Text {
         }
         return true;
     }
-    
+
     /**
      * Get completely translated offset for text rendering.
      *
@@ -1050,7 +1053,7 @@ class Image_Text {
         }
         return false;
     }
-    
+
     /**
      * Extract the tokens from the text.
      *
