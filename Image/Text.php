@@ -500,12 +500,12 @@ class Image_Text {
         }
         if ($this->_img) {
             $aaFactor = ($this->options['antialias']) ? 1 : -1;
-            if (!function_exists('imagecolorallocatealpha')) {
-                $this->colors[$id] = $aaFactor * imagecolorallocate($this->_img,
-                                $color['r'],$color['g'],$color['b']);
-            } else {
+            if (function_exists('imagecolorallocatealpha') && isset($color['a'])) {
                 $this->colors[$id] = $aaFactor * imagecolorallocatealpha($this->_img,
                                 $color['r'],$color['g'],$color['b'],$color['a']);
+            } else {
+                $this->colors[$id] = $aaFactor * imagecolorallocate($this->_img,
+                                $color['r'],$color['g'],$color['b']);
             }
         }
         return true;
