@@ -17,21 +17,12 @@
 		                    Create text boxes inside your images, rotate them and let the class align your text
 		                    inside it in horizontal and vertical directions. Image_Text can although determine
 		                    the best font-size for a given text box.',
-		      'version' => '0.3',
+		      'version' => '0.3pl1',
 	          'packagedirectory' => $packagedir,
 	          'pathtopackagefile' => $packagedir,
               'state' => 'alpha',
               'filelistgenerator' => 'cvs',
-              'notes' => "Summary:
-                          --------
-              
-                          * Great speed improvements.
-                          * Completely rewriten.
-              
-                          This release is a complete rewrite of the Image_Text package and therefor gives no cent on
-                          API BC issues. The Image_Text_Line class has been dropped completely for performance reasons.
-                          Thanks to the support of Pierre Alan Joye (pajoye@php.net)! The dependency to Image_Tools (which 
-                          will be the next for a rewrite) has been dropped, too.",
+              'notes' => "This is a bugfixing release, replacing the broken example file.",
 			  'package' => 'Image_Text',
 			  'dir_roles' => array(
 			  		'example' => 'doc'),

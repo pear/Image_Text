@@ -16,26 +16,17 @@
     </maintainer>
   </maintainers>
   <release>
-    <version>0.3</version>
-    <date>2004-02-15</date>
+    <version>0.3pl1</version>
+    <date>2004-02-16</date>
     <license>PHP License</license>
     <state>alpha</state>
-    <notes>Summary:
-                          --------
-              
-                          * Great speed improvements.
-                          * Completely rewriten.
-              
-                          This release is a complete rewrite of the Image_Text package and therefor gives no cent on
-                          API BC issues. The Image_Text_Line class has been dropped completely for performance reasons.
-                          Thanks to the support of Pierre Alan Joye (pajoye@php.net)! The dependency to Image_Tools (which 
-                          will be the next for a rewrite) has been dropped, too.</notes>
+    <notes>This is a bugfixing release, replacing the broken example file.</notes>
     <deps>
       <dep type="ext" rel="has" optional="no">gd</dep>
     </deps>
     <filelist>
-      <file role="doc" baseinstalldir="" md5sum="1c67aabf79c97e9931f015752fde8bbd" name="example/example.php"/>
-      <file role="php" baseinstalldir="" md5sum="af8669c61fe557a5ac6b2e11b97d0312" name="Image/Text.php"/>
+      <file role="doc" baseinstalldir="" md5sum="ed1742bd24cadf30e5f316dfa1c34722" name="example/example.php"/>
+      <file role="php" baseinstalldir="" md5sum="cf510b4ddd295f28d9831a69ef3817fd" name="Image/Text.php"/>
       <file role="script" baseinstalldir="" md5sum="08a2429ba557f8643025ced033da7fb0" name="make_docbook.sh"/>
       <file role="script" baseinstalldir="" md5sum="80d87d7047524e42fb0f4abe5019c41a" name="make_dochtml.sh"/>
     </filelist>
@@ -56,6 +47,13 @@
                           API BC issues. The Image_Text_Line class has been dropped completely for performance reasons.
                           Thanks to the support of Pierre Alan Joye (pajoye@php.net)! The dependency to Image_Tools (which 
                           will be the next for a rewrite) has been dropped, too.</notes>
+    </release>
+    <release>
+      <version>0.3pl1</version>
+      <date>2004-02-16</date>
+      <license>PHP License</license>
+      <state>alpha</state>
+      <notes>This is a bugfixing release, replacing the broken example file.</notes>
     </release>
   </changelog>
 </package>
