@@ -44,7 +44,7 @@ define("IMAGE_TEXT_ALIGN_JUSTIFY", "justify", true);
 
 /**
  * Image_Text - Advanced text maipulations in images
- * 
+ *
  * Image_Text provides advanced text manipulation facilities for GD2
  * image generation with PHP. Simply add text clippings to your images,
  * let the class automatically determine lines, rotate text boxes around
@@ -150,6 +150,8 @@ class Image_Text {
             'dest_file'         => ''
         );
     
+    var $_reInits = array('width', 'height', 'canvas', 'angle', 'font_file', 'font_path', 'font_size');
+        
     /**
      * The text you want to render.
      *
@@ -266,7 +268,7 @@ class Image_Text {
     {
         $this->_text = $text;
         if (!empty($options)) {
-            $this->options = $this->set($options);
+            $this->options = array_merge($this->options, $options);
         }
     }
     
@@ -292,10 +294,13 @@ class Image_Text {
             $option = array($option => $value);
         }
         foreach ($option as $opt => $val) {
-            if ($opt == 'color') {
-                $this->setColors($val);
-            } else {
-                $this->options[$opt] = $val;
+            switch ($opt) {
+             case 'color': $this->setColors($val);
+                      break;
+             case 'text':  $this->_text = $val;
+                      break;
+             default: $this->options[$opt] = $val;
+                      break;
             }
             if (isset($reInits[$opt])) {
                 $this->_init = false;
@@ -309,7 +314,7 @@ class Image_Text {
      *
      * Using this method you can set one or more colors for your text.
      * If you set multiple colors, use a simple numeric array to determine
-     * their order and give it to this function. Multiple colors will be 
+     * their order and give it to this function. Multiple colors will be
      * cycled by the options specified 'color_mode' option.
      *
      * The following colors syntaxes are understood by this method:
@@ -328,8 +333,8 @@ class Image_Text {
     
     function setColors($colors)
     {
+        $i = 0;
         if (is_array($colors) && !isset($colors['r'])) {
-            $i = 0;
             foreach ($colors as $color) {
                 $this->setColor($color,$i++);
             }
@@ -381,6 +386,7 @@ class Image_Text {
             $this->options['colors'][$id] = $color;
         }
         $color = $this->options['colors'][$id];
+
         if ($this->options['antialias']) {
             $this->colors[] = imagecolorallocatealpha($this->_img,
                             $color['r'],$color['g'],$color['b'],$color['a']);
@@ -412,12 +418,12 @@ class Image_Text {
         } else {
             $this->_font = $this->options['font_path'].$this->options['font_file'];
         }
-        
+
         // Is the font size to small?
         if ($this->options['width'] < 1) {
-            return PEAR::raiseError('Font size to small. Has to be > 1.');
+            return PEAR::raiseError('Width too small. Has to be > 1.');
         }
-    
+
         // Check and create canvas
         if(empty($this->options['canvas'])) {
             // Create new image from width && height of the clipping
@@ -443,10 +449,10 @@ class Image_Text {
         } elseif ($this->options['canvas']=='auto') {
             $this->_mode = 'auto';
         }
-        
+        $this->options['canvas'] = array();
         $this->options['canvas']['height'] = imagesx($this->_img);
         $this->options['canvas']['width'] = imagesy($this->_img);
-        
+
         // Save and repair angle
         $angle = $this->options['angle'];
         while($angle < 0) {
@@ -462,7 +468,9 @@ class Image_Text {
         if (PEAR::isError($this->options['color'])) {
             return $this->options['color'];
         }
-        
+
+        $this->_lines = null;
+
         // Initialization is complete
         $this->_init = true;
         return true;
@@ -474,7 +482,7 @@ class Image_Text {
      * Automatically determines the greatest possible font size to
      * fit the text into the text box. This method may be very resource
      * intensive on your webserver. A good tweaking point are the $start
-     * and $end parameters, which specify the range of font sizes to search 
+     * and $end parameters, which specify the range of font sizes to search
      * through. Anyway, the results should be cached if possible. You can 
      * optionally set $start and $end here as a parameter or the settings of
      * the options array are used.
@@ -491,8 +499,7 @@ class Image_Text {
         if (!$this->_init) {
             return PEAR::raiseError('Not initialized. Call ->init() first!');
         }
-        $this->_processText();
-        
+
         $start = (empty($start)) ? $this->options['min_font_size'] : $start;
         $end = (empty($end)) ? $this->options['max_font_size'] : $end;
         
@@ -535,6 +542,7 @@ class Image_Text {
         if (!$this->_init) {
             return PEAR::raiseError('Not initialized. Call ->init() first!');
         }
+        $this->_processText();
 
         // Precaching options
         $font = $this->_font;
@@ -542,7 +550,7 @@ class Image_Text {
 
         $line_spacing = $this->options['line_spacing'];
         $space = $this->options['line_spacing'] * $this->options['font_size'] * 1.5;
-        
+
         $max_lines = (int)$this->options['max_lines'];
 
         if (($max_lines<1) && !$force) {
@@ -554,21 +562,21 @@ class Image_Text {
 
         $colors_cnt = sizeof($this->colors);
         $c = $this->colors[0];
-                        
+
         $text_line = '';
-        
+
         $lines_cnt = 0;
         $tokens_cnt = sizeof($this->_tokens);
-        
+
         $lines = array();
-        
+
         $text_height = 0;
-        $sizes = array();
-        
+        $text_width = 0;
+
         $i = 0;
         $para_cnt = 0;
-        
-        // Run through tokens and order them in lines       
+
+        // Run through tokens and order them in lines
         foreach($this->_tokens as $token) {
             // Handle new paragraphs
             if ($token=="\n") {
@@ -591,6 +599,7 @@ class Image_Text {
                                 'color'         => $c
                             );
                 $text_height += (int)$space;
+                $text_width = max($text_width, ($bounds[2]-$bounds[0]));
                 if (($text_height >= $block_height) && !$force) {
                     return false;
                 }
@@ -600,12 +609,12 @@ class Image_Text {
             }
 
             // Usual lining up
-            
+
             $bounds = imagettfbbox($size, 0, $font,
                     $text_line.(!empty($text_line)?' ':'').$token);
-            $prev_width = $i>0?$width:0;
+            $prev_width = isset($prev_width)?$width:0;
             $width = $bounds[2]-$bounds[0];
-            
+
             // Handling of automatic new lines
             if ($width>$block_width) {
                 if ((++$lines_cnt>=$max_lines) && !$force) {
@@ -616,7 +625,7 @@ class Image_Text {
                 } else {
                     $c = $this->colors[$para_cnt%$colors_cnt];
                     $i++;
-                }   
+                }
                 $lines[]  = array(
                                 'string'    => $text_line,
                                 'width'     => $prev_width,
@@ -625,7 +634,7 @@ class Image_Text {
                                 'left_margin'   => $bounds[0],
                                 'color'         => $c
                             );
-                            
+                $text_width = max($text_width, ($bounds[2]-$bounds[0]));
                 $text_height += (int)$space;
                 if (($text_height >= $block_height) && !$force) {
                     return false;
@@ -652,16 +661,18 @@ class Image_Text {
         // If non empty line, add last line height
         if ($text_line !== "") {
             $text_height += (int)$space;
+            $text_width = max($text_width, ($bounds[2]-$bounds[0]));
         }
-        
+
         if (($text_height >= $block_height) && !$force) {
             return false;
         }
-                
-        $this->_realTextSize = array('width' => $this->options['width'], 'height' => $text_height);        
+
+        $this->_realTextSize = array('width' => $text_width, 'height' => $text_height);
+        $this->_measurizedSize = $this->options['font_size'];
         return $lines;
     }
-    
+
     /**
      * Render the text in the canvas using the given options.
      *
@@ -673,26 +684,26 @@ class Image_Text {
      * @param  bool     $force  Optional, initially false, set true to silence measurize errors.
      * @return bool             True on success, otherwise PEAR::Error.
      */
-     
+
     function render( $force = false )
     {
         if (!$this->_init) {
             return PEAR::raiseError('Not initialized. Call ->init() first!');
         }
-        
+
         if (!$this->_tokens) {
             $this->_processText();
         }
-        
+
         if (empty($this->_lines) || ($this->_measurizedSize != $this->options['font_size'])) {
             $this->_lines = $this->measurize( $force );
         }
         $lines = $this->_lines;
-        
+
         if (PEAR::isError($this->_lines)) {
             return $this->_lines;
         }
-        
+
         if ($this->_mode === 'auto') {
             $this->_img = imagecreatetruecolor(
                         $this->_realTextSize['width'],
@@ -703,35 +714,38 @@ class Image_Text {
             }
             $this->setColors($this->_options['color']);
         }
-        
+
         $block_width = $this->options['width'];
         $block_height = $this->options['height'];
-        
+
         $max_lines = $this->options['max_lines'];
-        
+
         $angle = $this->options['angle'];
         $radians = round(deg2rad($angle), 3);
-        
+
         $font = $this->_font;
         $size = $this->options['font_size'];
-        
+
         $line_spacing = $this->options['line_spacing'];
-        
+
         $align = $this->options['halign'];
-        
+
         $im = $this->_img;
-        
+
         $offset = $this->_getOffset();
-        
+        if ($force) {
+            // var_dump($offset);
+        }
+
         $start_x = $offset['x'];
         $start_y = $offset['y'];
-        
+
         $end_x = $start_x + $block_width;
         $end_y = $start_y + $block_height;
-        
+
         $sinR = sin($radians);
         $cosR = cos($radians);
-        
+
         switch ($this->options['valign']) {
             case IMAGE_TEXT_ALIGN_TOP:
                 $valign_space = 0;
@@ -751,7 +765,7 @@ class Image_Text {
         // Adjustment of align + translation of top-left-corner to bottom-left-corner of first line
         $new_posx = $start_x + ($sinR * ($valign_space + $lines[0]['height']));
         $new_posy = $start_y + ($cosR * ($valign_space + $lines[0]['height']));
-                
+
         $lines_cnt = min($max_lines,sizeof($lines));
         
         // Go thorugh lines for rendering
@@ -796,6 +810,7 @@ class Image_Text {
             $bboxes[] = imagettftext ($im, $size, $angle, $posx, $posy, $c, $font, $lines[$i]['string']);
         }
         $this->bbox = $bboxes;
+        return true;
     }
 
     /**
@@ -806,7 +821,7 @@ class Image_Text {
      * @access public
      * @return resource Used image resource
      */
-     
+
     function &getImg()
     {
         return $this->_img;
@@ -901,7 +916,7 @@ class Image_Text {
      * @access private
      * @return array    Array of x/y coordinates.
      */
-    
+
     function _getOffset ( ) {
         // Presaving data
         $width = $this->options['width'];
@@ -932,11 +947,11 @@ class Image_Text {
                 );
                 // Multiply vector with matrix to get the rotated vector
                 // This results in the location of the center point after rotation
-                $vB = array ( 
+                $vB = array (
                     ($mRot[0] * $vA[0] + $mRot[2] * $vA[0]),
                     ($mRot[1] * $vA[1] + $mRot[3] * $vA[1])
                 );
-                // To get the movement vector, we subtract the original middle 
+                // To get the movement vector, we subtract the original middle
                 $vC = array (
                     ($vA[0] - $vB[0]),
                     ($vA[1] - $vB[1])
@@ -946,9 +961,9 @@ class Image_Text {
                 $y += $vC[1];
             }
         }
-        return array ('x' => $x, 'y' => $y);
+        return array ('x' => (int)round($x, 0), 'y' => (int)round($y, 0));
     }
-    
+
     /**
      * Convert a color to an array.
      *
@@ -986,6 +1001,8 @@ class Image_Text {
         if (empty($this->_text)) {
             return false;
         }
+        $this->_tokens = array();
+
         // Normalize linebreak to "\n"
         $this->_text = preg_replace("[\r\n]", "\n", $this->_text);
 
