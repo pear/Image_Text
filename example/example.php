@@ -35,7 +35,7 @@
                 'color'         => $colors,
                 'max_lines'     => 100,
                 'min_font_size' => 2,
-                'max_font_size' => 30,
+                'max_font_size' => 50,
                 'font_path'     => './',
                 'antialias'     => true,
                 'font_file'     => 'Vera.ttf',
