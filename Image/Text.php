@@ -429,12 +429,13 @@ class Image_Text {
             }
         }
         if ($this->_img) {
-            if ($this->options['antialias']) {
-                $this->colors[$id] = imagecolorallocatealpha($this->_img,
-                                   $color['r'],$color['g'],$color['b'],$color['a']);
+            $aaFactor = ($this->options['antialias']) ? 1 : -1;
+            if (!function_exists('imagecolorallocatealpha')) {
+                $this->colors[$id] = $aaFactor * imagecolorallocate($this->_img,
+                                $color['r'],$color['g'],$color['b']);
             } else {
-                $this->colors[$id] = -imagecolorallocatealpha($this->_img,
-                                   $color['r'],$color['g'],$color['b'],$color['a']);
+                $this->colors[$id] = $aaFactor * imagecolorallocatealpha($this->_img,
+                                $color['r'],$color['g'],$color['b'],$color['a']);
             }
         }
         return true;
