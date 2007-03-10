@@ -548,10 +548,14 @@ class Image_Text {
         // todo: with some versions of the GD-library it's also possible to leave font_path empty, add strip ".ttf" from
         //        the fontname; the fontfile will then be automatically searched for in library-defined directories
         //        however this does not yet work if at this point we check for the existance of the fontfile
-        if (!is_file($this->options['font_path'].$this->options['font_file']) || !is_readable($this->options['font_path'].$this->options['font_file'])) {
+        $font_file = rtrim($this->options['font_path'], '/\\');
+        $font_file.= (OS_WINDOWS) ? '\\' : '/';
+        $font_file.= $this->options['font_file'];
+        $font_file = realpath($font_file);
+        if (empty($font_file) || !is_file($font_file) || !is_readable($font_file)) {
             return PEAR::raiseError('Fontfile not found or not readable.');
         } else {
-            $this->_font = $this->options['font_path'].$this->options['font_file'];
+            $this->_font = $font_file;
         }
 
         // Is the font size to small?
@@ -823,6 +827,9 @@ class Image_Text {
         $bounds = imagettfbbox($size, 0, $font,$text_line);
         if ($this->options['color_mode']=='line') {
             $c = $this->colors[$i++%$colors_cnt];
+        } else {
+            $c = $this->colors[$para_cnt%$colors_cnt];
+            $i++;
         }
         $lines[]  = array(
                         'string'=> $text_line,
