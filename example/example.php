@@ -24,11 +24,11 @@
  * @link       http://pear.php.net/package/Net_FTP2
  * @since      File available since Release 0.0.1
  */
- 
+
 // ini_set('include_path', '.:/cvs/pear/Image_Text:/usr/share/pear');
 
 require_once 'Image/Text.php';
-   
+
 function getmicrotime()
 {
     list($usec,$sec) = explode(' ', microtime());
@@ -40,7 +40,7 @@ $colors = array(
     1 => '#e8ce7a',
     2 => '#7ae8ad'
 );
-    
+
 $texts[] = "a passion for php"; // Short Text
 $texts[] = "a good computer is like a tipi - no windows, no gates and an apache inside"; // Normal Text
 $texts[] = "What is PEAR?\nThe fleshy pome, or fruit, of a rosaceous tree (Pyrus communis), cultivated in many varieties in temperate climates.\nPEAR is a framework and distribution system for reusable PHP components. PECL, being a subset of PEAR, is the complement for C extensions for PHP. See the FAQ and manual for more information."; // Long Text
@@ -68,7 +68,7 @@ $options = array(
         );
 
 $text = $texts[array_rand($texts)];
-        
+
 foreach ($_GET as $key => $val) {
     switch ($key) {
         case 'font_size':
@@ -91,39 +91,43 @@ foreach ($_GET as $key => $val) {
             break;
     }
 }
-        
+
 $start = getmicrotime();
 
 $itext = new Image_Text($text, $options);
 
-$itext->init();
+$ret = $itext->init();
+if (PEAR::isError($ret)) {
+    echo $ret->getMessage() . "\n";
+    die();
+}
 
 if (empty($options['font_size'])) {
     $itext->autoMeasurize();
 } else {
     $itext->measurize();
 }
-   
+
 $itext->render();
 
 $end = getmicrotime();
 
 $time = $end - $start;
-    
+
 if (isset($_GET['debug'])) {
     echo "<h1>-- DEBUGGING MODE --</h1>";
 } else {
 
     $img =& $itext->getImg();
-    
+
     $red = imagecolorallocate($img, 255, 0, 0);
-    
+
     imagefilledellipse($img, 300, 300, 10, 10, $red);
-    
+
     if (isset($_GET['info'])) {
         imagettftext($img, 10, 0, 10, 550, $red, "./Vera.ttf", "$time sec.");
     }
-   
+
     $itext->display();
 
 }
