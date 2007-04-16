@@ -58,6 +58,7 @@ $options = array(
             'line_spacing'  => 1,
             'angle'         => 0,
             'color'         => $colors,
+            'background_color' => '#FF0000', //red background
             'max_lines'     => 100,
             'min_font_size' => 2,
             'max_font_size' => 50,

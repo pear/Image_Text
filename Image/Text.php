@@ -31,6 +31,7 @@
  *             'line_spacing'  => 1,       // Normal linespacing
  *             'angle'         => 45,      // Text rotated by 45
  *             'color'         => $colors, // Predefined colors
+ *             'background_color' => '#FF0000', //red background
  *             'max_lines'     => 100,     // Maximum lines to render
  *             'min_font_size' => 2,       // Minimal/Maximal font size (for automeasurize)
  *             'max_font_size' => 50,
