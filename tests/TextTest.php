@@ -66,6 +66,7 @@ class Image_TextTest extends PHPUnit_Framework_TestCase {
      *
      */
     public function testConstruct() {
+return;
         $i = $this->initInstance('test');
         $this->assertType('Image_Text', $i);
         $this->assertTrue($i->init());
@@ -81,6 +82,40 @@ class Image_TextTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($i->render());
         $this->assertFalse(imageisthesame(
             $this->dir . 'test-construct.png',
+            $i->getImg()
+        ));
+    }
+
+    public function testBackgroundColor() {
+        //default background is black
+        $i = $this->initInstance('test');
+        $this->assertType('Image_Text', $i);
+        $this->assertTrue($i->init());
+        $this->assertTrue($i->render());
+        $this->assertTrue(imageisthesame(
+            $this->dir . 'test-construct.png',
+            $i->getImg()
+        ));
+
+        //red background
+        $i = $this->initInstance('text');
+        $this->assertType('Image_Text', $i);
+        $i->set(array('background_color' => '#FF0000'));
+        $this->assertTrue($i->init());
+        $this->assertTrue($i->render());
+        $this->assertTrue(imageisthesame(
+            $this->dir . 'test-background-red.png',
+            $i->getImg()
+        ));
+
+        //transparent background
+        $i = $this->initInstance('text');
+        $this->assertType('Image_Text', $i);
+        $i->set(array('background_color' => null));
+        $this->assertTrue($i->init());
+        $this->assertTrue($i->render());
+        $this->assertTrue(imageisthesame(
+            $this->dir . 'test-background-transparent.png',
             $i->getImg()
         ));
     }

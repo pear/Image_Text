@@ -176,6 +176,10 @@ class Image_Text {
      *      'color_mode'        | The color rotation mode for your color sets. Does only apply if you
      *                          | defined multiple colors. Use 'line' or 'paragraph'.
      *
+     *      'background_color'  | defines the background color. NULL sets it transparent
+     *      'enable_alpha'      | if alpha channel should be enabled. Automatically
+     *                          | enabled when background_color is set to NULL
+     *
      *      'font_path'         | Location of the font to use. The path only gives the directory path (ending with a /).
      *      'font_file'         | The fontfile is given in the 'font_file' option.
      *
@@ -220,6 +224,9 @@ class Image_Text {
             'color'             => array( '#000000' ),
 
             'color_mode'        => 'line',
+
+            'background_color'  => '#000000',
+            'enable_alpha'      => false,
 
             // font settings
             'font_path'         => "./",
@@ -615,16 +622,41 @@ class Image_Text {
 
         if ($this->_img) {
             $this->options['canvas'] = array();
-            $this->options['canvas']['height'] = imagesx($this->_img);
-            $this->options['canvas']['width'] = imagesy($this->_img);
+            $this->options['canvas']['width']  = imagesx($this->_img);
+            $this->options['canvas']['height'] = imagesy($this->_img);
         }
+
+        if ($this->options['enable_alpha']) {
+            imagesavealpha($this->_img, true);
+            imagealphablending($this->_img, false);
+        }
+
+        if ($this->options['background_color'] === null) {
+            $this->options['enable_alpha'] = true;
+            imagesavealpha($this->_img, true);
+            imagealphablending($this->_img, false);
+            $colBg = imagecolorallocatealpha($this->_img, 255, 255, 255, 127);
+        } else {
+            $arBg  = $this->_convertString2RGB($this->options['background_color']);
+            if ($arBg === false) {
+                return PEAR::raiseError('Background color is invalid.');
+            }
+            $colBg = imagecolorallocatealpha($this->_img, $arBg['r'], $arBg['g'], $arBg['b'], $arBg['a']);
+        }
+        imagefilledrectangle(
+            $this->_img,
+            0, 0,
+            $this->options['canvas']['width'] - 1, $this->options['canvas']['height'] - 1,
+            $colBg
+        );
+
 
         // Save and repair angle
         $angle = $this->options['angle'];
-        while($angle < 0) {
+        while ($angle < 0) {
             $angle += 360;
         }
-        if($angle > 359) {
+        if ($angle > 359) {
             $angle = $angle % 360;
         }
         $this->options['angle'] = $angle;
