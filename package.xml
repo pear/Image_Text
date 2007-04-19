@@ -1,79 +1,97 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
-<package version="1.0">
-  <name>Image_Text</name>
-  <summary>Image_Text - Advanced text maipulations in images.</summary>
-  <description>Image_Text provides a comfortable interface to text manipulations in GD
+<package version="1.0" packagerversion="1.4.11">
+ <name>Image_Text</name>
+ <summary>Image_Text - Advanced text maipulations in images.</summary>
+ <description>Image_Text provides a comfortable interface to text manipulations in GD
 images. Beside common Freetype2 functionality it offers to handle texts
 in a graphic- or office-tool like way. For example it allows alignment of
 texts inside a text box, rotation (around the top left corner of a text
-box or it's center point) and the automatic measurizement of the optimal
-font size for a given text box.</description>
-  <maintainers>
-    <maintainer>
-      <user>toby</user>
-      <name>Tobias Schlitt</name>
-      <email>toby@php.net</email>
-      <role>lead</role>
-    </maintainer>
+box or it&apos;s center point) and the automatic measurizement of the optimal
+font size for a given text box.
+ </description>
+ <maintainers>
+  <maintainer>
+   <user>stoyan</user>
+   <name>Stoyan Stefanov</name>
+   <email>ssttoo@gmail.com</email>
+   <role>lead</role>
+  </maintainer>
+  <maintainer>
+   <user>toby</user>
+   <name>Tobias Schlitt</name>
+   <email>toby@php.net</email>
+   <role>lead</role>
+  </maintainer>
   </maintainers>
-  <release>
-    <version>0.5.2beta2</version>
-    <date>2004-09-23</date>
+ <release>
+  <version>0.6.0beta</version>
+  <date>2007-04-18</date>
+  <license>PHP License</license>
+  <state>beta</state>
+  <notes>* Fixing bug #10722: Example crashes because font file is not found (Thanks to James Pic, Christian Weiske!)
+ * Updated example and phpDocs (Thanks to Christian Weiske!)
+ * Fixing requests #2520 -	set background-color. (Thanks to James Pic, Christian Weiske!)
+ * Fixed request #6211 - transparent background. (Thanks to James Pic, Christian Weiske!)
+ * Unit tests (Thanks to Christian Weiske!)
+ * Fixed E_NOTICE, setting default max_lines (Thanks to Christian Weiske!)
+ * Fixed bug #10235
+ * Fixed request #3356
+ * Moved to package.xml v.2
+  </notes>
+  <deps>
+   <dep type="ext" rel="has" optional="no">gd</dep>
+  </deps>
+  <filelist>
+   <dir name="/" baseinstalldir="/">
+    <dir name="example">
+     <file role="doc" name="example.php"/>
+    </dir> <!-- /example -->
+    <dir name="Image">
+     <file role="php" name="Text.php"/>
+    </dir> <!-- /Image -->
+    <dir name="tests">
+     <dir name="testimages">
+      <file role="php" name="5x10-gradient.jpg"/>
+      <file role="php" name="5x10-gradient.png"/>
+      <file role="php" name="5x10-red-254.jpg"/>
+      <file role="php" name="5x10-red-254.png"/>
+      <file role="php" name="5x10-red-index.png"/>
+      <file role="php" name="5x10-red.png"/>
+      <file role="php" name="10x5-red.png"/>
+      <file role="php" name="10x5-white-grey.png"/>
+      <file role="php" name="10x5-white-index.png"/>
+      <file role="php" name="10x5-white.png"/>
+      <file role="php" name="test-background-red.png"/>
+      <file role="php" name="test-background-transparent.png"/>
+      <file role="php" name="test-construct.png"/>
+     </dir> <!-- /tests/testimages -->
+     <file role="php" name="imageisthesame.php"/>
+     <file role="php" name="imageisthesameTest.php"/>
+     <file role="php" name="TextTest.php"/>
+     <file role="data" name="Vera.ttf"/>
+    </dir> <!-- /tests -->
+    <file role="doc" name="make_docbook.sh"/>
+    <file role="doc" name="make_dochtml.sh"/>
+   </dir> <!-- / -->
+  </filelist>
+ </release>
+ <changelog>
+   <release>
+    <version>0.6.0beta</version>
+    <date>2007-04-18</date>
     <license>PHP License</license>
     <state>beta</state>
-    <notes> * Fixed bug 2265: Init a heigth without a canvas.</notes>
-    <deps>
-      <dep type="ext" rel="has" optional="no">gd</dep>
-    </deps>
-    <filelist>
-      <dir baseinstalldir="" name="/">
-       <dir name="example">
-        <file role="doc" name="example.php"/>
-       </dir> <!-- example -->
-       <dir name="Image">
-        <file role="php" name="Text.php"/>
-       </dir> <!-- Image -->
-       <file role="doc" name="make_docbook.sh"/>
-       <file role="doc" name="make_dochtml.sh"/>
-      </dir> <!-- / -->
-    </filelist>
-  </release>
-  <changelog>
-    <release>
-      <version>0.5.1</version>
-      <date>2004-04-14</date>
-      <license>PHP License</license>
-      <state>beta</state>
-      <notes>* Fixed bug #1207 supporting old versions - fix included.</notes>
-    </release>
-    <release>
-      <version>0.5.1beta</version>
-      <date>2004-07-11</date>
-      <license>PHP License</license>
-      <state>beta</state>
-      <notes>* Fixed bug #1207 supporting old versions - fix included.
-* Updated default color array regarding to bug #1203: mega bug summary / with some wishes.
-* Added more docs for &quot;font_path&quot; and &quot;font_file&quot; regarding bug #1203: mega bug summary / with some wishes.
-* Moved options docs to options array.
-* Added simple example to the top.
-* Fixed save() method accoriding to bug #1203: mega bug summary / with some wishes.
-* Added construct() method according to bug #1203 [Opn-&gt;Asn]: mega bug summary / with some wishes.</notes>
-    </release>
-    <release>
-      <version>0.5.2beta1</version>
-      <date>2004-09-01</date>
-      <license>PHP License</license>
-      <state>beta</state>
-      <notes>* Fixed bug #2182: problems displaying &quot;0&quot;
-* Fixed bug #2161: Notice</notes>
-    </release>
-    <release>
-      <version>0.5.2beta2</version>
-      <date>2004-09-23</date>
-      <license>PHP License</license>
-      <state>beta</state>
-      <notes> * Fixed bug 2265: Init a heigth without a canvas.</notes>
-    </release>
-  </changelog>
+    <notes>* Fixing bug #10722: Example crashes because font file is not found (Thanks to James Pic, Christian Weiske!)
+ * Updated example and phpDocs (Thanks to Christian Weiske!)
+ * Fixing requests #2520 -	set background-color. (Thanks to James Pic, Christian Weiske!)
+ * Fixed request #6211 - transparent background. (Thanks to James Pic, Christian Weiske!)
+ * Unit tests (Thanks to Christian Weiske!)
+ * Fixed E_NOTICE, setting default max_lines (Thanks to Christian Weiske!)
+ * Fixed bug #10235
+ * Fixed request #3356
+ * Moved to package.xml v.2
+    </notes>
+   </release>
+ </changelog>
 </package>

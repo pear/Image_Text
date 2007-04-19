@@ -1,22 +1,21 @@
-#!/usr/bin/php
 <?php
 
-    $make = 1;
 	require_once('PEAR/PackageFileManager.php');
 
 	$pkg = new PEAR_PackageFileManager;
 
 	// directory that PEAR CVS is located in
-	$cvsdir  = '/cvs/pear/';
+	$cvsdir  = 'CVS/';
 	$packagedir = $cvsdir . 'Image_Text/';
-	
+	$packagedir = './';
+
 	// Filemanager settings
 	$category = 'Image';
 	$package = 'Image_Text';
-	
-	$version = '0.5.2beta2';
+
+	$version = '0.6.0beta';
 	$state = 'beta';
-	
+
 	$summary = 'Image_Text - Advanced text maipulations in images.';
 	$description = <<<EOT
 Image_Text provides a comfortable interface to text manipulations in GD
@@ -28,12 +27,20 @@ font size for a given text box.
 EOT;
 
 	$notes = <<<EOT
- * Fixed bug 2265: Init a heigth without a canvas.
+ * Fixing bug #10722: Example crashes because font file is not found (Thanks to James Pic, Christian Weiske!)
+ * Updated example and phpDocs (Thanks to Christian Weiske!)
+ * Fixing requests #2520 -	set background-color. (Thanks to James Pic, Christian Weiske!)
+ * Fixed request #6211 - transparent background. (Thanks to James Pic, Christian Weiske!)
+ * Unit tests (Thanks to Christian Weiske!)
+ * Fixed E_NOTICE, setting default max_lines (Thanks to Christian Weiske!)
+ * Fixed bug #10235
+ * Fixed request #3356
+ * Moved to package.xml v.2
 EOT;
-	
+
 	$e = $pkg->setOptions(
 		array('simpleoutput'      => true,
-		      'baseinstalldir'    => '',
+		      'baseinstalldir'    => '/',
 		      'summary'           => $summary,
 		      'description'       => $description,
 		      'version'           => $version,
@@ -46,30 +53,31 @@ EOT;
 			  'dir_roles' => array(
 			  		'example' => 'doc'),
 		      'ignore' => array('package.xml',
-		                        'doc*', 
+		                        'doc*',
 		                        'generate_package_xml.php',
 		                        '*.tgz'),
 	));
-	
+
 	if (PEAR::isError($e)) {
     	echo $e->getMessage();
     	exit;
 	}
-	
-	$e = $pkg->addMaintainer('toby', 'lead', 'Tobias Schlitt', 'toby@php.net');
-	
+
+	$e = $pkg->addMaintainer('stoyan', 'lead', 'Stoyan Stefanov', 'ssttoo@gmail.com');
+	$e = $pkg->addMaintainer('toby',   'lead', 'Tobias Schlitt', 'toby@php.net');
+
 	if (PEAR::isError($e)) {
     	echo $e->getMessage();
     	exit;
 	}
-		
+
 	$e = $pkg->addDependency('gd', '2', 'has', 'ext');
-	
+
 	if (PEAR::isError($e)) {
     	echo $e->getMessage();
     	exit;
 	}
-	
+
 	// hack until they get their shit in line with docroot role
 	$pkg->addRole('tpl', 'php');
 	$pkg->addRole('png', 'php');
@@ -84,18 +92,15 @@ EOT;
 	$pkg->addRole('cls', 'doc');
 	$pkg->addRole('proc', 'doc');
 	$pkg->addRole('sh', 'doc');
-	
+
 	if (isset($make)) {
     	$e = $pkg->writePackageFile();
 	} else {
     	$e = $pkg->debugPackageFile();
 	}
-	
+
 	if (PEAR::isError($e)) {
     	echo $e->getMessage();
 	}
-	
-	if (!isset($make)) {
-    	echo '<a href="' . $_SERVER['PHP_SELF'] . '?make=1">Make this file</a>';
-	}
+
 ?>
