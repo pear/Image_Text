@@ -536,6 +536,11 @@ class Image_Text {
                 $this->colors[$id] = $aaFactor * imagecolorallocate($this->_img,
                                 $color['r'],$color['g'],$color['b']);
             }
+            if ($this->colors[$id] == 0 && $aaFactor == -1) {
+            	// correction for black with antialiasing OFF
+            	// since color cannot be negative zero
+            	$this->colors[$id] = -256;
+            }
         }
         return true;
     }
@@ -1101,7 +1106,7 @@ class Image_Text {
      * Save image canvas.
      *
      * Saves the image to a given destination. You can leave out the destination file path,
-     * if you have the option for that set correctly. Saving is possible with the save()
+     * if you have the option for that set correctly. Saving is possible with the display()
      * method, too.
      *
      * @param   string  $destFile   The destination to save to (optional, uses options value else).
