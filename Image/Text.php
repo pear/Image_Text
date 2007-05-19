@@ -580,7 +580,7 @@ class Image_Text {
         }
 
         // Check and create canvas
-
+        $image_canvas = false;
         switch (true) {
             case (empty($this->options['canvas'])):
 
@@ -595,6 +595,7 @@ class Image_Text {
             case (is_resource($this->options['canvas']) &&
                     get_resource_type($this->options['canvas'])=='gd'):
                 // The canvas is an image resource
+                $image_canvas = true;
                 $this->_img = $this->options['canvas'];
                 break;
 
@@ -649,12 +650,14 @@ class Image_Text {
             }
             $colBg = imagecolorallocatealpha($this->_img, $arBg['r'], $arBg['g'], $arBg['b'], $arBg['a']);
         }
-        imagefilledrectangle(
-            $this->_img,
-            0, 0,
-            $this->options['canvas']['width'] - 1, $this->options['canvas']['height'] - 1,
-            $colBg
-        );
+        if ($image_canvas === false) {
+            imagefilledrectangle(
+                $this->_img,
+                0, 0,
+                $this->options['canvas']['width'] - 1, $this->options['canvas']['height'] - 1,
+                $colBg
+            );
+        }
 
 
         // Save and repair angle
