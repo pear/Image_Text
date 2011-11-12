@@ -34,6 +34,9 @@ class imageisthesameTest extends PHPUnit_Framework_TestCase {
      * @access protected
      */
     protected function setUp() {
+        if (!extension_loaded('gd')) {
+            $this->markTestSkipped("Requires the gd extension");
+        }
         $this->dir = dirname(__FILE__) . '/testimages/';
     }
 

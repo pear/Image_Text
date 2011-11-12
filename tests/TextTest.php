@@ -35,6 +35,9 @@ class Image_TextTest extends PHPUnit_Framework_TestCase {
      * @access protected
      */
     protected function setUp() {
+        if (!extension_loaded('gd')) {
+            $this->markTestSkipped("Requires the gd extension");
+        }
         $this->dir = dirname(__FILE__) . '/testimages/';
     }
 
@@ -68,7 +71,7 @@ class Image_TextTest extends PHPUnit_Framework_TestCase {
     public function testConstruct() {
 return;
         $i = $this->initInstance('test');
-        $this->assertType('Image_Text', $i);
+        $this->assertSame('Image_Text', get_class($i));
         $this->assertTrue($i->init());
         $this->assertTrue($i->render());
         $this->assertTrue(imageisthesame(
@@ -77,7 +80,7 @@ return;
         ));
 
         $i = $this->initInstance('text');
-        $this->assertType('Image_Text', $i);
+        $this->assertSame('Image_Text', get_class($i));
         $this->assertTrue($i->init());
         $this->assertTrue($i->render());
         $this->assertFalse(imageisthesame(
@@ -89,7 +92,7 @@ return;
     public function testBackgroundColor() {
         //default background is black
         $i = $this->initInstance('test');
-        $this->assertType('Image_Text', $i);
+        $this->assertSame('Image_Text', get_class($i));
         $this->assertTrue($i->init());
         $this->assertTrue($i->render());
         $this->assertTrue(imageisthesame(
@@ -99,7 +102,7 @@ return;
 
         //red background
         $i = $this->initInstance('text');
-        $this->assertType('Image_Text', $i);
+        $this->assertSame('Image_Text', get_class($i));
         $i->set(array('background_color' => '#FF0000'));
         $this->assertTrue($i->init());
         $this->assertTrue($i->render());
@@ -110,7 +113,7 @@ return;
 
         //transparent background
         $i = $this->initInstance('text');
-        $this->assertType('Image_Text', $i);
+        $this->assertSame('Image_Text', get_class($i));
         $i->set(array('background_color' => null));
         $this->assertTrue($i->init());
         $this->assertTrue($i->render());
