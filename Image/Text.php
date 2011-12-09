@@ -568,11 +568,17 @@ class Image_Text {
         $font_file.= (OS_WINDOWS) ? '\\' : '/';
         $font_file.= $this->options['font_file'];
         $font_file = realpath($font_file);
-        if (empty($font_file) || !is_file($font_file) || !is_readable($font_file)) {
-            return PEAR::raiseError('Fontfile not found or not readable.');
-        } else {
-            $this->_font = $font_file;
+
+        if (empty($font_file)) {
+          return PEAR::raiseError('You must supply a font file.');
+        } elseif (!file_exists($font_file)) {
+          return PEAR::raiseError('Font file was not found.');
+        } elseif (!is_readable($font_file)) {
+          return PEAR::raiseError('Font file is not readable.');
+        } elseif (!@imagettfbbox(1, 1, $font_file, 1)) {
+          return PEAR::raiseError('Font file is not valid.');
         }
+        $this->_font = $font_file;
 
         // Is the font size to small?
         if ($this->options['width'] < 1) {
