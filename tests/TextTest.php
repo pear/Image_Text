@@ -69,7 +69,6 @@ class Image_TextTest extends PHPUnit_Framework_TestCase {
      *
      */
     public function testConstruct() {
-return;
         $i = $this->initInstance('test');
         $this->assertSame('Image_Text', get_class($i));
         $this->assertTrue($i->init());

@@ -567,7 +567,7 @@ class Image_Text {
           throw new Image_Text_Exception('Font file was not found.');
         } elseif (!is_readable($font_file)) {
           throw new Image_Text_Exception('Font file is not readable.');
-        } elseif (!@imagettfbbox(1, 1, $font_file, 1)) {
+        } elseif (!imagettfbbox(1, 1, $font_file, 1)) {
           throw new Image_Text_Exception('Font file is not valid.');
         }
         $this->_font = $font_file;
