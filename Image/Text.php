@@ -77,10 +77,7 @@
  * @since      File available since Release 0.0.1
  */
 
-/**
- * Require PEAR file for error handling.
- */
-require_once 'PEAR.php';
+require_once 'Image/Text/Exception.php';
 
 /**
  * Regex to match HTML style hex triples.
@@ -391,9 +388,6 @@ class Image_Text {
     function construct ( $text, $options ) {
         $itext = new Image_Text($text, $options);
         $res = $itext->init();
-        if (PEAR::isError($res)) {
-            return $res;
-        }
         return $itext;
     }
 
@@ -407,9 +401,10 @@ class Image_Text {
      *
      * @param   mixed   $option     A single option name or the options array.
      * @param   mixed   $value      Option value if $option is string.
-     * @return  bool                True on success, otherwise PEAR::Error.
+     * @return  bool                True on success
      * @access public
      * @see Image_Text::Image_Text()
+     * @throws InvalidArgumentException
      */
 
     function set($option, $value=null)
@@ -417,7 +412,7 @@ class Image_Text {
         $reInits = array_flip($this->_reInits);
         if (!is_array($option)) {
             if (!isset($value)) {
-                return PEAR::raiseError('No value given.');
+                throw new InvalidArgumentException('No value given.');
             }
             $option = array($option => $value);
         }
@@ -462,11 +457,11 @@ class Image_Text {
      * A single color or an array of colors are allowed here.
      *
      * @param   mixed  $colors       Single color or array of colors.
-     * @return  bool                 True on success, otherwise PEAR::Error.
+     * @return  bool                 True on success
      * @access  public
      * @see Image_Text::setColor(), Image_Text::set()
+     * @throws InvalidArgumentException
      */
-
     function setColors($colors)
     {
         $i = 0;
@@ -475,9 +470,6 @@ class Image_Text {
            ) {
             foreach ($colors as $color) {
                 $res = $this->setColor($color,$i++);
-                if (PEAR::isError($res)) {
-                    return $res;
-                }
             }
         } else {
             return $this->setColor($colors, $i);
@@ -498,9 +490,10 @@ class Image_Text {
      *
      * @param   mixed    $color        Color value.
      * @param   mixed    $id           ID (in the color array) to set color to.
-     * @return  bool                True on success, otherwise PEAR::Error.
+     * @return  bool                True on success
      * @access  public
      * @see Image_Text::setColors(), Image_Text::set()
+     * @throws InvalidArgumentException
      */
 
     function setColor($color, $id=0)
@@ -516,14 +509,14 @@ class Image_Text {
                 $color['a'] = isset($color[3]) ? $color[3] : 0;
                 $this->options['colors'][$id] = $color;
             } else {
-                return PEAR::raiseError('Use keys 1,2,3 (optionally) 4 or r,g,b and (optionally) a.');
+                throw new InvalidArgumentException('Use keys 1,2,3 (optionally) 4 or r,g,b and (optionally) a.');
             }
         } elseif (is_string($color)) {
             $color = $this->_convertString2RGB($color);
             if ($color) {
                 $this->options['color'][$id] = $color;
             } else {
-                return PEAR::raiseError('Invalid color.');
+                throw new InvalidArgumentException('Invalid color.');
             }
         }
         if ($this->_img) {
@@ -553,10 +546,10 @@ class Image_Text {
      * set() method may force you to reinitialize the object.
      *
      * @access  public
-     * @return  bool  True on success, otherwise PEAR::Error.
+     * @return  bool  True on success
      * @see Image_Text::set()
+     * @throws Image_Text_Exception
      */
-
     function init()
     {
         // Does the fontfile exist and is readable?
@@ -569,19 +562,19 @@ class Image_Text {
         $font_file = realpath($font_file);
 
         if (empty($font_file)) {
-          return PEAR::raiseError('You must supply a font file.');
+          throw new Image_Text_Exception('You must supply a font file.');
         } elseif (!file_exists($font_file)) {
-          return PEAR::raiseError('Font file was not found.');
+          throw new Image_Text_Exception('Font file was not found.');
         } elseif (!is_readable($font_file)) {
-          return PEAR::raiseError('Font file is not readable.');
+          throw new Image_Text_Exception('Font file is not readable.');
         } elseif (!@imagettfbbox(1, 1, $font_file, 1)) {
-          return PEAR::raiseError('Font file is not valid.');
+          throw new Image_Text_Exception('Font file is not valid.');
         }
         $this->_font = $font_file;
 
         // Is the font size to small?
         if ($this->options['width'] < 1) {
-            return PEAR::raiseError('Width too small. Has to be > 1.');
+            throw new Image_Text_Exception('Width too small. Has to be > 1.');
         }
 
         // Check and create canvas
@@ -593,7 +586,7 @@ class Image_Text {
                 $this->_img = imagecreatetruecolor(
                             $this->options['width'], $this->options['height']);
                 if (!$this->_img) {
-                    return PEAR::raiseError('Could not create image canvas.');
+                    throw new Image_Text_Exception('Could not create image canvas.');
                 }
                 break;
 
@@ -626,7 +619,7 @@ class Image_Text {
                 break;
 
             default:
-                return PEAR::raiseError('Could not create image canvas.');
+                throw new Image_Text_Exception('Could not create image canvas.');
 
         }
 
@@ -651,7 +644,7 @@ class Image_Text {
         } else {
             $arBg  = $this->_convertString2RGB($this->options['background_color']);
             if ($arBg === false) {
-                return PEAR::raiseError('Background color is invalid.');
+                throw new Image_Text_Exception('Background color is invalid.');
             }
             $colBg = imagecolorallocatealpha($this->_img, $arBg['r'], $arBg['g'], $arBg['b'], $arBg['a']);
         }
@@ -677,9 +670,6 @@ class Image_Text {
 
         // Set the color values
         $res = $this->setColors($this->options['color']);
-        if (PEAR::isError($res)) {
-            return $res;
-        }
 
         $this->_lines = null;
 
@@ -702,14 +692,16 @@ class Image_Text {
      * @access public
      * @param  int      $start  Fontsize to start testing with.
      * @param  int      $end    Fontsize to end testing with.
-     * @return int              Fontsize measured or PEAR::Error.
+     * @return int              Fontsize measured
      * @see Image_Text::measurize()
+     * @throws Image_Text_Exception
+     * @todo Beware of initialize
      */
 
     function autoMeasurize($start=false, $end=false)
     {
         if (!$this->_init) {
-            return PEAR::raiseError('Not initialized. Call ->init() first!');
+            throw new Image_Text_Exception('Not initialized. Call ->init() first!');
         }
 
         $start = (empty($start)) ? $this->options['min_font_size'] : $start;
@@ -725,7 +717,7 @@ class Image_Text {
             if ($res === false) {
                 if ($start == $i) {
                     $this->options['font_size'] = -1;
-                    return PEAR::raiseError("No possible font size found");
+                    throw new Image_Text_Exception("No possible font size found");
                 }
                 $this->options['font_size'] -= 1;
                 $this->_measurizedSize = $this->options['font_size'];
@@ -747,14 +739,15 @@ class Image_Text {
      *
      * @access public
      * @param  bool  $force  Optionally, default is false, set true to force measurizing.
-     * @return array         Array of measured lines or PEAR::Error.
+     * @return array         Array of measured lines.
      * @see Image_Text::autoMeasurize()
+     * @throws Image_Text_Exception
      */
 
     function measurize($force=false)
     {
         if (!$this->_init) {
-            return PEAR::raiseError('Not initialized. Call ->init() first!');
+            throw new Image_Text_Exception('Not initialized. Call ->init() first!');
         }
         $this->_processText();
 
@@ -913,13 +906,14 @@ class Image_Text {
      *
      * @access public
      * @param  bool     $force  Optional, initially false, set true to silence measurize errors.
-     * @return bool             True on success, otherwise PEAR::Error.
+     * @return bool             True on success
+     * @throws Image_Text_Exception
      */
 
     function render($force=false)
     {
         if (!$this->_init) {
-            return PEAR::raiseError('Not initialized. Call ->init() first!');
+            throw new Image_Text_Exception('Not initialized. Call ->init() first!');
         }
 
         if (!$this->_tokens) {
@@ -931,17 +925,13 @@ class Image_Text {
         }
         $lines = $this->_lines;
 
-        if (PEAR::isError($this->_lines)) {
-            return $this->_lines;
-        }
-
         if ($this->_mode === 'auto') {
             $this->_img = imagecreatetruecolor(
                         $this->_realTextSize['width'],
                         $this->_realTextSize['height']
                     );
             if (!$this->_img) {
-                return PEAR::raiseError('Could not create image cabvas.');
+                throw new Image_Text_Exception('Could not create image cabvas.');
             }
             $this->_mode = '';
             $this->setColors($this->_options['color']);
@@ -1065,9 +1055,10 @@ class Image_Text {
      *
      * @param   bool  $save  Save or not the image on printout.
      * @param   bool  $free  Free the image on exit.
-     * @return  bool         True on success, otherwise PEAR::Error.
+     * @return  bool         True on success
      * @access public
      * @see Image_Text::save()
+     * @throws Image_Text_Exception
      */
 
     function display($save=false, $free=false)
@@ -1075,7 +1066,7 @@ class Image_Text {
         if (!headers_sent()) {
             header("Content-type: " .image_type_to_mime_type($this->options['image_type']));
         } else {
-            PEAR::raiseError('Header already sent.');
+            throw new Image_Text_Exception('Header already sent.');
         }
         switch ($this->options['image_type']) {
             case IMAGETYPE_PNG:
@@ -1088,15 +1079,11 @@ class Image_Text {
                 $imgout = 'imagebmp';
                 break;
             default:
-                return PEAR::raiseError('Unsupported image type.');
-                break;
+                throw new Image_Text_Exception('Unsupported image type.');
         }
         if ($save) {
             $imgout($this->_img);
             $res = $this->save();
-            if (PEAR::isError($res)) {
-                return $res;
-            }
         } else {
            $imgout($this->_img);
         }
@@ -1104,7 +1091,7 @@ class Image_Text {
         if ($free) {
             $res = imagedestroy($this->image);
             if (!$res) {
-                PEAR::raiseError('Destroying image failed.');
+                throw new Image_Text_Exception('Destroying image failed.');
             }
         }
         return true;
@@ -1118,8 +1105,10 @@ class Image_Text {
      * method, too.
      *
      * @param   string  $destFile   The destination to save to (optional, uses options value else).
-     * @return  bool                True on success, otherwise PEAR::Error.
+     * @return  bool                True on success.
      * @see Image_Text::display()
+     * @throws Image_Text_Exception
+     * @throws InvalidArgumentException
      */
 
     function save($dest_file=false)
@@ -1128,7 +1117,7 @@ class Image_Text {
             $dest_file = $this->options['dest_file'];
         }
         if (!$dest_file) {
-            return PEAR::raiseError("Invalid desitination file.");
+            throw new InvalidArgumentException("Invalid desitination file.");
         }
 
         switch ($this->options['image_type']) {
@@ -1142,13 +1131,13 @@ class Image_Text {
                 $imgout = 'imagebmp';
                 break;
             default:
-                return PEAR::raiseError('Unsupported image type.');
+                throw new Image_Text_Exception('Unsupported image type.');
                 break;
         }
 
         $res = $imgout($this->_img, $dest_file);
         if (!$res) {
-            PEAR::raiseError('Saving file failed.');
+            throw new Image_Text_Exception('Saving file failed.');
         }
         return true;
     }
