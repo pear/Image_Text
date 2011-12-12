@@ -59,7 +59,7 @@
  *
  * -------- End example --------
  *
- * PHP versions 4 and 5
+ * PHP version 5
  *
  * LICENSE: This source file is subject to version 3.0 of the PHP license
  * that is available through the world-wide-web at the following URI:
@@ -368,8 +368,7 @@ class Image_Text {
      * @access public
      * @see Image_Text::set(), Image_Text::construct(), Image_Text::init()
      */
-
-    function Image_Text($text, $options = null)
+    public function __construct($text, $options = null)
     {
         $this->set('text', $text);
         if (!empty($options)) {
@@ -389,7 +388,7 @@ class Image_Text {
      * @see Image_Text::set(), Image_Text::Image_Text(), Image_Text::init()
      */
 
-    function &construct ( $text, $options ) {
+    function construct ( $text, $options ) {
         $itext = new Image_Text($text, $options);
         $res = $itext->init();
         if (PEAR::isError($res)) {
@@ -1052,7 +1051,7 @@ class Image_Text {
      * @return resource Used image resource
      */
 
-    function &getImg()
+    function getImg()
     {
         return $this->_img;
     }
