@@ -557,7 +557,7 @@ class Image_Text {
         //        the fontname; the fontfile will then be automatically searched for in library-defined directories
         //        however this does not yet work if at this point we check for the existance of the fontfile
         $font_file = rtrim($this->options['font_path'], '/\\');
-        $font_file.= is_defined('OS_WINDOWS') && OS_WINDOWS ? '\\' : '/';
+        $font_file.= defined('OS_WINDOWS') && OS_WINDOWS ? '\\' : '/';
         $font_file.= $this->options['font_file'];
         $font_file = realpath($font_file);
 
