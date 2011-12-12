@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.9.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+<package packagerversion="1.9.4" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>Image_Text</name>
  <channel>pear.php.net</channel>
  <summary>Image_Text - Advanced text maipulations in images.</summary>
@@ -21,10 +21,10 @@ font size for a given text box.</description>
   <email>toby@php.net</email>
   <active>yes</active>
  </lead>
- <date>2010-10-24</date>
- <time>13:39:13</time>
+ <date>2011-12-12</date>
+ <time>23:27:11</time>
  <version>
-  <release>0.6.0</release>
+  <release>0.6.1</release>
   <api>0.6.0beta</api>
  </version>
  <stability>
@@ -34,18 +34,16 @@ font size for a given text box.</description>
  <license uri="http://www.php.net/license">PHP License</license>
  <notes>
 QA release
-Bug #10775 	when color = #000000 antialias is always true
-Bug #11066 	Background color overfills the GD Image
-Doc Bug #13377 	background_color missing in set()
-Request #16749 	Image to background
+
+Bug #17619	 Warning: imagettfbbox() [function.imagettfbbox]: Could not read font
  </notes>
  <contents>
   <dir baseinstalldir="/" name="/">
-   <file baseinstalldir="/" md5sum="2ea88fbe26f9543bdec2331e51c02e05" name="example/example.php" role="doc" />
-   <file baseinstalldir="/" md5sum="4ea90494e1463e1e635e4f0afbf98e08" name="Image/Text.php" role="php" />
+   <file baseinstalldir="/" md5sum="f1217fece22044010c4e4cb0df2e5491" name="example/example.php" role="doc" />
+   <file baseinstalldir="/" md5sum="7138d86bac965648f60013d2fda2a13e" name="Image/Text.php" role="php" />
    <file baseinstalldir="/" md5sum="54ef7a999c50cfd4dabc50729a2c166e" name="tests/imageisthesame.php" role="test" />
-   <file baseinstalldir="/" md5sum="b7f13d1c8a79615075e30638b11743aa" name="tests/imageisthesameTest.php" role="test" />
-   <file baseinstalldir="/" md5sum="50664c979c36f8ce7ff8e2c07612814f" name="tests/TextTest.php" role="test" />
+   <file baseinstalldir="/" md5sum="47539b4c0a7a905de7fd5f2f86ab73ac" name="tests/imageisthesameTest.php" role="test" />
+   <file baseinstalldir="/" md5sum="88f6de2eaaf98c5d06798330aaa75206" name="tests/TextTest.php" role="test" />
    <file baseinstalldir="/" md5sum="e50d402efa0e7d83d07d064088e0d0ab" name="tests/Vera.ttf" role="test" />
    <file baseinstalldir="/" md5sum="c6489210551c6e5c5fd40f038458bfb0" name="tests/testimages/5x10-gradient.jpg" role="php" />
    <file baseinstalldir="/" md5sum="4969e2a43a22262a01016dd1ca4b1e67" name="tests/testimages/5x10-gradient.png" role="php" />
@@ -62,6 +60,7 @@ Request #16749 	Image to background
    <file baseinstalldir="/" md5sum="c73d09b2b7fcc4792509779017acf6b5" name="tests/testimages/test-construct.png" role="php" />
    <file baseinstalldir="/" md5sum="38094762766b514958955a89e453e094" name="make_docbook.sh" role="doc" />
    <file baseinstalldir="/" md5sum="80d87d7047524e42fb0f4abe5019c41a" name="make_dochtml.sh" role="doc" />
+   <file baseinstalldir="/" md5sum="8cb98ba70abe6b99c32a531c510b098c" name="README" role="data" />
   </dir>
  </contents>
  <dependencies>
@@ -119,6 +118,23 @@ Bug #10775 	when color = #000000 antialias is always true
 Bug #11066 	Background color overfills the GD Image
 Doc Bug #13377 	background_color missing in set()
 Request #16749 	Image to background
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>0.6.1</release>
+    <api>0.6.0beta</api>
+   </version>
+   <stability>
+    <release>beta</release>
+    <api>beta</api>
+   </stability>
+   <date>2011-12-12</date>
+   <license uri="http://www.php.net/license">PHP License</license>
+   <notes>
+QA release
+
+Bug #17619	 Warning: imagettfbbox() [function.imagettfbbox]: Could not read font
    </notes>
   </release>
  </changelog>
