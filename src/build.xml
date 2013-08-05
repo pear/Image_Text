@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Image_Text" default="build" basedir=".">
+    <includepath classpath="${project.basedir}/src"/>
+    <taskdef classname="phing.tasks.ext.d51PearPkg2Task" name="d51pearpkg2"/>
+
+    <target name="build" depends="init, clean, verify, analyze, dist, docs" description="Do a full build"/>
+
+    <target name="verify" depends="init, clean, lint" description="Verify the quality of the code"/>
+
+    <target name="analyze" depends="init, clean, phploc, pdepend, phpmd, phpcs, phpcpd, phpunit" description="Do static analysis of the code"/>
+
+    <target name="docs" depends="init, clean, phpdoc, phpcb"/>
+
+    <target name="init" depends="-load-properties, -setup-dirs, -setup-filesets" unless="project.initialised" hidden="true">
+        <property name="project.initialised" value="true"/>
+    </target>
+
+    <target name="-load-properties" hidden="true">
+        <property name="project.version" value="0.6.1"/>
+        <property name="project.api.version" value="0.6.0beta"/>
+    </target>
+
+    <target name="-setup-dirs" depends="-load-properties" hidden="true">
+        <php function="dirname" returnProperty="project.dir">
+            <param value="${project.basedir}"/>
+        </php>
+        <property name="build.dir" value="${project.dir}\build"/>
+        <property name="src.dir" value="${project.dir}\src"/>
+        <property name="docs.dir" value="${project.dir}\docs"/>
+        <property name="tests.dir" value="${project.dir}\tests"/>
+        <property name="examples.dir" value="${project.dir}\examples"/>
+
+        <echo message="Assigning build directories to properties" level="debug"/>
+        <property name="build.api.dir" value="${build.dir}/api"/>
+        <property name="build.codebrowser.dir" value="${build.dir}/code-browser"/>
+        <property name="build.coverage.dir" value="${build.dir}/coverage"/>
+        <property name="build.dist.dir" value="${build.dir}/dist"/>
+        <property name="build.logs.dir" value="${build.dir}/logs"/>
+        <property name="build.pdepend.dir" value="${build.dir}/pdepend"/>
+
+        <property name="build.dist.temp.dir" value="${build.dist.dir}/tmp"/>
+    </target>
+
+    <target name="-setup-filesets" hidden="true">
+        <patternset id="php">
+            <include name="**/*.php"/>
+        </patternset>
+
+        <patternset id="tests">
+            <include name="**/*Test.php"/>
+        </patternset>
+
+        <patternset id="zip">
+            <exclude name="build.*"/>
+        </patternset>
+
+        <fileset dir="${src.dir}" id="php.files">
+            <patternset refid="php"/>
+        </fileset>
+
+        <fileset dir="${src.dir}" id="zip.files">
+            <patternset refid="zip"/>
+        </fileset>
+
+        <fileset dir="${tests.dir}" id="test.files">
+            <patternset refid="tests"/>
+        </fileset>
+    </target>
+
+    <target name="clean" depends="init" unless="project.cleaned">
+        <echo message="Deleting build directories" level="debug"/>
+        <delete dir="${build.api.dir}"/>
+        <delete dir="${build.codebrowser.dir}"/>
+        <delete dir="${build.coverage.dir}"/>
+        <delete dir="${build.dist.dir}"/>
+        <delete dir="${build.logs.dir}"/>
+        <delete dir="${build.pdepend.dir}"/>
+
+        <echo message="Creating build directories" level="debug"/>
+        <mkdir dir="${build.api.dir}"/>
+        <mkdir dir="${build.codebrowser.dir}"/>
+        <mkdir dir="${build.coverage.dir}"/>
+        <mkdir dir="${build.dist.dir}"/>
+        <mkdir dir="${build.logs.dir}"/>
+        <mkdir dir="${build.pdepend.dir}"/>
+
+        <property name="project.cleaned" value="true"/>
+    </target>
+
+    <target name="lint" depends="init" description="Check files for syntax errors">
+        <phplint haltonfailure="true" cachefile="${build.logs.dir}/cachefile.txt">
+            <fileset refid="php.files"/>
+        </phplint>
+    </target>
+
+    <target name="phploc" depends="init" description="Measure project size using PHPLOC">
+        <phploc reportType="xml" reportDirectory="${build.logs.dir}" reportName="phploc">
+            <fileset dir="${src.dir}"/>
+        </phploc>
+    </target>
+
+    <target name="pdepend" depends="init" description="Calculate software metrics using PHP_Depend">
+        <phpdepend haltonerror="true">
+            <fileset refid="php.files"/>
+            <logger type="jdepend-xml" outfile="${build.logs.dir}/jdepend.xml"/>
+            <logger type="summary-xml" outfile="${build.logs.dir}/jdepend-summary.xml"/>
+            <logger type="jdepend-chart" outfile="${build.pdepend.dir}/dependencies.svg"/>
+            <logger type="phpunit-xml" outfile="${build.logs.dir}/metrics.xml"/>
+            <logger type="overview-pyramid" outfile="${build.pdepend.dir}/overview-pyramid.svg"/>
+            <analyzer type="coderank-mode" value="method"/>
+        </phpdepend>
+    </target>
+
+    <target name="phpmd" depends="init" description="Perform project mess detection using PHPMD">
+        <phpmd rulesets="codesize,design,naming,unusedcode">
+            <fileset refid="php.files"/>
+            <formatter type="xml" outfile="${build.logs.dir}/pmd.xml"/>
+        </phpmd>
+    </target>
+
+    <target name="phpcs" depends="init" description="Find coding standard violations using PHP_CodeSniffer">
+        <phpcodesniffer standard="PEAR" format="full" haltonerror="true" haltonwarning="true">
+            <fileset refid="php.files"/>
+            <formatter type="checkstyle" outfile="${build.logs.dir}/checkstyle.xml"/>
+        </phpcodesniffer>
+    </target>
+
+    <target name="phpcpd" depends="init" description="Find duplicate code using PHPCPD">
+        <phpcpd minLines="5" minTokens="20">
+            <fileset refid="php.files"/>
+            <formatter type="pmd" outfile="${build.logs.dir}/pmd-cpd.xml"/>
+        </phpcpd>
+    </target>
+
+    <target name="phpcb" depends="init" description="Aggregate tool output with PHP_CodeBrowser">
+        <exec executable="phpcb" logoutput="true" checkreturn="true" level="debug">
+            <arg value="--log"/>
+            <arg path="${build.logs.dir}"/>
+            <arg value="--source"/>
+            <arg path="${src.dir}"/>
+            <arg value="--output"/>
+            <arg path="${build.codebrowser.dir}"/>
+        </exec>
+    </target>
+
+    <target name="phpdoc" depends="init" description="Generate API documentation">
+        <phpdoc2 title="${phing.project.name} ${project.version}" destdir="${build.api.dir}" template="abstract">
+            <fileset refid="php.files"/>
+        </phpdoc2>
+    </target>
+
+    <target name="phpunit" depends="init" description="Run unit tests">
+        <coverage-setup database="${build.logs.dir}/coverage.db">
+            <fileset refid="php.files"/>
+        </coverage-setup>
+        <phpunit printsummary="true" haltonerror="true" haltonfailure="true" codecoverage="true">
+            <formatter todir="${build.logs.dir}" type="xml"/>
+            <batchtest>
+                <fileset refid="test.files"/>
+            </batchtest>
+        </phpunit>
+        <coverage-report outfile="${build.logs.dir}/coverage.xml">
+            <report usesorttable="true" toDir="${build.coverage.dir}" styleDir="${project.basedir}/../style"/>
+        </coverage-report>
+    </target>
+
+    <target name="dist" depends="init, clean, -generate-package-xml" description="Create distributable file">
+        <tar destfile="${build.dist.dir}/${phing.project.name}-${project.version}.tgz" compression="gzip">
+            <fileset dir="${build.dist.temp.dir}/"/>
+        </tar>
+
+        <delete dir="${build.dist.temp.dir}"/>
+    </target>
+
+    <target name="-copy-to-build" hidden="true">
+        <copy todir="${build.dist.temp.dir}" haltonerror="true">
+            <fileset refid="zip.files"/>
+        </copy>
+        <mkdir dir="${build.dist.temp.dir}/tests"/>
+        <copy todir="${build.dist.temp.dir}/tests" haltonerror="true">
+            <fileset dir="${tests.dir}"/>
+        </copy>
+        <mkdir dir="${build.dist.temp.dir}/examples"/>
+        <copy todir="${build.dist.temp.dir}/examples" haltonerror="true">
+            <fileset dir="${examples.dir}"/>
+        </copy>
+    </target>
+
+    <target name="-generate-package-xml" depends="-copy-to-build" hidden="true">
+        <d51pearpkg2 dir="${build.dist.temp.dir}" baseInstallDir="/" type="php">
+            <name>Image_Text</name>
+            <channel>pear.php.net</channel>
+            <summary>Image_Text - Advanced text maipulations in images.</summary>
+            <description>
+                <!--        Don't exceed this width         -->
+                Image_Text provides a comfortable interface to
+                text manipulations in GD images. Beside common
+                Freetype2 functionality it offers to handle
+                texts in a graphic- or office-tool like way.
+                For example it allows alignment of texts inside
+                a text box, rotation (around the top left
+                corner of a text box or it's center point) and
+                the automatic measurizement of the optimal font
+                size for a given text box.
+            </description>
+            <lead user="stoyan" name="Stoyan Stefanov" email="ssttoo@gmail.com" active="false"/>
+            <lead user="toby" name="Tobias Schlitt" email="toby@php.net" active="false"/>
+            <lead user="bigmichi1" name="Michael Cramer" email="michael@bigmichi1.de"/>
+            <version release="${project.version}" api="${project.api.version}"/>
+            <stability release="beta" api="beta"/>
+            <license>PHP License</license>
+            <dirroles key="/tests" value="test"/>
+            <dirroles key="/examples" value="doc"/>
+
+            <dependencies>
+                <php minimum_version="5.1.0"/>
+                <pear minimum_version="1.4.6"/>
+                <extension name="gd" type="required"/>
+            </dependencies>
+
+            <changelog version="0.6.1" api_version="0.6.0beta" date="2011-12-12" stability="beta" license="PHP License">
+                <!--        Don't exceed this width         -->
+                QA release
+
+                * Bug #17619 Warning: imagettfbbox()
+                [function.imagettfbbox]: Could not read font
+            </changelog>
+
+            <changelog version="0.6.0beta" api_version="0.6.0beta" date="2007-04-18" stability="beta" license="PHP License">
+                <!--        Don't exceed this width         -->
+                * Fixing bug #10722: Example crashes because
+                font file is not found (Thanks to James Pic,
+                Christian Weiske!)
+                * Updated example and phpDocs (Thanks to
+                Christian Weiske!)
+                * Fixing requests #2520 - set background-color.
+                (Thanks to James Pic, Christian Weiske!)
+                * Fixed request #6211 - transparent background.
+                (Thanks to James Pic, Christian Weiske!)
+                * Unit tests (Thanks to Christian Weiske!)
+                * Fixed E_NOTICE, setting default max_lines
+                (Thanks to Christian Weiske!)
+                * Fixed bug #10235
+                * Fixed request #3356
+                * Moved to package.xml v.2
+            </changelog>
+
+            <changelog version="0.6.0" api_version="0.6.0beta" date="2010-10-24" stability="beta" license="PHP License">
+                <!--        Don't exceed this width         -->
+                QA release
+                * Bug #10775 when color = #000000 antialias is
+                always true
+                * Bug #11066 Background color overfills the GD
+                Image
+                * Doc Bug #13377 background_color missing in
+                set()
+                * Request #16749 Image to background
+            </changelog>
+        </d51pearpkg2>
+    </target>
+</project>
