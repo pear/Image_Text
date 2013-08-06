@@ -681,7 +681,8 @@ class Image_Text
         $font = $this->_font;
         $size = $this->_options['font_size'];
 
-        $space = (1 + $this->_options['line_spacing']) * $this->_options['font_size'];
+        $space = (1 + $this->_options['line_spacing'])
+            * $this->_options['font_size'];
 
         $max_lines = (int)$this->_options['max_lines'];
 
