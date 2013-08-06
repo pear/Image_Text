@@ -17,8 +17,8 @@
     </target>
 
     <target name="-load-properties" hidden="true">
-        <property name="project.version" value="0.6.1"/>
-        <property name="project.api.version" value="0.6.0beta"/>
+        <property name="project.version" value="0.7.0"/>
+        <property name="project.api.version" value="0.7.0"/>
     </target>
 
     <target name="-setup-dirs" depends="-load-properties" hidden="true">
@@ -219,6 +219,11 @@
                 <pear minimum_version="1.4.6"/>
                 <extension name="gd" type="required"/>
             </dependencies>
+
+            <changelog version="0.7.0" api_version="0.7.0" date="2013-06-08" stability="beta" license="PHP License">
+                <!--        Don't exceed this width         -->
+                * Bug #17621 Vera.ttf is not a valid font file.
+            </changelog>
 
             <changelog version="0.6.1" api_version="0.6.0beta" date="2011-12-12" stability="beta" license="PHP License">
                 <!--        Don't exceed this width         -->
