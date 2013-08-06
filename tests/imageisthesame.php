@@ -1,12 +1,13 @@
 <?php
-
 /**
-*   Checks if two images contain the same image, pixel by pixel
-*
-*   @param mixed $file1    Filename for picture 1 OR gd image resource
-*   @param mixed $file1    Filename for picture 2 OR gd iamge resource
-*   @return boolean true if they are the same, false if not
-*/
+ * Checks if two images contain the same image, pixel by pixel
+ *
+ * @param mixed $file1 Filename for picture 1 OR gd image resource
+ * @param mixed $file2 Filename for picture 2 OR gd iamge resource
+ *
+ * @return boolean true if they are the same, false if not
+ * @throws Exception
+ */
 function imageisthesame($file1, $file2)
 {
     //echo $file1 . ' - ' . $file2 . "\n";
@@ -43,35 +44,21 @@ function imageisthesame($file1, $file2)
         return false;
     }
 
-
     for ($x = 0; $x < $sx1; $x++) {
-    for ($y = 0; $y < $sy1; $y++) {
+        for ($y = 0; $y < $sy1; $y++) {
+            $rgb1 = imagecolorat($i1, $x, $y);
+            $pix1 = imagecolorsforindex($i1, $rgb1);
 
-        $rgb1 = imagecolorat($i1, $x, $y);
-        $pix1 = array(
-            'r' => ($rgb1 >> 16) & 0xFF,
-            'g' => ($rgb1 >> 8) & 0xFF,
-            'b' =>  $rgb1 & 0xFF
-        );
-        $pix1 = imagecolorsforindex($i1, $rgb1);
+            $rgb2 = imagecolorat($i2, $x, $y);
+            $pix2 = imagecolorsforindex($i2, $rgb2);
 
-        $rgb2 = imagecolorat($i2, $x, $y);
-        $pix2 = array(
-            'r' => ($rgb2 >> 16) & 0xFF,
-            'g' => ($rgb2 >> 8) & 0xFF,
-            'b' =>  $rgb2 & 0xFF
-        );
-        $pix2 = imagecolorsforindex($i2, $rgb2);
+            //echo implode(',',$pix1) . ' - ' . implode(',',$pix2) . "\n";
+            if ($pix1 != $pix2) {
+                return false;
+            }
 
-//echo implode(',',$pix1) . ' - ' . implode(',',$pix2) . "\n";
-        if ($pix1 != $pix2) {
-            return false;
         }
-
-    }
     }
 
     return true;
-}//function imageisthesame($file1, $file2)
-
-?>
+}
