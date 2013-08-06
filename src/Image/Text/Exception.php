@@ -23,5 +23,4 @@ require_once 'PEAR/Exception.php';
  */
 class Image_Text_Exception extends PEAR_Exception
 {
-
 }
