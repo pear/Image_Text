@@ -80,65 +80,76 @@ class Image_Text
      * work yet
      */
     const IMAGE_TEXT_ALIGN_JUSTIFY = "justify";
+
     /**
-     * Options array. these options can be set through the constructor or the set() method.
+     * Options array. these options can be set through the constructor or the set()
+     * method.
      *
      * Possible options to set are:
      * <pre>
+     *   'x'                | This sets the top left coordinates (using x/y) or the
+     *   'y'                | center point coordinates (using cx/cy) for your text
+     *   'cx'               | box. The values from cx/cy will overwrite x/y.
+     *   'cy'               |
      *
-     *      'x'                 | This sets the top left coordinates (using x/y) or the center point
-     *      'y'                 | coordinates (using cx/cy) for your text box. The values from
-     *      'cx'                | cx/cy will overwrite x/y.
-     *      'cy'                |
+     *   'canvas'           | You can set different values as a canvas:
+     *                      |   - A gd image resource.
+     *                      |   - An array with 'width' and 'height'.
+     *                      |   - Nothing (the canvas will be measured after the real
+     *                      |     text size).
      *
-     *      'canvas'            | You can set different values as a canvas:
-     *                          |   - A gd image resource.
-     *                          |   - An array with 'width' and 'height'.
-     *                          |   - Nothing (the canvas will be measured after the real text size).
+     *   'antialias'        | This is usually true. Set it to false to switch
+     *                      | antialiasing off.
      *
-     *      'antialias'         | This is usually true. Set it to false to switch antialiasing off.
+     *   'width'            | The width and height for your text box.
+     *   'height'           |
      *
-     *      'width'             | The width and height for your text box.
-     *      'height'            |
+     *   'halign'           | Alignment of your text inside the textbox. Use
+     *   'valign'           | alignment constants to define vertical and horizontal
+     *                      | alignment.
      *
-     *      'halign'            | Alignment of your text inside the textbox. Use alignmnet constants to define
-     *      'valign'            | vertical and horizontal alignment.
+     *   'angle'            | The angle to rotate your text box.
      *
-     *      'angle'             | The angle to rotate your text box.
+     *   'color'            | An array of color values. Colors will be rotated in the
+     *                      | mode you choose (linewise or paragraphwise). Can be in
+     *                      | the following formats:
+     *                      |   - String representing HTML style hex couples
+     *                      |     (+ unusual alpha couple in the first place,
+     *                      |      optional).
+     *                      |   - Array of int values using 'r', 'g', 'b' and
+     *                      |     optionally 'a' as keys.
      *
-     *      'color'             | An array of color values. Colors will be rotated in the mode you choose (linewise
-     *                          | or paragraphwise). Can be in the following formats:
-     *                          |   - String representing HTML style hex couples (+ unusual alpha couple in the first place, optional).
-     *                          |   - Array of int values using 'r', 'g', 'b' and optionally 'a' as keys.
+     *   'color_mode'       | The color rotation mode for your color sets. Does only
+     *                      | apply if you defined multiple colors. Use 'line' or
+     *                      | 'paragraph'.
      *
-     *      'color_mode'        | The color rotation mode for your color sets. Does only apply if you
-     *                          | defined multiple colors. Use 'line' or 'paragraph'.
+     *   'background_color' | defines the background color. NULL sets it transparent
+     *   'enable_alpha'     | if alpha channel should be enabled. Automatically
+     *                      | enabled when background_color is set to NULL
      *
-     *      'background_color'  | defines the background color. NULL sets it transparent
-     *      'enable_alpha'      | if alpha channel should be enabled. Automatically
-     *                          | enabled when background_color is set to NULL
+     *   'font_path'        | Location of the font to use. The path only gives the
+     *                      | directory path (ending with a /).
+     *   'font_file'        | The fontfile is given in the 'font_file' option.
      *
-     *      'font_path'         | Location of the font to use. The path only gives the directory path (ending with a /).
-     *      'font_file'         | The fontfile is given in the 'font_file' option.
+     *   'font_size'        | The font size to render text in (will be overwriten, if
+     *                      | you use automeasurize).
      *
-     *      'font_size'         | The font size to render text in (will be overwriten, if you use automeasurize).
+     *   'line_spacing'     | Measure for the line spacing to use. Default is 0.5.
      *
-     *      'line_spacing'      | Measure for the line spacing to use. Default is 0.5.
+     *   'min_font_size'    | Automeasurize settings. Try to keep this area as small
+     *   'max_font_size'    | as possible to get better performance.
      *
-     *      'min_font_size'     | Automeasurize settings. Try to keep this area as small as possible to get better
-     *      'max_font_size'     | performance.
+     *   'image_type'       | The type of image (use image type constants). Is
+     *                      | default set to PNG.
      *
-     *      'image_type'        | The type of image (use image type constants). Is default set to PNG.
-     *
-     *      'dest_file'         | The destination to (optionally) save your file.
+     *   'dest_file'        | The destination to (optionally) save your file.
      * </pre>
      *
-     * @access public
      * @var array
-     * @see    Image_Text::Image_Text(), Image_Text::set()
+     * @see Image_Text::set()
      */
 
-    var $options = array(
+    private $_options = array(
         // orientation
         'x' => 0,
         'y' => 0,
@@ -188,123 +199,101 @@ class Image_Text
      * Contains option names, which can cause re-initialization force.
      *
      * @var array
-     * @access private
      */
-
-    var $_reInits = array('width', 'height', 'canvas', 'angle', 'font_file', 'font_path', 'font_size');
+    private $_reInits = array(
+        'width', 'height', 'canvas', 'angle', 'font_file', 'font_path', 'font_size'
+    );
 
     /**
      * The text you want to render.
      *
-     * @access private
      * @var string
      */
-
-    var $_text;
+    private $_text;
 
     /**
      * Resource ID of the image canvas.
      *
-     * @access private
-     * @var ressource
+     * @var resource
      */
-
-    var $_img;
+    private $_img;
 
     /**
      * Tokens (each word).
      *
-     * @access private
      * @var array
      */
-
-    var $_tokens = array();
+    private $_tokens = array();
 
     /**
      * Fullpath to the font.
      *
-     * @access private
      * @var string
      */
-
-    var $_font;
+    private $_font;
 
     /**
      * Contains the bbox of each rendered lines.
      *
-     * @access private
      * @var array
      */
-
-    var $bbox = array();
+    private $_bbox = array();
 
     /**
      * Defines in which mode the canvas has be set.
      *
-     * @access private
      * @var array
      */
-
-    var $_mode = '';
+    private $_mode = '';
 
     /**
-     * Color indeces returned by imagecolorallocatealpha.
+     * Color indices returned by imagecolorallocatealpha.
      *
-     * @access public
      * @var array
      */
-
-    var $colors = array();
+    private $_colors = array();
 
     /**
      * Width and height of the (rendered) text.
      *
-     * @access private
      * @var array
      */
-
-    var $_realTextSize = array('width' => false, 'height' => false);
+    private $_realTextSize = array('width' => false, 'height' => false);
 
     /**
      * Measurized lines.
      *
-     * @access private
      * @var array
      */
-
-    var $_lines = false;
+    private $_lines = false;
 
     /**
      * Fontsize for which the last measuring process was done.
      *
-     * @access private
      * @var array
      */
-
-    var $_measurizedSize = false;
+    private $_measurizedSize = false;
 
     /**
      * Is the text object initialized?
      *
-     * @access private
      * @var bool
      */
-
-    var $_init = false;
+    private $_init = false;
 
     /**
      * Constructor
      *
-     * Set the text and options. This initializes a new Image_Text object. You must set your text
-     * here. Optinally you can set all options here using the $options parameter. If you finished switching
-     * all options you have to call the init() method first befor doing anything further! See Image_Text::set()
-     * for further information.
+     * Set the text and options. This initializes a new Image_Text object. You must
+     * set your text here. Optionally you can set all options here using the $options
+     * parameter. If you finished switching all options you have to call the init()
+     * method first before doing anything further! See Image_Text::set() for further
+     * information.
      *
-     * @param   string $text       Text to print.
-     * @param   array  $options    Options.
+     * @param string $text    Text to print.
+     * @param array  $options Options.
      *
-     * @access public
-     * @see    Image_Text::set(), Image_Text::construct(), Image_Text::init()
+     * @see Image_Text::set(), Image_Text::construct(), Image_Text::init()
      */
     public function __construct($text, $options = null)
     {
@@ -468,16 +457,16 @@ class Image_Text
         if ($this->_img) {
             $aaFactor = ($this->options['antialias']) ? 1 : -1;
             if (function_exists('imagecolorallocatealpha') && isset($color['a'])) {
-                $this->colors[$id] = $aaFactor * imagecolorallocatealpha($this->_img,
+                $this->_colors[$id] = $aaFactor * imagecolorallocatealpha($this->_img,
                         $color['r'], $color['g'], $color['b'], $color['a']);
             } else {
-                $this->colors[$id] = $aaFactor * imagecolorallocate($this->_img,
+                $this->_colors[$id] = $aaFactor * imagecolorallocate($this->_img,
                         $color['r'], $color['g'], $color['b']);
             }
-            if ($this->colors[$id] == 0 && $aaFactor == -1) {
+            if ($this->_colors[$id] == 0 && $aaFactor == -1) {
                 // correction for black with antialiasing OFF
                 // since color cannot be negative zero
-                $this->colors[$id] = -256;
+                $this->_colors[$id] = -256;
             }
         }
         return true;
@@ -716,8 +705,8 @@ class Image_Text
         $block_width = $this->options['width'];
         $block_height = $this->options['height'];
 
-        $colors_cnt = sizeof($this->colors);
-        $c = $this->colors[0];
+        $colors_cnt = sizeof($this->_colors);
+        $c = $this->_colors[0];
 
         $text_line = '';
 
@@ -743,10 +732,10 @@ class Image_Text
                     return false;
                 }
                 if ($this->options['color_mode'] == 'paragraph') {
-                    $c = $this->colors[$para_cnt % $colors_cnt];
+                    $c = $this->_colors[$para_cnt % $colors_cnt];
                     $i++;
                 } else {
-                    $c = $this->colors[$i++ % $colors_cnt];
+                    $c = $this->_colors[$i++ % $colors_cnt];
                 }
                 $lines[] = array(
                     'string' => $text_line,
@@ -786,9 +775,9 @@ class Image_Text
                     return false;
                 }
                 if ($this->options['color_mode'] == 'line') {
-                    $c = $this->colors[$i++ % $colors_cnt];
+                    $c = $this->_colors[$i++ % $colors_cnt];
                 } else {
-                    $c = $this->colors[$para_cnt % $colors_cnt];
+                    $c = $this->_colors[$para_cnt % $colors_cnt];
                     $i++;
                 }
 
@@ -817,9 +806,9 @@ class Image_Text
         // Store remaining line
         $bounds = imagettfbbox($size, 0, $font, $text_line);
         if ($this->options['color_mode'] == 'line') {
-            $c = $this->colors[$i++ % $colors_cnt];
+            $c = $this->_colors[$i++ % $colors_cnt];
         } else {
-            $c = $this->colors[$para_cnt % $colors_cnt];
+            $c = $this->_colors[$para_cnt % $colors_cnt];
             $i++;
         }
         $lines[] = array(
@@ -979,7 +968,7 @@ class Image_Text
             // Render textline
             $bboxes[] = imagettftext($im, $size, $angle, $posx, $posy, $c, $font, $lines[$i]['string']);
         }
-        $this->bbox = $bboxes;
+        $this->_bbox = $bboxes;
         return true;
     }
 
