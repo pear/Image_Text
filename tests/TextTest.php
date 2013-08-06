@@ -238,19 +238,19 @@ class Image_TextTest extends PHPUnit_Framework_TestCase {
     public function test_convertString2RGB() {
         $this->assertEquals(
             array('r'=> 255,'g'=> 255,'b'=> 255,'a'=> 0),
-            Image_Text::_convertString2RGB('#FFFFFF')
+            Image_Text::convertString2RGB('#FFFFFF')
         );
         $this->assertEquals(
             array('r'=> 255,'g'=> 255,'b'=> 255,'a'=> 0),
-            Image_Text::_convertString2RGB('#00FFFFFF')
+            Image_Text::convertString2RGB('#00FFFFFF')
         );
         $this->assertEquals(
             array('r'=> 0,'g'=> 0,'b'=> 0,'a'=> 0),
-            Image_Text::_convertString2RGB('#000000')
+            Image_Text::convertString2RGB('#000000')
         );
         $this->assertEquals(
             array('r'=> 0,'g'=> 0,'b'=> 0,'a'=> 255),
-            Image_Text::_convertString2RGB('#FF000000')
+            Image_Text::convertString2RGB('#FF000000')
         );
     }
 
