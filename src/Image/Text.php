@@ -1,145 +1,85 @@
 <?php
-
-/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
-
 /**
  * Image_Text.
  *
- * This is the main file of the Image_Text package. This file has to be
- * included for usage of Image_Text.
+ * This is the main file of the Image_Text package. This file has to be included for
+ * usage of Image_Text.
  *
  * This is a simple example script, showing Image_Text's facilities.
  *
- * -------- Start example --------
- *
- * require_once 'Image/Text.php';
- *
- * $colors = array(
- *     0 => '#0d54e2',
- *     1 => '#e8ce7a',
- *     2 => '#7ae8ad'
- * );
- *
- * $text = "EXTERIOR: DAGOBAH -- DAY\nWith Yoda\nstrapped to\n\nhis back, Luke climbs up one of the many thick vines that grow in the swamp until he reaches the Dagobah statistics lab. Panting heavily, he continues his exercises -- grepping, installing new packages, logging in as root, and writing replacements for two-year-old shell scripts in PHP.\nYODA: Code! Yes. A programmer's strength flows from code maintainability. But beware of Perl. Terse syntax... more than one way to do it... default variables. The dark side of code maintainability are they. Easily they flow, quick to join you when code you write. If once you start down the dark path, forever will it dominate your destiny, consume you it will.\nLUKE: Is Perl better than PHP?\nYODA: No... no... no. Orderless, dirtier, more seductive.\nLUKE: But how will I know why PHP is better than Perl?\nYODA: You will know. When your code you try to read six months from now...";
- *
- * $options = array(
- *             'canvas'        => array('width'=> 600,'height'=> 600), // Generate a new image 600x600 pixel
- *             'cx'            => 300,     // Set center to the middle of the canvas
- *             'cy'            => 300,
- *             'width'         => 300,     // Set text box size
- *             'height'        => 300,
- *             'line_spacing'  => 1,       // Normal linespacing
- *             'angle'         => 45,      // Text rotated by 45
- *             'color'         => $colors, // Predefined colors
- *             'background_color' => '#FF0000', //red background
- *             'max_lines'     => 100,     // Maximum lines to render
- *             'min_font_size' => 2,       // Minimal/Maximal font size (for automeasurize)
- *             'max_font_size' => 50,
- *             'font_path'     => './',    // Settings for the font file
- *             'font_file'     => 'Vera.ttf',
- *             'antialias'     => true,    // Antialiase font rendering
- *             'halign'        => IMAGE_TEXT_ALIGN_RIGHT,  // Alignment to the right and middle
- *             'valign'        => IMAGE_TEXT_ALIGN_MIDDLE
- *         );
- *
- * // Generate a new Image_Text object
- * $itext = new Image_Text($text, $options);
- *
- * // Initialize and check the settings
- * $itext->init();
-
- * // Automatically determine optimal font size
- * $itext->autoMeasurize();
- *
- * // Render the image
- * $itext->render();
- *
- * // Display it
- * $itext->display();
- *
- * -------- End example --------
- *
  * PHP version 5
  *
- * LICENSE: This source file is subject to version 3.0 of the PHP license
- * that is available through the world-wide-web at the following URI:
- * http://www.php.net/license/3_0.txt.  If you did not receive a copy of
- * the PHP License and are unable to obtain it through the web, please
- * send a note to license@php.net so we can mail you a copy immediately.
- *
- * @category   Image
- * @package    Text
- * @author     Tobias Schlitt <toby@php.net>
- * @copyright  1997-2005 The PHP Group
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    CVS: $Id$
- * @link       http://pear.php.net/package/Net_FTP2
- * @since      File available since Release 0.0.1
+ * @category  Image
+ * @package   Image_Text
+ * @author    Tobias Schlitt <toby@php.net>
+ * @copyright 1997-2005 The PHP Group
+ * @license   http://www.php.net/license/3_01.txt PHP License
+ * @version   CVS: $Id$
+ * @link      http://pear.php.net/package/Image_Text
+ * @since     File available since Release 0.0.1
  */
-
 require_once 'Image/Text/Exception.php';
-
 /**
- * Regex to match HTML style hex triples.
- */
-define("IMAGE_TEXT_REGEX_HTMLCOLOR", "/^[#|]([a-f0-9]{2})?([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i", true);
-
-/**
- * Defines horizontal alignment to the left of the text box. (This is standard.)
- */
-define("IMAGE_TEXT_ALIGN_LEFT", "left", true);
-
-/**
- * Defines horizontal alignment to the center of the text box.
- */
-define("IMAGE_TEXT_ALIGN_RIGHT", "right", true);
-
-/**
- * Defines horizontal alignment to the center of the text box.
- */
-define("IMAGE_TEXT_ALIGN_CENTER", "center", true);
-
-/**
- * Defines vertical alignment to the to the top of the text box. (This is standard.)
- */
-define("IMAGE_TEXT_ALIGN_TOP", "top", true);
-
-/**
- * Defines vertical alignment to the to the middle of the text box.
- */
-define("IMAGE_TEXT_ALIGN_MIDDLE", "middle", true);
-
-/**
- * Defines vertical alignment to the to the bottom of the text box.
- */
-define("IMAGE_TEXT_ALIGN_BOTTOM", "bottom", true);
-
-/**
- * TODO: This constant is useless until now, since justified alignment does not work yet
- */
-define("IMAGE_TEXT_ALIGN_JUSTIFY", "justify", true);
-
-/**
- * Image_Text - Advanced text maipulations in images
+ * Image_Text - Advanced text manipulations in images.
  *
- * Image_Text provides advanced text manipulation facilities for GD2
- * image generation with PHP. Simply add text clippings to your images,
- * let the class automatically determine lines, rotate text boxes around
- * their center or top left corner. These are only a couple of features
- * Image_Text provides.
+ * Image_Text provides advanced text manipulation facilities for GD2 image generation
+ * with PHP. Simply add text clippings to your images, let the class automatically
+ * determine lines, rotate text boxes around their center or top left corner. These
+ * are only a couple of features Image_Text provides.
  *
- * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @category   Image
- * @package    Text
- * @author     Tobias Schlitt <toby@php.net>
- * @copyright  1997-2005 The PHP Group
- * @version    Release: @package_version@
- * @link       http://pear.php.net/package/Net_FTP
- * @since      0.0.1
- * @access     public
+ * @category  Image
+ * @package   Image_Text
+ * @author    Tobias Schlitt <toby@php.net>
+ * @copyright 1997-2005 The PHP Group
+ * @license   http://www.php.net/license/3_01.txt PHP License
+ * @version   Release: @package_version@
+ * @link      http://pear.php.net/package/Image_Text
+ * @since     0.0.1
  */
-class Image_Text {
+class Image_Text
+{
+    /**
+     * Regex to match HTML style hex triples.
+     */
+    const IMAGE_TEXT_REGEX_HTMLCOLOR
+        = "/^[#|]([a-f0-9]{2})?([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})$/i";
 
+    /**
+     * Defines horizontal alignment to the left of the text box. (This is standard.)
+     */
+    const IMAGE_TEXT_ALIGN_LEFT = "left";
+
+    /**
+     * Defines horizontal alignment to the center of the text box.
+     */
+    const IMAGE_TEXT_ALIGN_RIGHT = "right";
+
+    /**
+     * Defines horizontal alignment to the center of the text box.
+     */
+    const IMAGE_TEXT_ALIGN_CENTER = "center";
+
+    /**
+     * Defines vertical alignment to the to the top of the text box. (This is
+     * standard.)
+     */
+    const IMAGE_TEXT_ALIGN_TOP = "top";
+
+    /**
+     * Defines vertical alignment to the to the middle of the text box.
+     */
+    const IMAGE_TEXT_ALIGN_MIDDLE = "middle";
+
+    /**
+     * Defines vertical alignment to the to the bottom of the text box.
+     */
+    const IMAGE_TEXT_ALIGN_BOTTOM = "bottom";
+
+    /**
+     * TODO: This constant is useless until now, since justified alignment does not
+     * work yet
+     */
+    const IMAGE_TEXT_ALIGN_JUSTIFY = "justify";
     /**
      * Options array. these options can be set through the constructor or the set() method.
      *
@@ -195,54 +135,54 @@ class Image_Text {
      *
      * @access public
      * @var array
-     * @see Image_Text::Image_Text(), Image_Text::set()
+     * @see    Image_Text::Image_Text(), Image_Text::set()
      */
 
     var $options = array(
-            // orientation
-            'x'                 => 0,
-            'y'                 => 0,
+        // orientation
+        'x' => 0,
+        'y' => 0,
 
-            // surface
-            'canvas'            => null,
-            'antialias'         => true,
+        // surface
+        'canvas' => null,
+        'antialias' => true,
 
-            // text clipping
-            'width'             => 0,
-            'height'            => 0,
+        // text clipping
+        'width' => 0,
+        'height' => 0,
 
-            // text alignment inside the clipping
-            'halign'             => IMAGE_TEXT_ALIGN_LEFT,
-            'valign'             => IMAGE_TEXT_ALIGN_TOP,
+        // text alignment inside the clipping
+        'halign' => self::IMAGE_TEXT_ALIGN_LEFT,
+        'valign' => self::IMAGE_TEXT_ALIGN_TOP,
 
-            // angle to rotate the text clipping
-            'angle'             => 0,
+        // angle to rotate the text clipping
+        'angle' => 0,
 
-            // color settings
-            'color'             => array( '#000000' ),
+        // color settings
+        'color' => array('#000000'),
 
-            'color_mode'        => 'line',
+        'color_mode' => 'line',
 
-            'background_color'  => '#000000',
-            'enable_alpha'      => false,
+        'background_color' => '#000000',
+        'enable_alpha' => false,
 
-            // font settings
-            'font_path'         => "./",
-            'font_file'         => null,
-            'font_size'         => 2,
-            'line_spacing'      => 0.5,
+        // font settings
+        'font_path' => "./",
+        'font_file' => null,
+        'font_size' => 2,
+        'line_spacing' => 0.5,
 
-            // automasurizing settings
-            'min_font_size'     => 1,
-            'max_font_size'     => 100,
+        // automasurizing settings
+        'min_font_size' => 1,
+        'max_font_size' => 100,
 
-            //max. lines to render
-            'max_lines'         => 100,
+        //max. lines to render
+        'max_lines' => 100,
 
-            // misc settings
-            'image_type'        => IMAGETYPE_PNG,
-            'dest_file'         => ''
-        );
+        // misc settings
+        'image_type' => IMAGETYPE_PNG,
+        'dest_file' => ''
+    );
 
     /**
      * Contains option names, which can cause re-initialization force.
@@ -360,10 +300,11 @@ class Image_Text {
      * all options you have to call the init() method first befor doing anything further! See Image_Text::set()
      * for further information.
      *
-     * @param   string  $text       Text to print.
-     * @param   array   $options    Options.
+     * @param   string $text       Text to print.
+     * @param   array  $options    Options.
+     *
      * @access public
-     * @see Image_Text::set(), Image_Text::construct(), Image_Text::init()
+     * @see    Image_Text::set(), Image_Text::construct(), Image_Text::init()
      */
     public function __construct($text, $options = null)
     {
@@ -378,14 +319,16 @@ class Image_Text {
      * This method is called statically and creates plus initializes an Image_Text object.
      * Beware: You will have to recall init() if you set an option afterwards manually.
      *
-     * @param   string  $text       Text to print.
-     * @param   array   $options    Options.
+     * @param   string $text       Text to print.
+     * @param   array  $options    Options.
+     *
      * @access public
      * @static
-     * @see Image_Text::set(), Image_Text::Image_Text(), Image_Text::init()
+     * @see    Image_Text::set(), Image_Text::Image_Text(), Image_Text::init()
      */
 
-    function construct ( $text, $options ) {
+    function construct($text, $options)
+    {
         $itext = new Image_Text($text, $options);
         $res = $itext->init();
         return $itext;
@@ -399,15 +342,16 @@ class Image_Text {
      * array!
      *
      *
-     * @param   mixed   $option     A single option name or the options array.
-     * @param   mixed   $value      Option value if $option is string.
+     * @param   mixed $option     A single option name or the options array.
+     * @param   mixed $value      Option value if $option is string.
+     *
      * @return  bool                True on success
      * @access public
-     * @see Image_Text::Image_Text()
+     * @see    Image_Text::Image_Text()
      * @throws InvalidArgumentException
      */
 
-    function set($option, $value=null)
+    function set($option, $value = null)
     {
         $reInits = array_flip($this->_reInits);
         if (!is_array($option)) {
@@ -418,17 +362,17 @@ class Image_Text {
         }
         foreach ($option as $opt => $val) {
             switch ($opt) {
-             case 'color':
+            case 'color':
                 $this->setColors($val);
                 break;
-             case 'text':
+            case 'text':
                 if (is_array($val)) {
                     $this->_text = implode('\n', $val);
                 } else {
                     $this->_text = $val;
                 }
                 break;
-             default:
+            default:
                 $this->options[$opt] = $val;
                 break;
             }
@@ -456,10 +400,11 @@ class Image_Text {
      *
      * A single color or an array of colors are allowed here.
      *
-     * @param   mixed  $colors       Single color or array of colors.
+     * @param   mixed $colors       Single color or array of colors.
+     *
      * @return  bool                 True on success
      * @access  public
-     * @see Image_Text::setColor(), Image_Text::set()
+     * @see     Image_Text::setColor(), Image_Text::set()
      * @throws InvalidArgumentException
      */
     function setColors($colors)
@@ -467,9 +412,9 @@ class Image_Text {
         $i = 0;
         if (is_array($colors) &&
             (is_string($colors[0]) || is_array($colors[0]))
-           ) {
+        ) {
             foreach ($colors as $color) {
-                $res = $this->setColor($color,$i++);
+                $res = $this->setColor($color, $i++);
             }
         } else {
             return $this->setColor($colors, $i);
@@ -488,17 +433,18 @@ class Image_Text {
      * - "#08ffff00" hexadecimal format (HTML style) with alpha channel (08), with and without #.
      * - array with 'r','g','b' and (optionally) 'a' keys, using int values.
      *
-     * @param   mixed    $color        Color value.
-     * @param   mixed    $id           ID (in the color array) to set color to.
+     * @param   mixed $color        Color value.
+     * @param   mixed $id           ID (in the color array) to set color to.
+     *
      * @return  bool                True on success
      * @access  public
-     * @see Image_Text::setColors(), Image_Text::set()
+     * @see     Image_Text::setColors(), Image_Text::set()
      * @throws InvalidArgumentException
      */
 
-    function setColor($color, $id=0)
+    function setColor($color, $id = 0)
     {
-        if(is_array($color)) {
+        if (is_array($color)) {
             if (isset($color['r']) && isset($color['g']) && isset($color['b'])) {
                 $color['a'] = isset($color['a']) ? $color['a'] : 0;
                 $this->options['colors'][$id] = $color;
@@ -523,15 +469,15 @@ class Image_Text {
             $aaFactor = ($this->options['antialias']) ? 1 : -1;
             if (function_exists('imagecolorallocatealpha') && isset($color['a'])) {
                 $this->colors[$id] = $aaFactor * imagecolorallocatealpha($this->_img,
-                                $color['r'],$color['g'],$color['b'],$color['a']);
+                        $color['r'], $color['g'], $color['b'], $color['a']);
             } else {
                 $this->colors[$id] = $aaFactor * imagecolorallocate($this->_img,
-                                $color['r'],$color['g'],$color['b']);
+                        $color['r'], $color['g'], $color['b']);
             }
             if ($this->colors[$id] == 0 && $aaFactor == -1) {
-            	// correction for black with antialiasing OFF
-            	// since color cannot be negative zero
-            	$this->colors[$id] = -256;
+                // correction for black with antialiasing OFF
+                // since color cannot be negative zero
+                $this->colors[$id] = -256;
             }
         }
         return true;
@@ -547,7 +493,7 @@ class Image_Text {
      *
      * @access  public
      * @return  bool  True on success
-     * @see Image_Text::set()
+     * @see     Image_Text::set()
      * @throws Image_Text_Exception
      */
     function init()
@@ -557,18 +503,18 @@ class Image_Text {
         //        the fontname; the fontfile will then be automatically searched for in library-defined directories
         //        however this does not yet work if at this point we check for the existance of the fontfile
         $font_file = rtrim($this->options['font_path'], '/\\');
-        $font_file.= defined('OS_WINDOWS') && OS_WINDOWS ? '\\' : '/';
-        $font_file.= $this->options['font_file'];
+        $font_file .= defined('OS_WINDOWS') && OS_WINDOWS ? '\\' : '/';
+        $font_file .= $this->options['font_file'];
         $font_file = realpath($font_file);
 
         if (empty($font_file)) {
-          throw new Image_Text_Exception('You must supply a font file.');
+            throw new Image_Text_Exception('You must supply a font file.');
         } elseif (!file_exists($font_file)) {
-          throw new Image_Text_Exception('Font file was not found.');
+            throw new Image_Text_Exception('Font file was not found.');
         } elseif (!is_readable($font_file)) {
-          throw new Image_Text_Exception('Font file is not readable.');
+            throw new Image_Text_Exception('Font file is not readable.');
         } elseif (!imagettfbbox(1, 1, $font_file, 1)) {
-          throw new Image_Text_Exception('Font file is not valid.');
+            throw new Image_Text_Exception('Font file is not valid.');
         }
         $this->_font = $font_file;
 
@@ -580,54 +526,53 @@ class Image_Text {
         // Check and create canvas
         $image_canvas = false;
         switch (true) {
-            case (empty($this->options['canvas'])):
+        case (empty($this->options['canvas'])):
 
-                // Create new image from width && height of the clipping
-                $this->_img = imagecreatetruecolor(
-                            $this->options['width'], $this->options['height']);
-                if (!$this->_img) {
-                    throw new Image_Text_Exception('Could not create image canvas.');
-                }
-                break;
-
-            case (is_resource($this->options['canvas']) &&
-                    get_resource_type($this->options['canvas'])=='gd'):
-                // The canvas is an image resource
-                $image_canvas = true;
-                $this->_img = $this->options['canvas'];
-                break;
-
-            case (is_array($this->options['canvas']) &&
-                    isset($this->options['canvas']['width']) &&
-                    isset($this->options['canvas']['height'])):
-
-                // Canvas must be a width and height measure
-                $this->_img = imagecreatetruecolor(
-                    $this->options['canvas']['width'],
-                    $this->options['canvas']['height']
-                );
-                break;
-
-
-            case (is_array($this->options['canvas']) &&
-                    isset($this->options['canvas']['size']) &&
-                    ($this->options['canvas']['size'] = 'auto')):
-
-            case (is_string($this->options['canvas']) &&
-                     ($this->options['canvas'] = 'auto')):
-                $this->_mode = 'auto';
-                break;
-
-            default:
+            // Create new image from width && height of the clipping
+            $this->_img = imagecreatetruecolor(
+                $this->options['width'], $this->options['height']);
+            if (!$this->_img) {
                 throw new Image_Text_Exception('Could not create image canvas.');
+            }
+            break;
+
+        case (is_resource($this->options['canvas']) &&
+            get_resource_type($this->options['canvas']) == 'gd'):
+            // The canvas is an image resource
+            $image_canvas = true;
+            $this->_img = $this->options['canvas'];
+            break;
+
+        case (is_array($this->options['canvas']) &&
+            isset($this->options['canvas']['width']) &&
+            isset($this->options['canvas']['height'])):
+
+            // Canvas must be a width and height measure
+            $this->_img = imagecreatetruecolor(
+                $this->options['canvas']['width'],
+                $this->options['canvas']['height']
+            );
+            break;
+
+
+        case (is_array($this->options['canvas']) &&
+            isset($this->options['canvas']['size']) &&
+            ($this->options['canvas']['size'] = 'auto')):
+
+        case (is_string($this->options['canvas']) &&
+            ($this->options['canvas'] = 'auto')):
+            $this->_mode = 'auto';
+            break;
+
+        default:
+            throw new Image_Text_Exception('Could not create image canvas.');
 
         }
 
 
-
         if ($this->_img) {
             $this->options['canvas'] = array();
-            $this->options['canvas']['width']  = imagesx($this->_img);
+            $this->options['canvas']['width'] = imagesx($this->_img);
             $this->options['canvas']['height'] = imagesy($this->_img);
         }
 
@@ -642,7 +587,7 @@ class Image_Text {
             imagealphablending($this->_img, false);
             $colBg = imagecolorallocatealpha($this->_img, 255, 255, 255, 127);
         } else {
-            $arBg  = $this->_convertString2RGB($this->options['background_color']);
+            $arBg = $this->_convertString2RGB($this->options['background_color']);
             if ($arBg === false) {
                 throw new Image_Text_Exception('Background color is invalid.');
             }
@@ -690,15 +635,17 @@ class Image_Text {
      * the options array are used.
      *
      * @access public
-     * @param  int      $start  Fontsize to start testing with.
-     * @param  int      $end    Fontsize to end testing with.
+     *
+     * @param  int $start  Fontsize to start testing with.
+     * @param  int $end    Fontsize to end testing with.
+     *
      * @return int              Fontsize measured
-     * @see Image_Text::measurize()
+     * @see    Image_Text::measurize()
      * @throws Image_Text_Exception
-     * @todo Beware of initialize
+     * @todo   Beware of initialize
      */
 
-    function autoMeasurize($start=false, $end=false)
+    function autoMeasurize($start = false, $end = false)
     {
         if (!$this->_init) {
             throw new Image_Text_Exception('Not initialized. Call ->init() first!');
@@ -738,13 +685,15 @@ class Image_Text {
      * automatically.
      *
      * @access public
-     * @param  bool  $force  Optionally, default is false, set true to force measurizing.
+     *
+     * @param  bool $force  Optionally, default is false, set true to force measurizing.
+     *
      * @return array         Array of measured lines.
-     * @see Image_Text::autoMeasurize()
+     * @see    Image_Text::autoMeasurize()
      * @throws Image_Text_Exception
      */
 
-    function measurize($force=false)
+    function measurize($force = false)
     {
         if (!$this->_init) {
             throw new Image_Text_Exception('Not initialized. Call ->init() first!');
@@ -760,7 +709,7 @@ class Image_Text {
 
         $max_lines = (int)$this->options['max_lines'];
 
-        if (($max_lines<1) && !$force) {
+        if (($max_lines < 1) && !$force) {
             return false;
         }
 
@@ -786,28 +735,28 @@ class Image_Text {
         $beginning_of_line = true;
 
         // Run through tokens and order them in lines
-        foreach($this->_tokens as $token) {
+        foreach ($this->_tokens as $token) {
             // Handle new paragraphs
-            if ($token=="\n") {
+            if ($token == "\n") {
                 $bounds = imagettfbbox($size, 0, $font, $text_line);
-                if ((++$lines_cnt>=$max_lines) && !$force) {
+                if ((++$lines_cnt >= $max_lines) && !$force) {
                     return false;
                 }
-                if ($this->options['color_mode']=='paragraph') {
-                    $c = $this->colors[$para_cnt%$colors_cnt];
+                if ($this->options['color_mode'] == 'paragraph') {
+                    $c = $this->colors[$para_cnt % $colors_cnt];
                     $i++;
                 } else {
-                    $c = $this->colors[$i++%$colors_cnt];
+                    $c = $this->colors[$i++ % $colors_cnt];
                 }
-                $lines[]  = array(
-                                'string'        => $text_line,
-                                'width'         => $bounds[2]-$bounds[0],
-                                'height'        => $bounds[1]-$bounds[7],
-                                'bottom_margin' => $bounds[1],
-                                'left_margin'   => $bounds[0],
-                                'color'         => $c
-                            );
-                $text_width = max($text_width, ($bounds[2]-$bounds[0]));
+                $lines[] = array(
+                    'string' => $text_line,
+                    'width' => $bounds[2] - $bounds[0],
+                    'height' => $bounds[1] - $bounds[7],
+                    'bottom_margin' => $bounds[1],
+                    'left_margin' => $bounds[0],
+                    'color' => $c
+                );
+                $text_width = max($text_width, ($bounds[2] - $bounds[0]));
                 $text_height += (int)$space;
                 if (($text_height > $block_height) && !$force) {
                     return false;
@@ -825,67 +774,67 @@ class Image_Text {
                 $text_line_next = $token;
                 $beginning_of_line = false;
             } else {
-                $text_line_next = $text_line.' '.$token;
+                $text_line_next = $text_line . ' ' . $token;
             }
             $bounds = imagettfbbox($size, 0, $font, $text_line_next);
-            $prev_width = isset($prev_width)?$width:0;
-            $width = $bounds[2]-$bounds[0];
+            $prev_width = isset($prev_width) ? $width : 0;
+            $width = $bounds[2] - $bounds[0];
 
             // Handling of automatic new lines
-            if ($width>$block_width) {
-                if ((++$lines_cnt>=$max_lines) && !$force) {
+            if ($width > $block_width) {
+                if ((++$lines_cnt >= $max_lines) && !$force) {
                     return false;
                 }
-                if ($this->options['color_mode']=='line') {
-                    $c = $this->colors[$i++%$colors_cnt];
+                if ($this->options['color_mode'] == 'line') {
+                    $c = $this->colors[$i++ % $colors_cnt];
                 } else {
-                    $c = $this->colors[$para_cnt%$colors_cnt];
+                    $c = $this->colors[$para_cnt % $colors_cnt];
                     $i++;
                 }
 
-                $lines[]  = array(
-                                'string'    => $text_line,
-                                'width'     => $prev_width,
-                                'height'    => $bounds[1]-$bounds[7],
-                                'bottom_margin' => $bounds[1],
-                                'left_margin'   => $bounds[0],
-                                'color'         => $c
-                            );
-                $text_width = max($text_width, ($bounds[2]-$bounds[0]));
+                $lines[] = array(
+                    'string' => $text_line,
+                    'width' => $prev_width,
+                    'height' => $bounds[1] - $bounds[7],
+                    'bottom_margin' => $bounds[1],
+                    'left_margin' => $bounds[0],
+                    'color' => $c
+                );
+                $text_width = max($text_width, ($bounds[2] - $bounds[0]));
                 $text_height += (int)$space;
                 if (($text_height > $block_height) && !$force) {
                     return false;
                 }
 
-                $text_line      = $token;
+                $text_line = $token;
                 $bounds = imagettfbbox($size, 0, $font, $text_line);
-                $width = $bounds[2]-$bounds[0];
+                $width = $bounds[2] - $bounds[0];
                 $beginning_of_line = false;
             } else {
                 $text_line = $text_line_next;
             }
         }
         // Store remaining line
-        $bounds = imagettfbbox($size, 0, $font,$text_line);
-        if ($this->options['color_mode']=='line') {
-            $c = $this->colors[$i++%$colors_cnt];
+        $bounds = imagettfbbox($size, 0, $font, $text_line);
+        if ($this->options['color_mode'] == 'line') {
+            $c = $this->colors[$i++ % $colors_cnt];
         } else {
-            $c = $this->colors[$para_cnt%$colors_cnt];
+            $c = $this->colors[$para_cnt % $colors_cnt];
             $i++;
         }
-        $lines[]  = array(
-                        'string'=> $text_line,
-                        'width' => $bounds[2]-$bounds[0],
-                        'height'=> $bounds[1]-$bounds[7],
-                        'bottom_margin' => $bounds[1],
-                        'left_margin'   => $bounds[0],
-                        'color'         => $c
-                    );
+        $lines[] = array(
+            'string' => $text_line,
+            'width' => $bounds[2] - $bounds[0],
+            'height' => $bounds[1] - $bounds[7],
+            'bottom_margin' => $bounds[1],
+            'left_margin' => $bounds[0],
+            'color' => $c
+        );
 
         // add last line height, but without the line-spacing
         $text_height += $this->options['font_size'];
 
-        $text_width = max($text_width, ($bounds[2]-$bounds[0]));
+        $text_width = max($text_width, ($bounds[2] - $bounds[0]));
 
         if (($text_height > $block_height) && !$force) {
             return false;
@@ -905,12 +854,14 @@ class Image_Text {
      * outside a given text box or destroy your image completely).
      *
      * @access public
-     * @param  bool     $force  Optional, initially false, set true to silence measurize errors.
+     *
+     * @param  bool $force  Optional, initially false, set true to silence measurize errors.
+     *
      * @return bool             True on success
      * @throws Image_Text_Exception
      */
 
-    function render($force=false)
+    function render($force = false)
     {
         if (!$this->_init) {
             throw new Image_Text_Exception('Not initialized. Call ->init() first!');
@@ -921,15 +872,15 @@ class Image_Text {
         }
 
         if (empty($this->_lines) || ($this->_measurizedSize != $this->options['font_size'])) {
-            $this->_lines = $this->measurize( $force );
+            $this->_lines = $this->measurize($force);
         }
         $lines = $this->_lines;
 
         if ($this->_mode === 'auto') {
             $this->_img = imagecreatetruecolor(
-                        $this->_realTextSize['width'],
-                        $this->_realTextSize['height']
-                    );
+                $this->_realTextSize['width'],
+                $this->_realTextSize['height']
+            );
             if (!$this->_img) {
                 throw new Image_Text_Exception('Could not create image cabvas.');
             }
@@ -966,17 +917,17 @@ class Image_Text {
         $cosR = cos($radians);
 
         switch ($this->options['valign']) {
-            case IMAGE_TEXT_ALIGN_TOP:
-                $valign_space = 0;
-                break;
-            case IMAGE_TEXT_ALIGN_MIDDLE:
-                $valign_space = ($this->options['height'] - $this->_realTextSize['height']) / 2;
-                break;
-            case IMAGE_TEXT_ALIGN_BOTTOM:
-                $valign_space = $this->options['height'] - $this->_realTextSize['height'];
-                break;
-            default:
-                $valign_space = 0;
+        case self::IMAGE_TEXT_ALIGN_TOP:
+            $valign_space = 0;
+            break;
+        case self::IMAGE_TEXT_ALIGN_MIDDLE:
+            $valign_space = ($this->options['height'] - $this->_realTextSize['height']) / 2;
+            break;
+        case self::IMAGE_TEXT_ALIGN_BOTTOM:
+            $valign_space = $this->options['height'] - $this->_realTextSize['height'];
+            break;
+        default:
+            $valign_space = 0;
         }
 
         $space = (1 + $line_spacing) * $size;
@@ -985,39 +936,39 @@ class Image_Text {
         $new_posx = $start_x + ($sinR * ($valign_space + $size));
         $new_posy = $start_y + ($cosR * ($valign_space + $size));
 
-        $lines_cnt = min($max_lines,sizeof($lines));
+        $lines_cnt = min($max_lines, sizeof($lines));
 
         // Go thorugh lines for rendering
-        for($i=0; $i<$lines_cnt; $i++){
+        for ($i = 0; $i < $lines_cnt; $i++) {
 
             // Calc the new start X and Y (only for line>0)
             // the distance between the line above is used
-            if($i > 0){
+            if ($i > 0) {
                 $new_posx += $sinR * $space;
                 $new_posy += $cosR * $space;
             }
 
             // Calc the position of the 1st letter. We can then get the left and bottom margins
             // 'i' is really not the same than 'j' or 'g'.
-            $bottom_margin  = $lines[$i]['bottom_margin'];
-            $left_margin    = $lines[$i]['left_margin'];
-            $line_width     = $lines[$i]['width'];
+            $bottom_margin = $lines[$i]['bottom_margin'];
+            $left_margin = $lines[$i]['left_margin'];
+            $line_width = $lines[$i]['width'];
 
             // Calc the position using the block width, the current line width and obviously
             // the angle. That gives us the offset to slide the line.
-            switch($align) {
-                case IMAGE_TEXT_ALIGN_LEFT:
-                    $hyp = 0;
-                    break;
-                case IMAGE_TEXT_ALIGN_RIGHT:
-                    $hyp = $block_width - $line_width - $left_margin;
-                    break;
-                case IMAGE_TEXT_ALIGN_CENTER:
-                    $hyp = ($block_width-$line_width)/2 - $left_margin;
-                    break;
-                default:
-                    $hyp = 0;
-                    break;
+            switch ($align) {
+            case self::IMAGE_TEXT_ALIGN_LEFT:
+                $hyp = 0;
+                break;
+            case self::IMAGE_TEXT_ALIGN_RIGHT:
+                $hyp = $block_width - $line_width - $left_margin;
+                break;
+            case self::IMAGE_TEXT_ALIGN_CENTER:
+                $hyp = ($block_width - $line_width) / 2 - $left_margin;
+                break;
+            default:
+                $hyp = 0;
+                break;
             }
 
             $posx = $new_posx + $cosR * $hyp;
@@ -1026,7 +977,7 @@ class Image_Text {
             $c = $lines[$i]['color'];
 
             // Render textline
-            $bboxes[] = imagettftext ($im, $size, $angle, $posx, $posy, $c, $font, $lines[$i]['string']);
+            $bboxes[] = imagettftext($im, $size, $angle, $posx, $posy, $c, $font, $lines[$i]['string']);
         }
         $this->bbox = $bboxes;
         return true;
@@ -1053,39 +1004,40 @@ class Image_Text {
      * constants to determine which image type will be generated. Optionally you can save your
      * image to a destination you set in the options.
      *
-     * @param   bool  $save  Save or not the image on printout.
-     * @param   bool  $free  Free the image on exit.
+     * @param   bool $save  Save or not the image on printout.
+     * @param   bool $free  Free the image on exit.
+     *
      * @return  bool         True on success
      * @access public
-     * @see Image_Text::save()
+     * @see    Image_Text::save()
      * @throws Image_Text_Exception
      */
 
-    function display($save=false, $free=false)
+    function display($save = false, $free = false)
     {
         if (!headers_sent()) {
-            header("Content-type: " .image_type_to_mime_type($this->options['image_type']));
+            header("Content-type: " . image_type_to_mime_type($this->options['image_type']));
         } else {
             throw new Image_Text_Exception('Header already sent.');
         }
         switch ($this->options['image_type']) {
-            case IMAGETYPE_PNG:
-                $imgout = 'imagepng';
-                break;
-            case IMAGETYPE_JPEG:
-                $imgout = 'imagejpeg';
-                break;
-            case IMAGETYPE_BMP:
-                $imgout = 'imagebmp';
-                break;
-            default:
-                throw new Image_Text_Exception('Unsupported image type.');
+        case IMAGETYPE_PNG:
+            $imgout = 'imagepng';
+            break;
+        case IMAGETYPE_JPEG:
+            $imgout = 'imagejpeg';
+            break;
+        case IMAGETYPE_BMP:
+            $imgout = 'imagebmp';
+            break;
+        default:
+            throw new Image_Text_Exception('Unsupported image type.');
         }
         if ($save) {
             $imgout($this->_img);
             $res = $this->save();
         } else {
-           $imgout($this->_img);
+            $imgout($this->_img);
         }
 
         if ($free) {
@@ -1104,14 +1056,15 @@ class Image_Text {
      * if you have the option for that set correctly. Saving is possible with the display()
      * method, too.
      *
-     * @param   string  $destFile   The destination to save to (optional, uses options value else).
+     * @param   string $destFile   The destination to save to (optional, uses options value else).
+     *
      * @return  bool                True on success.
      * @see Image_Text::display()
      * @throws Image_Text_Exception
      * @throws InvalidArgumentException
      */
 
-    function save($dest_file=false)
+    function save($dest_file = false)
     {
         if (!$dest_file) {
             $dest_file = $this->options['dest_file'];
@@ -1121,18 +1074,18 @@ class Image_Text {
         }
 
         switch ($this->options['image_type']) {
-            case IMAGETYPE_PNG:
-                $imgout = 'imagepng';
-                break;
-            case IMAGETYPE_JPEG:
-                $imgout = 'imagejpeg';
-                break;
-            case IMAGETYPE_BMP:
-                $imgout = 'imagebmp';
-                break;
-            default:
-                throw new Image_Text_Exception('Unsupported image type.');
-                break;
+        case IMAGETYPE_PNG:
+            $imgout = 'imagepng';
+            break;
+        case IMAGETYPE_JPEG:
+            $imgout = 'imagejpeg';
+            break;
+        case IMAGETYPE_BMP:
+            $imgout = 'imagebmp';
+            break;
+        default:
+            throw new Image_Text_Exception('Unsupported image type.');
+            break;
         }
 
         $res = $imgout($this->_img, $dest_file);
@@ -1171,7 +1124,7 @@ class Image_Text {
             if ($angle) {
                 $ang = deg2rad($angle);
                 // Vector from the top left cornern ponting to the middle point
-                $vA = array( ($cx - $x), ($cy - $y) );
+                $vA = array(($cx - $x), ($cy - $y));
                 // Matrix to rotate vector
                 // sinus and cosinus
                 $sin = round(sin($ang), 14);
@@ -1183,12 +1136,12 @@ class Image_Text {
                 );
                 // Multiply vector with matrix to get the rotated vector
                 // This results in the location of the center point after rotation
-                $vB = array (
+                $vB = array(
                     ($mRot[0] * $vA[0] + $mRot[2] * $vA[0]),
                     ($mRot[1] * $vA[1] + $mRot[3] * $vA[1])
                 );
                 // To get the movement vector, we subtract the original middle
-                $vC = array (
+                $vC = array(
                     ($vA[0] - $vB[0]),
                     ($vA[1] - $vB[1])
                 );
@@ -1197,7 +1150,7 @@ class Image_Text {
                 $y += $vC[1];
             }
         }
-        return array ('x' => (int)round($x, 0), 'y' => (int)round($y, 0));
+        return array('x' => (int)round($x, 0), 'y' => (int)round($y, 0));
     }
 
     /**
@@ -1210,19 +1163,20 @@ class Image_Text {
      * Only one color is allowed
      * If $id is given, the color index $id is used
      *
-     * @param   mixed  $colors       Array of colors.
-     * @param   mixed  $id           Array of colors.
+     * @param   mixed $colors       Array of colors.
+     * @param   mixed $id           Array of colors.
+     *
      * @access private
      */
     function _convertString2RGB($scolor)
     {
-        if (preg_match(IMAGE_TEXT_REGEX_HTMLCOLOR, $scolor, $matches)) {
+        if (preg_match(self::IMAGE_TEXT_REGEX_HTMLCOLOR, $scolor, $matches)) {
             return array(
-                           'r' => hexdec($matches[2]),
-                           'g' => hexdec($matches[3]),
-                           'b' => hexdec($matches[4]),
-                           'a' => hexdec(!empty($matches[1])?$matches[1]:0),
-                           );
+                'r' => hexdec($matches[2]),
+                'g' => hexdec($matches[3]),
+                'b' => hexdec($matches[4]),
+                'a' => hexdec(!empty($matches[1]) ? $matches[1] : 0),
+            );
         }
         return false;
     }
@@ -1243,13 +1197,13 @@ class Image_Text {
         $this->_text = preg_replace("[\r\n]", "\n", $this->_text);
 
         // Get each paragraph
-        $paras = explode("\n",$this->_text);
+        $paras = explode("\n", $this->_text);
 
         // loop though the paragraphs
         // and get each word (token)
-        foreach($paras as $para) {
-            $words = explode(' ',$para);
-            foreach($words as $word) {
+        foreach ($paras as $para) {
+            $words = explode(' ', $para);
+            foreach ($words as $word) {
                 $this->_tokens[] = $word;
             }
             // add a "\n" to mark the end of a paragraph
