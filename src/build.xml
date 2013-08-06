@@ -207,6 +207,7 @@
             <lead user="stoyan" name="Stoyan Stefanov" email="ssttoo@gmail.com" active="false"/>
             <lead user="toby" name="Tobias Schlitt" email="toby@php.net" active="false"/>
             <lead user="bigmichi1" name="Michael Cramer" email="michael@bigmichi1.de"/>
+            <contributor user="doconnor" name="Daniel O'Connor" email="daniel.oconnor@gmail.com"/>
             <version release="${project.version}" api="${project.api.version}"/>
             <stability release="beta" api="beta"/>
             <license>PHP License</license>
