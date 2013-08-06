@@ -299,7 +299,7 @@ class Image_Text
     {
         $this->set('text', $text);
         if (!empty($options)) {
-            $this->options = array_merge($this->options, $options);
+            $this->_options = array_merge($this->_options, $options);
         }
     }
 
@@ -358,7 +358,7 @@ class Image_Text
                 }
                 break;
             default:
-                $this->options[$opt] = $val;
+                $this->_options[$opt] = $val;
                 break;
             }
             if (isset($reInits[$opt])) {
@@ -429,13 +429,13 @@ class Image_Text
         if (is_array($color)) {
             if (isset($color['r']) && isset($color['g']) && isset($color['b'])) {
                 $color['a'] = isset($color['a']) ? $color['a'] : 0;
-                $this->options['colors'][$id] = $color;
+                $this->_options['colors'][$id] = $color;
             } else if (isset($color[0]) && isset($color[1]) && isset($color[2])) {
                 $color['r'] = $color[0];
                 $color['g'] = $color[1];
                 $color['b'] = $color[2];
                 $color['a'] = isset($color[3]) ? $color[3] : 0;
-                $this->options['colors'][$id] = $color;
+                $this->_options['colors'][$id] = $color;
             } else {
                 throw new Image_Text_Exception(
                     'Use keys 1,2,3 (optionally) 4 or r,g,b and (optionally) a.'
@@ -444,13 +444,13 @@ class Image_Text
         } elseif (is_string($color)) {
             $color = $this->convertString2RGB($color);
             if ($color) {
-                $this->options['color'][$id] = $color;
+                $this->_options['color'][$id] = $color;
             } else {
                 throw new Image_Text_Exception('Invalid color.');
             }
         }
         if ($this->_img) {
-            $aaFactor = ($this->options['antialias']) ? 1 : -1;
+            $aaFactor = ($this->_options['antialias']) ? 1 : -1;
             if (function_exists('imagecolorallocatealpha') && isset($color['a'])) {
                 $this->_colors[$id] = $aaFactor *
                     imagecolorallocatealpha(
@@ -487,9 +487,9 @@ class Image_Text
     public function init()
     {
         // Does the fontfile exist and is readable?
-        $fontFile = rtrim($this->options['font_path'], '/\\');
+        $fontFile = rtrim($this->_options['font_path'], '/\\');
         $fontFile .= defined('OS_WINDOWS') && OS_WINDOWS ? '\\' : '/';
-        $fontFile .= $this->options['font_file'];
+        $fontFile .= $this->_options['font_file'];
         $fontFile = realpath($fontFile);
 
         if (empty($fontFile)) {
@@ -504,7 +504,7 @@ class Image_Text
         $this->_font = $fontFile;
 
         // Is the font size to small?
-        if ($this->options['width'] < 1) {
+        if ($this->_options['width'] < 1) {
             throw new Image_Text_Exception('Width too small. Has to be > 1.');
         }
 
@@ -512,40 +512,40 @@ class Image_Text
         $image_canvas = false;
         switch (true) {
 
-        case (empty($this->options['canvas'])):
+        case (empty($this->_options['canvas'])):
             // Create new image from width && height of the clipping
             $this->_img = imagecreatetruecolor(
-                $this->options['width'], $this->options['height']
+                $this->_options['width'], $this->_options['height']
             );
             if (!$this->_img) {
                 throw new Image_Text_Exception('Could not create image canvas.');
             }
             break;
 
-        case (is_resource($this->options['canvas']) &&
-            get_resource_type($this->options['canvas']) == 'gd'):
+        case (is_resource($this->_options['canvas']) &&
+            get_resource_type($this->_options['canvas']) == 'gd'):
             // The canvas is an image resource
             $image_canvas = true;
-            $this->_img = $this->options['canvas'];
+            $this->_img = $this->_options['canvas'];
             break;
 
-        case (is_array($this->options['canvas']) &&
-            isset($this->options['canvas']['width']) &&
-            isset($this->options['canvas']['height'])):
+        case (is_array($this->_options['canvas']) &&
+            isset($this->_options['canvas']['width']) &&
+            isset($this->_options['canvas']['height'])):
 
             // Canvas must be a width and height measure
             $this->_img = imagecreatetruecolor(
-                $this->options['canvas']['width'],
-                $this->options['canvas']['height']
+                $this->_options['canvas']['width'],
+                $this->_options['canvas']['height']
             );
             break;
 
-        case (is_array($this->options['canvas']) &&
-            isset($this->options['canvas']['size']) &&
-            ($this->options['canvas']['size'] = 'auto')):
+        case (is_array($this->_options['canvas']) &&
+            isset($this->_options['canvas']['size']) &&
+            ($this->_options['canvas']['size'] = 'auto')):
 
-        case (is_string($this->options['canvas']) &&
-            ($this->options['canvas'] = 'auto')):
+        case (is_string($this->_options['canvas']) &&
+            ($this->_options['canvas'] = 'auto')):
             $this->_mode = 'auto';
             break;
 
@@ -554,23 +554,23 @@ class Image_Text
         }
 
         if ($this->_img) {
-            $this->options['canvas'] = array();
-            $this->options['canvas']['width'] = imagesx($this->_img);
-            $this->options['canvas']['height'] = imagesy($this->_img);
+            $this->_options['canvas'] = array();
+            $this->_options['canvas']['width'] = imagesx($this->_img);
+            $this->_options['canvas']['height'] = imagesy($this->_img);
         }
 
-        if ($this->options['enable_alpha']) {
+        if ($this->_options['enable_alpha']) {
             imagesavealpha($this->_img, true);
             imagealphablending($this->_img, false);
         }
 
-        if ($this->options['background_color'] === null) {
-            $this->options['enable_alpha'] = true;
+        if ($this->_options['background_color'] === null) {
+            $this->_options['enable_alpha'] = true;
             imagesavealpha($this->_img, true);
             imagealphablending($this->_img, false);
             $colBg = imagecolorallocatealpha($this->_img, 255, 255, 255, 127);
         } else {
-            $arBg = $this->convertString2RGB($this->options['background_color']);
+            $arBg = $this->convertString2RGB($this->_options['background_color']);
             if ($arBg === false) {
                 throw new Image_Text_Exception('Background color is invalid.');
             }
@@ -582,24 +582,24 @@ class Image_Text
             imagefilledrectangle(
                 $this->_img,
                 0, 0,
-                $this->options['canvas']['width'] - 1,
-                $this->options['canvas']['height'] - 1,
+                $this->_options['canvas']['width'] - 1,
+                $this->_options['canvas']['height'] - 1,
                 $colBg
             );
         }
 
         // Save and repair angle
-        $angle = $this->options['angle'];
+        $angle = $this->_options['angle'];
         while ($angle < 0) {
             $angle += 360;
         }
         if ($angle > 359) {
             $angle = $angle % 360;
         }
-        $this->options['angle'] = $angle;
+        $this->_options['angle'] = $angle;
 
         // Set the color values
-        $this->setColors($this->options['color']);
+        $this->setColors($this->_options['color']);
 
         $this->_lines = null;
 
@@ -631,28 +631,28 @@ class Image_Text
             throw new Image_Text_Exception('Not initialized. Call ->init() first!');
         }
 
-        $start = (empty($start)) ? $this->options['min_font_size'] : $start;
-        $end = (empty($end)) ? $this->options['max_font_size'] : $end;
+        $start = (empty($start)) ? $this->_options['min_font_size'] : $start;
+        $end = (empty($end)) ? $this->_options['max_font_size'] : $end;
 
         // Run through all possible font sizes until a measurize fails
         // Not the optimal way. This can be tweaked!
         for ($i = $start; $i <= $end; $i++) {
-            $this->options['font_size'] = $i;
+            $this->_options['font_size'] = $i;
             $res = $this->measurize();
 
             if ($res === false) {
                 if ($start == $i) {
-                    $this->options['font_size'] = -1;
+                    $this->_options['font_size'] = -1;
                     throw new Image_Text_Exception("No possible font size found");
                 }
-                $this->options['font_size'] -= 1;
-                $this->_measurizedSize = $this->options['font_size'];
+                $this->_options['font_size'] -= 1;
+                $this->_measurizedSize = $this->_options['font_size'];
                 break;
             }
             // Always the last couple of lines is stored here.
             $this->_lines = $res;
         }
-        return $this->options['font_size'];
+        return $this->_options['font_size'];
     }
 
     /**
@@ -679,18 +679,18 @@ class Image_Text
 
         // Precaching options
         $font = $this->_font;
-        $size = $this->options['font_size'];
+        $size = $this->_options['font_size'];
 
-        $space = (1 + $this->options['line_spacing']) * $this->options['font_size'];
+        $space = (1 + $this->_options['line_spacing']) * $this->_options['font_size'];
 
-        $max_lines = (int)$this->options['max_lines'];
+        $max_lines = (int)$this->_options['max_lines'];
 
         if (($max_lines < 1) && !$force) {
             return false;
         }
 
-        $block_width = $this->options['width'];
-        $block_height = $this->options['height'];
+        $block_width = $this->_options['width'];
+        $block_height = $this->_options['height'];
 
         $colors_cnt = sizeof($this->_colors);
 
@@ -717,7 +717,7 @@ class Image_Text
                 if ((++$lines_cnt >= $max_lines) && !$force) {
                     return false;
                 }
-                if ($this->options['color_mode'] == 'paragraph') {
+                if ($this->_options['color_mode'] == 'paragraph') {
                     $c = $this->_colors[$para_cnt % $colors_cnt];
                     $i++;
                 } else {
@@ -760,7 +760,7 @@ class Image_Text
                 if ((++$lines_cnt >= $max_lines) && !$force) {
                     return false;
                 }
-                if ($this->options['color_mode'] == 'line') {
+                if ($this->_options['color_mode'] == 'line') {
                     $c = $this->_colors[$i++ % $colors_cnt];
                 } else {
                     $c = $this->_colors[$para_cnt % $colors_cnt];
@@ -792,7 +792,7 @@ class Image_Text
         // Store remaining line
         $bounds = imagettfbbox($size, 0, $font, $text_line);
         $i++;
-        if ($this->options['color_mode'] == 'line') {
+        if ($this->_options['color_mode'] == 'line') {
             $c = $this->_colors[$i % $colors_cnt];
         } else {
             $c = $this->_colors[$para_cnt % $colors_cnt];
@@ -807,7 +807,7 @@ class Image_Text
         );
 
         // add last line height, but without the line-spacing
-        $text_height += $this->options['font_size'];
+        $text_height += $this->_options['font_size'];
 
         $text_width = max($text_width, ($bounds[2] - $bounds[0]));
 
@@ -818,7 +818,7 @@ class Image_Text
         $this->_realTextSize = array(
             'width' => $text_width, 'height' => $text_height
         );
-        $this->_measurizedSize = $this->options['font_size'];
+        $this->_measurizedSize = $this->_options['font_size'];
 
         return $lines;
     }
@@ -848,7 +848,7 @@ class Image_Text
         }
 
         if (empty($this->_lines)
-            || ($this->_measurizedSize != $this->options['font_size'])
+            || ($this->_measurizedSize != $this->_options['font_size'])
         ) {
             $this->_lines = $this->measurize($force);
         }
@@ -866,19 +866,19 @@ class Image_Text
             $this->setColors($this->_options['color']);
         }
 
-        $block_width = $this->options['width'];
+        $block_width = $this->_options['width'];
 
-        $max_lines = $this->options['max_lines'];
+        $max_lines = $this->_options['max_lines'];
 
-        $angle = $this->options['angle'];
+        $angle = $this->_options['angle'];
         $radians = round(deg2rad($angle), 3);
 
         $font = $this->_font;
-        $size = $this->options['font_size'];
+        $size = $this->_options['font_size'];
 
-        $line_spacing = $this->options['line_spacing'];
+        $line_spacing = $this->_options['line_spacing'];
 
-        $align = $this->options['halign'];
+        $align = $this->_options['halign'];
 
         $offset = $this->_getOffset();
 
@@ -888,16 +888,16 @@ class Image_Text
         $sinR = sin($radians);
         $cosR = cos($radians);
 
-        switch ($this->options['valign']) {
+        switch ($this->_options['valign']) {
         case self::IMAGE_TEXT_ALIGN_TOP:
             $valign_space = 0;
             break;
         case self::IMAGE_TEXT_ALIGN_MIDDLE:
-            $valign_space = ($this->options['height']
+            $valign_space = ($this->_options['height']
                     - $this->_realTextSize['height']) / 2;
             break;
         case self::IMAGE_TEXT_ALIGN_BOTTOM:
-            $valign_space = $this->options['height']
+            $valign_space = $this->_options['height']
                 - $this->_realTextSize['height'];
             break;
         default:
@@ -991,12 +991,12 @@ class Image_Text
         if (!headers_sent()) {
             header(
                 "Content-type: " .
-                image_type_to_mime_type($this->options['image_type'])
+                image_type_to_mime_type($this->_options['image_type'])
             );
         } else {
             throw new Image_Text_Exception('Header already sent.');
         }
-        switch ($this->options['image_type']) {
+        switch ($this->_options['image_type']) {
         case IMAGETYPE_PNG:
             $imgout = 'imagepng';
             break;
@@ -1041,13 +1041,13 @@ class Image_Text
     public function save($destFile = false)
     {
         if (!$destFile) {
-            $destFile = $this->options['dest_file'];
+            $destFile = $this->_options['dest_file'];
         }
         if (!$destFile) {
             throw new Image_Text_Exception("Invalid desitination file.");
         }
 
-        switch ($this->options['image_type']) {
+        switch ($this->_options['image_type']) {
         case IMAGETYPE_PNG:
             $imgout = 'imagepng';
             break;
@@ -1079,15 +1079,15 @@ class Image_Text
     private function _getOffset()
     {
         // Presaving data
-        $width = $this->options['width'];
-        $height = $this->options['height'];
-        $angle = $this->options['angle'];
-        $x = $this->options['x'];
-        $y = $this->options['y'];
+        $width = $this->_options['width'];
+        $height = $this->_options['height'];
+        $angle = $this->_options['angle'];
+        $x = $this->_options['x'];
+        $y = $this->_options['y'];
         // Using center coordinates
-        if (!empty($this->options['cx']) && !empty($this->options['cy'])) {
-            $cx = $this->options['cx'];
-            $cy = $this->options['cy'];
+        if (!empty($this->_options['cx']) && !empty($this->_options['cy'])) {
+            $cx = $this->_options['cx'];
+            $cy = $this->_options['cy'];
             // Calculation top left corner
             $x = $cx - ($width / 2);
             $y = $cy - ($height / 2);
