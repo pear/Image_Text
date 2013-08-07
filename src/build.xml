@@ -39,7 +39,7 @@
         <property name="build.logs.dir" value="${build.dir}/logs"/>
         <property name="build.pdepend.dir" value="${build.dir}/pdepend"/>
 
-        <property name="build.dist.temp.dir" value="${build.dist.dir}/tmp"/>
+        <property name="build.dist.temp.dir" value="${build.dist.dir}/${phing.project.name}-${project.version}"/>
     </target>
 
     <target name="-setup-filesets" hidden="true">
@@ -176,7 +176,7 @@
 
     <target name="dist" depends="init, clean, -generate-package-xml" description="Create distributable file">
         <tar destfile="${build.dist.dir}/${phing.project.name}-${project.version}.tgz" compression="gzip">
-            <fileset dir="${build.dist.temp.dir}/"/>
+            <fileset dir="${build.dist.dir}/"/>
         </tar>
 
         <delete dir="${build.dist.temp.dir}"/>
@@ -279,5 +279,7 @@
                 * Request #16749 Image to background
             </changelog>
         </d51pearpkg2>
+
+        <move file="${build.dist.temp.dir}/package.xml" todir="${build.dist.dir}"/>
     </target>
 </project>
