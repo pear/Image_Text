@@ -55,8 +55,8 @@ $options = array(
     'font_path' => './', // Settings for the font file
     'font_file' => 'Vera.ttf',
     'antialias' => true, // Antialiase font rendering
-    'halign' => IMAGE_TEXT_ALIGN_RIGHT, // Alignment to the right and middle
-    'valign' => IMAGE_TEXT_ALIGN_MIDDLE
+    'halign' => Image_Text::IMAGE_TEXT_ALIGN_RIGHT, // Alignment to the right
+    'valign' => Image_Text::IMAGE_TEXT_ALIGN_MIDDLE // Alignment to the middle
 );
 
 // Generate a new Image_Text object
