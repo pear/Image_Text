@@ -55,6 +55,11 @@
             <exclude name="build.*"/>
         </patternset>
 
+        <patternset id="doc">
+            <include name="README"/>
+            <include name="LICENSE"/>
+        </patternset>
+
         <fileset dir="${src.dir}" id="php.files">
             <patternset refid="php"/>
         </fileset>
@@ -65,6 +70,10 @@
 
         <fileset dir="${tests.dir}" id="test.files">
             <patternset refid="tests"/>
+        </fileset>
+
+        <fileset dir="${project.dir}" id="doc.files">
+            <patternset refid="doc"/>
         </fileset>
     </target>
 
@@ -185,6 +194,9 @@
         <copy todir="${build.dist.temp.dir}/examples" haltonerror="true">
             <fileset dir="${examples.dir}"/>
         </copy>
+        <copy todir="${build.dist.temp.dir}" haltonerror="true">
+            <fileset refid="doc.files"/>
+        </copy>
     </target>
 
     <target name="-generate-package-xml" depends="-copy-to-build" hidden="true">
@@ -211,8 +223,10 @@
             <version release="${project.version}" api="${project.api.version}"/>
             <stability release="beta" api="beta"/>
             <license>PHP License</license>
-            <dirroles key="/tests" value="test"/>
-            <dirroles key="/examples" value="doc"/>
+            <dirroles key="tests" value="test"/>
+            <dirroles key="examples" value="doc"/>
+            <exceptions key="README" value="doc"/>
+            <exceptions key="LICENSE" value="doc"/>
 
             <dependencies>
                 <php minimum_version="5.1.0"/>
