@@ -236,6 +236,8 @@
 
             <changelog version="0.7.0" api_version="0.7.0" date="2013-06-08" stability="beta" license="PHP License">
                 <!--        Don't exceed this width         -->
+                First PHP5 release
+
                 * Bug #17621 Vera.ttf is not a valid font file.
                 * Request #19789 Please Provides LICENSE file
             </changelog>
