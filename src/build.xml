@@ -255,6 +255,18 @@
                 [function.imagettfbbox]: Could not read font
             </changelog>
 
+            <changelog version="0.6.0" api_version="0.6.0beta" date="2010-10-24" stability="beta" license="PHP License">
+                <!--        Don't exceed this width         -->
+                QA release
+                * Bug #10775 when color = #000000 antialias is
+                always true
+                * Bug #11066 Background color overfills the GD
+                Image
+                * Doc Bug #13377 background_color missing in
+                set()
+                * Request #16749 Image to background
+            </changelog>
+
             <changelog version="0.6.0beta" api_version="0.6.0beta" date="2007-04-18" stability="beta" license="PHP License">
                 <!--        Don't exceed this width         -->
                 * Fixing bug #10722: Example crashes because
@@ -274,16 +286,111 @@
                 * Moved to package.xml v.2
             </changelog>
 
-            <changelog version="0.6.0" api_version="0.6.0beta" date="2010-10-24" stability="beta" license="PHP License">
+            <changelog version="0.5.2beta2" api_version="0.5.2beta2" date="2004-09-23" stability="beta" license="PHP License">
                 <!--        Don't exceed this width         -->
-                QA release
-                * Bug #10775 when color = #000000 antialias is
-                always true
-                * Bug #11066 Background color overfills the GD
-                Image
-                * Doc Bug #13377 background_color missing in
-                set()
-                * Request #16749 Image to background
+                * Fixed bug 2265: Init a heigth without a
+                canvas.
+            </changelog>
+
+            <changelog version="0.5.2beta1" api_version="0.5.2beta1" date="2004-09-01" stability="beta" license="PHP License">
+                <!--        Don't exceed this width         -->
+                * Fixed bug #2182: problems displaying "0"
+                * Fixed bug #2161: Notice
+            </changelog>
+
+            <changelog version="0.5.1beta" api_version="0.5.1beta" date="2004-04-18" stability="beta" license="PHP License">
+                <!--        Don't exceed this width         -->
+                * Fixed bug #1207 supporting old versions - fix
+                included.
+                * Updated default color array regarding to bug
+                #1203: mega bug summary / with some wishes.
+                * Added more docs for "font_path" and
+                "font_file" regarding bug #1203: mega bug
+                summary / with some wishes.
+                * Moved options docs to options array.
+                * Added simple example to the top.
+                * Fixed save() method accoriding to bug #1203:
+                mega bug summary / with some wishes.
+                * Added construct() method according to
+                bug #1203 [Opn->Asn]: mega bug summary / with
+                some wishes.
+            </changelog>
+
+            <changelog version="0.5.0" api_version="0.5.0" date="2004-04-06" stability="beta" license="PHP License">
+                <!--        Don't exceed this width         -->
+                First beta release. The API is fixed (except
+                possible feature additions) by now. Please test
+                this release extensively to improve stability.
+            </changelog>
+
+            <changelog version="0.4pl1" api_version="0.4pl1" date="2004-02-22" stability="alpha" license="PHP License">
+                <!--        Don't exceed this width         -->
+                Bugfixing release.
+                * Fixed color handling (using array format with
+                key's 0,1,2 (optionally) 3).
+            </changelog>
+
+            <changelog version="0.4" api_version="0.4" date="2004-02-19" stability="alpha" license="PHP License">
+                <!--        Don't exceed this width         -->
+                Image_Text experienced extensive debugging and
+                fixing, as well as small adjustments. The
+                standard value for line_spacing changed to 0.5
+                but this does not matter for the standard
+                output, since the calculation has changed.
+
+                The behavior of setColor() and setColors() has
+                changed a bit to allow a new color format which
+                defines RGB values through an array keyed with
+                0, 1 and 2 plus optionally 3 as the alpha
+                value.
+
+                This release should work quite fine, since it
+                has been extensively debugged. But since I plan
+                to make some more improvements I can not
+                promise a 100% stable API. The API should be
+                fixed for about 95% now.
+            </changelog>
+
+            <changelog version="0.3pl1" api_version="0.3pl1" date="2004-02-16" stability="alpha" license="PHP License">
+                <!--        Don't exceed this width         -->
+                This is a bugfixing release, replacing the
+                broken example file.
+            </changelog>
+
+            <changelog version="0.3" api_version="0.3" date="2004-02-15" stability="alpha" license="PHP License">
+                <!--        Don't exceed this width         -->
+                Summary:
+                --------
+
+                * Great speed improvements.
+                * Completely rewriten.
+
+                This release is a complete rewrite of the
+                Image_Text package and therefor gives no cent
+                on API BC issues. The Image_Text_Line class has
+                been dropped completely for performance
+                reasons. Thanks to the support of Pierre Alan
+                Joye (pajoye@php.net)! The dependency to
+                Image_Tools (which will be the next for a
+                rewrite) has been dropped, too.
+            </changelog>
+
+            <changelog version="0.2" api_version="0.2" date="2003-11-12" stability="alpha" license="PHP License">
+                <!--        Don't exceed this width         -->
+                Implements the new Image_Tools package
+                structure and fixes the following bugs:
+                176, Antialiasing done wrong
+                177, correction for Image_Text-constructor
+                178, error in comment-block
+                179, textsize and position
+                180, Antialiasing-setting don't get through
+                188, Typo in Image_Text.php
+                189, Methods called as class variables
+            </changelog>
+
+            <changelog version="0.1" api_version="0.1" date="2003-11-03" stability="alpha" license="PHP License">
+                <!--        Don't exceed this width         -->
+                Initial Release
             </changelog>
         </d51pearpkg2>
 
