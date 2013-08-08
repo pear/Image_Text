@@ -143,6 +143,10 @@ class Image_Text
      *                      | default set to PNG.
      *
      *   'dest_file'        | The destination to (optionally) save your file.
+     *
+     *   'shadow_offset'    | Offset of the Shadow from the original text, NULL or 0
+     *                      | disables the shadow.
+     *   'shadow_color'     | color for the shadow. Default is black.
      * </pre>
      *
      * @var array
@@ -192,7 +196,11 @@ class Image_Text
 
         // misc settings
         'image_type' => IMAGETYPE_PNG,
-        'dest_file' => ''
+        'dest_file' => '',
+
+        // shadow settings
+        'shadow_offset' => null,
+        'shadow_color' => '#000000'
     );
 
     /**
@@ -231,13 +239,6 @@ class Image_Text
      * @var string
      */
     private $_font;
-
-    /**
-     * Contains the bbox of each rendered lines.
-     *
-     * @var array
-     */
-    private $_bbox = array();
 
     /**
      * Defines in which mode the canvas has be set.
@@ -889,6 +890,28 @@ class Image_Text
         $sinR = sin($radians);
         $cosR = cos($radians);
 
+        $shadow = !is_null($this->_options['shadow_offset'])
+            && is_numeric($this->_options['shadow_offset'])
+            && (int)$this->_options['shadow_offset'] > 0;
+        $shadowOffset = 0;
+        $shadowColor = 0;
+
+        if ($shadow) {
+            $shadowCol = $this->convertString2RGB($this->_options['shadow_color']);
+            if ($shadowCol === false) {
+                throw new Image_Text_Exception('Shadow color is invalid.');
+            }
+            $shadowColor = imagecolorallocatealpha(
+                $this->_img,
+                $shadowCol['r'], $shadowCol['g'], $shadowCol['b'],
+                $shadowCol['a']
+            );
+            $shadowOffset = (int)$this->_options['shadow_offset'];
+            for ($i = 1; $i <= $shadowOffset; $i++) {
+                imagefilter($this->_img, IMG_FILTER_GAUSSIAN_BLUR);
+            }
+        }
+
         switch ($this->_options['valign']) {
         case self::IMAGE_TEXT_ALIGN_TOP:
             $valign_space = 0;
@@ -914,15 +937,14 @@ class Image_Text
 
         $lines_cnt = min($max_lines, sizeof($lines));
 
-        $bboxes = array();
-        // Go thorugh lines for rendering
+        // Go through lines for rendering
         for ($i = 0; $i < $lines_cnt; $i++) {
 
             // Calc the new start X and Y (only for line>0)
             // the distance between the line above is used
             if ($i > 0) {
                 $new_posx += $sinR * $space;
-                $new_posy += $cosR * $space;
+                $new_posy += ($cosR * $space) + $shadowOffset;
             }
 
             // Calc the position of the 1st letter. We can then get the left and
@@ -953,12 +975,21 @@ class Image_Text
             $c = $lines[$i]['color'];
 
             // Render textline
-            $bboxes[] = imagettftext(
+
+            $text = $lines[$i]['string'];
+
+            imagettftext(
                 $this->_img, $size, $angle, $posx, $posy,
-                $c, $font, $lines[$i]['string']
+                $c, $font, $text
             );
+            if ($shadow) {
+                imagettftext(
+                    $this->_img, $size, $angle,
+                    $posx + $shadowOffset, $posy + $shadowOffset,
+                    $shadowColor, $font, $text
+                );
+            }
         }
-        $this->_bbox = $bboxes;
     }
 
     /**

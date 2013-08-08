@@ -17,8 +17,8 @@
     </target>
 
     <target name="-load-properties" hidden="true">
-        <property name="project.version" value="0.7.0"/>
-        <property name="project.api.version" value="0.7.0"/>
+        <property name="project.version" value="0.7.1"/>
+        <property name="project.api.version" value="0.7.1"/>
     </target>
 
     <target name="-setup-dirs" depends="-load-properties" hidden="true">
@@ -234,7 +234,12 @@
                 <extension name="gd" type="required"/>
             </dependencies>
 
-            <changelog version="0.7.0" api_version="0.7.0" date="2013-06-08" stability="beta" license="PHP License">
+            <changelog version="0.7.1" api_version="0.7.1" date="2013-08-08" stability="beta" license="PHP License">
+                <!--        Don't exceed this width         -->
+                * Request #2450 Drop Shadows
+            </changelog>
+
+            <changelog version="0.7.0" api_version="0.7.0" date="2013-07-08" stability="beta" license="PHP License">
                 <!--        Don't exceed this width         -->
                 First PHP5 release
 
