@@ -667,7 +667,7 @@ class Image_Text
      * @param bool $force Optionally, default is false, set true to force
      *                    measurizing.
      *
-     * @return array Array of measured lines.
+     * @return array|bool Array of measured lines or false if measuring can't be done
      * @see    Image_Text::autoMeasurize()
      * @throws Image_Text_Exception
      */
