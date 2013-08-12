@@ -19,7 +19,7 @@
  * @since     File available since Release 0.0.1
  */
 require_once 'Image/Text/Exception.php';
-require_once 'Image/Text/ColorMode.php';
+require_once 'Image/Text/Colormode.php';
 /**
  * Image_Text - Advanced text manipulations in images.
  *
@@ -177,7 +177,7 @@ class Image_Text
         // color settings
         'color' => array('#000000'),
 
-        'color_mode' => ColorMode::LINE,
+        'color_mode' => Image_Text_Colormode::LINE,
 
         'background_color' => '#000000',
         'enable_alpha' => false,
@@ -712,6 +712,8 @@ class Image_Text
 
         $beginning_of_line = true;
 
+        $color_mode = $this->_options['color_mode'];
+
         // Run through tokens and order them in lines
         foreach ($this->_tokens as $token) {
             // Handle new paragraphs
@@ -720,10 +722,11 @@ class Image_Text
                 if ((++$lines_cnt >= $max_lines) && !$force) {
                     return false;
                 }
-                if ($this->_options['color_mode'] == ColorMode::PARAGRAPH) {
+                if ($color_mode === Image_Text_Colormode::PARAGRAPH) {
                     $c = $this->_colors[$para_cnt % $colors_cnt];
                     $i++;
-                } else if ($this->_options['color_mode'] == ColorMode::LINE) {
+                } else if ($color_mode === Image_Text_Colormode::LINE
+                ) {
                     $c = $this->_colors[$i++ % $colors_cnt];
                 } else {
                     $c = imagecolorallocate($this->_img, 0, 0, 0);
@@ -766,10 +769,10 @@ class Image_Text
                 if ((++$lines_cnt >= $max_lines) && !$force) {
                     return false;
                 }
-                if ($this->_options['color_mode'] == ColorMode::PARAGRAPH) {
+                if ($color_mode === Image_Text_Colormode::PARAGRAPH) {
                     $c = $this->_colors[$para_cnt % $colors_cnt];
                     $i++;
-                } else if ($this->_options['color_mode'] == ColorMode::LINE) {
+                } else if ($color_mode === Image_Text_Colormode::LINE) {
                     $c = $this->_colors[$i++ % $colors_cnt];
                 } else {
                     $c = imagecolorallocate($this->_img, 0, 0, 0);
@@ -799,10 +802,10 @@ class Image_Text
         }
         // Store remaining line
         $bounds = imagettfbbox($size, 0, $font, $text_line);
-        if ($this->_options['color_mode'] == ColorMode::PARAGRAPH) {
+        if ($color_mode === Image_Text_Colormode::PARAGRAPH) {
             $c = $this->_colors[$para_cnt % $colors_cnt];
             $i++;
-        } else if ($this->_options['color_mode'] == ColorMode::LINE) {
+        } else if ($color_mode === Image_Text_Colormode::LINE) {
             $c = $this->_colors[$i++ % $colors_cnt];
         } else {
             $c = imagecolorallocate($this->_img, 0, 0, 0);
@@ -984,7 +987,7 @@ class Image_Text
 
             // Render text
             $colors_cnt = count($this->_colors);
-            if ($this->_options['color_mode'] == ColorMode::WORD) {
+            if ($this->_options['color_mode'] === Image_Text_Colormode::WORD) {
                 $text = preg_split("/[\s]+/", $lines[$i]['string']);
                 $output = array();
                 foreach ($text as $val) {

@@ -1,11 +1,9 @@
 <?php
 /**
- * Image_Text.
+ * Image_Text_Colormode.
  *
- * This is the main file of the Image_Text package. This file has to be included for
- * usage of Image_Text.
- *
- * This is a simple example script, showing Image_Text's facilities.
+ * This is the main file for the Image_Text_Colormode. This file is included in
+ * Image_Text natively.
  *
  * PHP version 5
  *
@@ -28,7 +26,7 @@
  * @link     http://pear.php.net/package/Image_Text
  * @since    Class available since Release 0.7.1
  */
-final class ColorMode
+final class Image_Text_Colormode
 {
     /**
      * rotate colors for every line

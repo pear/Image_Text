@@ -82,7 +82,7 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
             "one\none two three four five six seven eight nine ten\none two"
         );
         $this->assertSame('Image_Text', get_class($i));
-        $i->set('color_mode', ColorMode::WORD);
+        $i->set('color_mode', Image_Text_Colormode::WORD);
         $i->init();
         $i->render();
         $this->assertTrue(
@@ -104,7 +104,7 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
             "one\none two three four five six seven eight nine ten\none two"
         );
         $this->assertSame('Image_Text', get_class($i));
-        $i->set('color_mode', ColorMode::LINE);
+        $i->set('color_mode', Image_Text_Colormode::LINE);
         $i->init();
         $i->render();
         $this->assertTrue(
@@ -126,7 +126,7 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
             "one\none two three four five six seven eight nine ten\none two"
         );
         $this->assertSame('Image_Text', get_class($i));
-        $i->set('color_mode', ColorMode::PARAGRAPH);
+        $i->set('color_mode', Image_Text_Colormode::PARAGRAPH);
         $i->init();
         $i->render();
         $this->assertTrue(
