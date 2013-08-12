@@ -425,7 +425,7 @@ class Image_Text
      * @throws Image_Text_Exception
      */
 
-    function setColor($color, $id = 0)
+    public function setColor($color, $id = 0)
     {
         if (is_array($color)) {
             if (isset($color['r']) && isset($color['g']) && isset($color['b'])) {
