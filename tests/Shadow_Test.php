@@ -62,7 +62,8 @@ class Shadow_Test extends PHPUnit_Framework_TestCase
                 'canvas' => array('width' => 200, 'height' => 100),
                 'width' => 200,
                 'height' => 200,
-                'color' => array('#FFFFFF')
+                'color' => array('#00FF00'),
+                'background_color' => '#FFFFFF'
             )
         );
         return $i;
@@ -77,8 +78,6 @@ class Shadow_Test extends PHPUnit_Framework_TestCase
     {
         $i = $this->initInstance("test\ntest");
         $this->assertSame('Image_Text', get_class($i));
-        $i->set('background_color', '#FFFFFF');
-        $i->set('color', '#00FF00');
         $i->set(array('shadow_offset' => 1, 'shadow_color' => '#000000'));
         $i->init();
         $i->render();
