@@ -234,10 +234,11 @@
                 <extension name="gd" type="required"/>
             </dependencies>
 
-            <changelog version="0.7.1" api_version="0.7.1" date="2013-08-08" stability="beta" license="PHP License">
+            <changelog version="0.8.0" api_version="0.8.0" date="2013-08-15" stability="beta" license="PHP License">
                 <!--        Don't exceed this width         -->
                 * Request #2450 Drop Shadows
                 * Request #2449	Change color of text by word
+                * Request #20040 adding justify the text
             </changelog>
 
             <changelog version="0.7.0" api_version="0.7.0" date="2013-07-08" stability="beta" license="PHP License">

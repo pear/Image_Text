@@ -61,6 +61,11 @@ class Image_Text
     const IMAGE_TEXT_ALIGN_CENTER = "center";
 
     /**
+     * Defines horizontal alignment to justify the text of the text box.
+     */
+    const IMAGE_TEXT_ALIGN_JUSTIFY = "justify";
+
+    /**
      * Defines vertical alignment to the to the top of the text box. (This is
      * standard.)
      */
@@ -75,12 +80,6 @@ class Image_Text
      * Defines vertical alignment to the to the bottom of the text box.
      */
     const IMAGE_TEXT_ALIGN_BOTTOM = "bottom";
-
-    /**
-     * TODO: This constant is useless until now, since justified alignment does not
-     * work yet
-     */
-    const IMAGE_TEXT_ALIGN_JUSTIFY = "justify";
 
     /**
      * Options array. these options can be set through the constructor or the set()
