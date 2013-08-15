@@ -482,7 +482,7 @@ class Image_Text
      * options. Be sure to check the initialization after you switched some options.
      * The set() method may force you to reinitialize the object.
      *
-     * @return void
+     * @return Image_Text actual initialized instance
      * @see Image_Text::set()
      * @throws Image_Text_Exception
      */
@@ -607,6 +607,8 @@ class Image_Text
 
         // Initialization is complete
         $this->_init = true;
+
+        return $this;
     }
 
     /**
@@ -848,7 +850,7 @@ class Image_Text
      * @param bool $force Optional, initially false, set true to silence measurize
      *                    errors.
      *
-     * @return void
+     * @return Image_Text rendered Image_Text instance
      * @throws Image_Text_Exception
      */
     public function render($force = false)
@@ -1027,6 +1029,8 @@ class Image_Text
                 $firstWord = false;
             }
         }
+
+        return $this;
     }
 
     /**
