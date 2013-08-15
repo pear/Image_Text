@@ -17,8 +17,8 @@
     </target>
 
     <target name="-load-properties" hidden="true">
-        <property name="project.version" value="0.7.1"/>
-        <property name="project.api.version" value="0.7.1"/>
+        <property name="project.version" value="0.8.0"/>
+        <property name="project.api.version" value="0.8.0"/>
     </target>
 
     <target name="-setup-dirs" depends="-load-properties" hidden="true">
