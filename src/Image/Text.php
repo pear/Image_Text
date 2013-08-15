@@ -1013,7 +1013,6 @@ class Image_Text
             } else {
                 $spaceW = $space_width;
             }
-            $j = 0;
             foreach ($output as $value) {
                 $imageText = $value['text'];
 
@@ -1033,7 +1032,6 @@ class Image_Text
                 );
 
                 $posx = $posx + $dimensions[2] + $spaceW + 1;
-                $j++;
             }
         }
 
