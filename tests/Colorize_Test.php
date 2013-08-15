@@ -41,7 +41,7 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         if (!extension_loaded('gd')) {
             $this->markTestSkipped("Requires the gd extension");
         }
-        $this->_dir = dirname(__FILE__) . '/testimages/';
+        $this->_dir = dirname(__FILE__) . '/testimages/color/';
     }
 
     /**
@@ -83,11 +83,10 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertSame('Image_Text', get_class($i));
         $i->set('color_mode', Image_Text_Colormode::WORD);
-        $i->init();
-        $i->render();
+        $i->init()->render();
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'color\word.png',
+                $this->_dir . 'word.png',
                 $i->getImg()
             )
         );
@@ -105,11 +104,10 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertSame('Image_Text', get_class($i));
         $i->set('color_mode', Image_Text_Colormode::LINE);
-        $i->init();
-        $i->render();
+        $i->init()->render();
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'color\line.png',
+                $this->_dir . 'line.png',
                 $i->getImg()
             )
         );
@@ -127,11 +125,10 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertSame('Image_Text', get_class($i));
         $i->set('color_mode', Image_Text_Colormode::PARAGRAPH);
-        $i->init();
-        $i->render();
+        $i->init()->render();
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'color\paragraph.png',
+                $this->_dir . 'paragraph.png',
                 $i->getImg()
             )
         );

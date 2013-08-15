@@ -1034,7 +1034,6 @@ class Image_Text
                 );
 
                 $posx = $posx + $dimensions[2] + $spaceW + 1;
-                $posy = $posy + ($shadow ? $dimensions[2] : 0);
                 $j++;
             }
         }
