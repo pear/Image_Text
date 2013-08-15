@@ -738,7 +738,6 @@ class Image_Text
                     'string' => $text_line,
                     'width' => $bounds[2] - $bounds[0],
                     'height' => $bounds[1] - $bounds[7],
-                    'bottom_margin' => $bounds[1],
                     'left_margin' => $bounds[0],
                     'color' => $c
                 );
@@ -784,7 +783,6 @@ class Image_Text
                     'string' => $text_line,
                     'width' => $prev_width,
                     'height' => $bounds[1] - $bounds[7],
-                    'bottom_margin' => $bounds[1],
                     'left_margin' => $bounds[0],
                     'color' => $c
                 );
@@ -817,7 +815,6 @@ class Image_Text
             'string' => $text_line,
             'width' => $bounds[2] - $bounds[0],
             'height' => $bounds[1] - $bounds[7],
-            'bottom_margin' => $bounds[1],
             'left_margin' => $bounds[0],
             'color' => $c
         );
@@ -952,6 +949,9 @@ class Image_Text
         $lines_cnt = min($max_lines, count($lines));
         $word_cnt = 0;
 
+        $space_dimensions = imagettfbbox($size, $angle, $font, ' ');
+        $space_width = $space_dimensions[2] - $space_dimensions[0];
+
         // Go through lines for rendering
         for ($i = 0; $i < $lines_cnt; $i++) {
 
@@ -974,10 +974,13 @@ class Image_Text
                 $hyp = 0;
                 break;
             case self::IMAGE_TEXT_ALIGN_RIGHT:
-                $hyp = $block_width - $line_width - $left_margin;
+                $hyp = $block_width - $line_width - $left_margin + $i;
                 break;
             case self::IMAGE_TEXT_ALIGN_CENTER:
-                $hyp = ($block_width - $line_width) / 2 - $left_margin;
+                $hyp = ($block_width - $line_width + $i) / 2 - $left_margin;
+                break;
+            case self::IMAGE_TEXT_ALIGN_JUSTIFY:
+                $hyp = 0;
                 break;
             default:
                 $hyp = 0;
@@ -989,26 +992,31 @@ class Image_Text
 
             // Render text
             $colors_cnt = count($this->_colors);
-            if ($this->_options['color_mode'] === Image_Text_Colormode::WORD) {
-                $text = preg_split("/[\s]+/", $lines[$i]['string']);
-                $output = array();
-                foreach ($text as $val) {
-                    $output[] = array(
-                        'color' => $this->_colors[$word_cnt++ % $colors_cnt],
-                        'text' => $val
-                    );
-                }
-            } else {
-                $output = array(
-                    array(
-                        'color' => $lines[$i]['color'],
-                        'text' => $lines[$i]['string']
-                    )
+            // Store each word separate
+            $text = preg_split("/[\s]+/", $lines[$i]['string']);
+            $output = array();
+            foreach ($text as $val) {
+                $output[] = array(
+                    'color' =>
+                    $this->_options['color_mode'] === Image_Text_Colormode::WORD
+                        ? $this->_colors[$word_cnt++ % $colors_cnt]
+                        : $lines[$i]['color'],
+                    'text' => $val
                 );
             }
-            $firstWord = true;
+
+            if ($this->_options['halign'] == self::IMAGE_TEXT_ALIGN_JUSTIFY) {
+                $box = imagettfbbox($size, 0, $font, $lines[$i]['string']);
+                $countWords = count($output);
+                $restSpace = $block_width - $box[2];
+                $spaceW = $space_width + $cosR * $hyp +
+                    ($countWords > 1 ? (($restSpace) / ($countWords - 1)) : 0);
+            } else {
+                $spaceW = $space_width;
+            }
+            $j = 0;
             foreach ($output as $value) {
-                $imageText = $firstWord ? $value['text'] : ' ' . $value['text'];
+                $imageText = $value['text'];
 
                 if ($shadow) {
                     imagettftext(
@@ -1018,15 +1026,16 @@ class Image_Text
                     );
                 }
 
-                $dimensions = imagettfbbox($size, $angle, $font, $imageText);
+                $dimensions = imagettfbbox($size, 0, $font, $imageText);
 
                 imagettftext(
                     $this->_img, $size, $angle, $posx, $posy,
                     $value['color'], $font, $imageText
                 );
 
-                $posx = $posx + $dimensions[2];
-                $firstWord = false;
+                $posx = $posx + $dimensions[2] + $spaceW + 1;
+                $posy = $posy + ($shadow ? $dimensions[2] : 0);
+                $j++;
             }
         }
 
