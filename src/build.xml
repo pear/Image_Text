@@ -25,11 +25,11 @@
         <php function="dirname" returnProperty="project.dir">
             <param value="${project.basedir}"/>
         </php>
-        <property name="build.dir" value="${project.dir}\build"/>
-        <property name="src.dir" value="${project.dir}\src"/>
-        <property name="docs.dir" value="${project.dir}\docs"/>
-        <property name="tests.dir" value="${project.dir}\tests"/>
-        <property name="examples.dir" value="${project.dir}\examples"/>
+        <property name="build.dir" value="${project.dir}/build"/>
+        <property name="src.dir" value="${project.dir}/src"/>
+        <property name="docs.dir" value="${project.dir}/docs"/>
+        <property name="tests.dir" value="${project.dir}/tests"/>
+        <property name="examples.dir" value="${project.dir}/examples"/>
 
         <echo message="Assigning build directories to properties" level="debug"/>
         <property name="build.api.dir" value="${build.dir}/api"/>
