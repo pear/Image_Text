@@ -1,3 +1,6 @@
+build/*
+vendor/
+bin/
 .idea/
-build/
-
+*.iml
+composer.lock

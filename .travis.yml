@@ -1,0 +1,38 @@
+language: php
+
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - 5.6
+  - 7.0
+
+matrix:
+  allow_failures:
+    - php: 7.0
+  fast_finish: true
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+before_install:
+  - composer selfupdate --quiet
+
+install:
+  - composer install
+
+before_script:
+  - git config --global user.name travis-ci
+  - git config --global user.email travis@example.com
+
+script:
+  - composer pkg_test
+
+notifications:
+  email:
+    recipients:
+      - developer@bigmichi1.de
+    on_success: always
+    on_failure: always
+    on_start: false

@@ -1,0 +1,68 @@
+{
+  "name": "pear/image_text",
+  "description": "Image_Text provides a comfortable interface to text manipulations in GD images. Beside common Freetype2 functionality it offers to handle texts in a graphic- or office-tool like way. For example it allows alignment of texts inside a text box, rotation (around the top left corner of a text box or it's center point) and the automatic measurizement of the optimal font size for a given text box.",
+  "type": "library",
+  "keywords": [
+    "image",
+    "text"
+  ],
+  "license": "LGPL-3.0",
+  "authors": [
+    {
+      "name": "Michael Cramer",
+      "email": "michael@bigmichi1.de",
+      "homepage": "http://www.bigmichi1.de",
+      "role": "Lead"
+    },
+    {
+      "name": "Stoyan Stefanov",
+      "email": "ssttoo@gmail.com",
+      "role": "Developer"
+    },
+    {
+      "name": "Tobias Schlitt",
+      "email": "toby@php.net",
+      "role": "Developer"
+    },
+    {
+      "name": "Daniel O'Connor",
+      "email": "daniel.oconnor@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=Image_Text",
+    "source": "https://github.com/pear/Image_Text"
+  },
+  "require": {
+    "php": ">=5.3.0",
+    "pear/pear_packagefilemanager": "@dev"
+  },
+  "require-dev": {
+    "phing/phing": "2.*",
+    "bigmichi1/phing-pearpackagev2": "0.*",
+    "phpunit/php-code-coverage": "2.*",
+    "phpunit/phpunit": ">=3.7",
+    "phpdocumentor/phpdocumentor": "2.*",
+    "mayflower/php-codebrowser": "1.*",
+    "phploc/phploc": "2.x",
+    "sebastian/phpcpd": "2.x",
+    "pdepend/pdepend": "2.x",
+    "phpmd/phpmd": "2.*",
+    "squizlabs/php_codesniffer": "2.x"
+  },
+  "autoload": {
+    "psr-0": {
+      "Image": "./src/"
+    }
+  },
+  "config": {
+    "bin-dir": "bin"
+  },
+  "scripts": {
+    "pkg_test": "bin/phing test",
+    "pkg_verify": "bin/phing verify",
+    "pkg_docs": "bin/phing docs",
+    "pkg_package": "bin/phing package"
+  }
+}

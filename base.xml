@@ -1,0 +1,210 @@
+<?xml version="1.0" ?>
+<project name="Base" basedir="." default="package">
+    <autoloader autoloaderpath="vendor/autoload.php"/>
+
+    <taskdef name="pearpackagev2" classname="BigMichi1_PearPackageV2Task" />
+
+    <property name="project.cleaned" value="false" />
+    <property name="project.dir" value="${project.basedir}" />
+
+    <target name="test" depends="-init, clean, phpunit" description="Run UnitTests on the code" />
+    <target name="verify" depends="-init, clean, phplint, phpunit, phploc, phpcpd, phpdepend, phpmd, phpcs" description="Verify the quality of the code" />
+    <target name="docs" depends="-init, clean, phpdoc" description="Generate API documentation" />
+    <target name="package" depends="-init, clean, verify, docs, dist" description="Do a full build" />
+
+    <target name="-init" depends="-load-properties, -setup-dirs, -setup-filesets" hidden="true" />
+
+    <target name="-generate-package-xml" depends="-copy-to-build" hidden="true">
+        <fail message="implement target in your build.xml" />
+    </target>
+
+    <target name="-load-properties" hidden="true" unless="project.version">
+        <echo message="cs" />
+        <property name="project.version" value="UNKNOWN" />
+    </target>
+
+    <target name="-setup-dirs" depends="-load-properties" hidden="true">
+        <php function="dirname" returnProperty="project.dir">
+            <param value="${project.basedir}/src" />
+        </php>
+        <property name="build.dir" value="${project.dir}/build" />
+        <property name="src.dir" value="${project.dir}/src" />
+        <property name="docs.dir" value="${project.dir}/docs" />
+        <property name="tests.dir" value="${project.dir}/tests" />
+        <property name="examples.dir" value="${project.dir}/examples" />
+
+        <echo level="debug" message="Assigning build directories to properties" />
+        <property name="build.api.dir" value="${build.dir}/api" />
+        <property name="build.codebrowser.dir" value="${build.dir}/code-browser" />
+        <property name="build.coverage.dir" value="${build.dir}/coverage" />
+        <property name="build.dist.dir" value="${build.dir}/dist" />
+        <property name="build.logs.dir" value="${build.dir}/logs" />
+        <property name="build.pdepend.dir" value="${build.dir}/pdepend" />
+        <property name="build.phpunit.dir" value="${build.dir}/phpunit" />
+
+        <property name="build.dist.temp.dir" value="${build.dist.dir}/${phing.project.name}-${project.version}" />
+    </target>
+
+    <target name="-setup-filesets" hidden="true">
+        <fileset dir="${src.dir}" id="php.files">
+            <patternset>
+                <include name="**/*.php" />
+            </patternset>
+        </fileset>
+
+        <fileset dir="${src.dir}" id="zip.files">
+            <patternset>
+                <exclude name="build.*" />
+            </patternset>
+        </fileset>
+
+        <fileset dir="${tests.dir}" id="test.files">
+            <patternset>
+                <include name="**/*Test.php" />
+            </patternset>
+        </fileset>
+
+        <fileset dir="${project.dir}" id="doc.files">
+            <patternset>
+                <include name="README.md" />
+                <include name="LICENSE" />
+                <include name="TODO" />
+            </patternset>
+        </fileset>
+    </target>
+
+    <target name="clean" depends="-init" description="Clean up working directory">
+        <if>
+            <isfalse value="${project.cleaned}" />
+            <then>
+                <echo level="debug" message="Deleting build directories" />
+                <delete dir="${build.api.dir}" />
+                <delete dir="${build.codebrowser.dir}" />
+                <delete dir="${build.coverage.dir}" />
+                <delete dir="${build.dist.dir}" />
+                <delete dir="${build.logs.dir}" />
+                <delete dir="${build.pdepend.dir}" />
+                <delete dir="${build.phpunit.dir}" />
+
+                <echo level="debug" message="Creating build directories" />
+                <mkdir dir="${build.api.dir}" />
+                <mkdir dir="${build.codebrowser.dir}" />
+                <mkdir dir="${build.coverage.dir}" />
+                <mkdir dir="${build.dist.dir}" />
+                <mkdir dir="${build.logs.dir}" />
+                <mkdir dir="${build.pdepend.dir}" />
+                <mkdir dir="${build.phpunit.dir}" />
+
+                <property name="project.cleaned" override="true" value="true" />
+            </then>
+        </if>
+    </target>
+
+    <target name="-copy-to-build" hidden="true">
+        <copy haltonerror="true" todir="${build.dist.temp.dir}">
+            <fileset refid="zip.files" />
+        </copy>
+        <mkdir dir="${build.dist.temp.dir}/tests" />
+        <copy haltonerror="true" todir="${build.dist.temp.dir}/tests">
+            <fileset dir="${tests.dir}" />
+        </copy>
+        <mkdir dir="${build.dist.temp.dir}/examples" />
+        <copy haltonerror="true" todir="${build.dist.temp.dir}/examples">
+            <fileset dir="${examples.dir}" />
+        </copy>
+        <copy haltonerror="true" todir="${build.dist.temp.dir}">
+            <fileset refid="doc.files" />
+        </copy>
+    </target>
+
+    <target name="dist" depends="-init, clean, -generate-package-xml" description="Create distributable file">
+        <tar compression="gzip" destfile="${build.dist.dir}/${phing.project.name}-${project.version}.tgz">
+            <fileset dir="${build.dist.dir}/" />
+        </tar>
+        <delete dir="${build.dist.temp.dir}" />
+        <delete file="${build.dist.dir}/package.xml" />
+    </target>
+
+    <target name="phpunit" depends="-init" description="Run unit tests with PHPUnit">
+        <coverage-setup database="${build.logs.dir}/coverage.db">
+            <fileset refid="php.files" />
+        </coverage-setup>
+        <phpunit codecoverage="true" haltonerror="true" haltonfailure="true" printsummary="true">
+            <formatter outfile="Coverage.xml" todir="${build.logs.dir}" type="clover" />
+            <batchtest>
+                <fileset refid="test.files" />
+            </batchtest>
+        </phpunit>
+        <phpunit>
+            <formatter outfile="testsuites.xml" todir="${build.logs.dir}" type="xml" />
+            <batchtest>
+                <fileset refid="test.files" />
+            </batchtest>
+        </phpunit>
+        <phpunitreport format="frames" infile="${build.logs.dir}/testsuites.xml" todir="${build.phpunit.dir}" />
+        <coverage-report outfile="${build.logs.dir}/coverage-report.xml">
+            <report styleDir="${project.basedir}/vendor/phing/phing/etc" toDir="${build.coverage.dir}" />
+        </coverage-report>
+    </target>
+
+    <target name="phpdoc" depends="-init" description="Generate API documentation">
+        <phpdoc2 destdir="${build.api.dir}" template="responsive" title="${phing.project.name} ${project.version}">
+            <fileset refid="php.files" />
+        </phpdoc2>
+    </target>
+
+    <target name="phpcb" depends="-init, phpunit, phpcpd, phpdepend, phpmd, phpcs" description="Aggregate tool output with PHP_CodeBrowser">
+        <exec checkreturn="true" executable="phpcb" logoutput="true">
+            <arg value="--log" />
+            <arg path="${build.logs.dir}" />
+            <arg value="--source" />
+            <arg path="${src.dir}" />
+            <arg value="--output" />
+            <arg path="${build.codebrowser.dir}" />
+        </exec>
+    </target>
+
+    <target name="phploc" depends="-init" description="Measure project size using PHPLOC">
+        <phploc reportDirectory="${build.logs.dir}" reportName="phploc" reportType="xml">
+            <fileset refid="php.files" />
+        </phploc>
+    </target>
+
+    <target name="phpcpd" depends="-init" description="Find duplicate code using PHPCPD">
+        <phpcpd minLines="5" minTokens="20">
+            <fileset refid="php.files" />
+            <formatter outfile="${build.logs.dir}/pmd-cpd.xml" type="pmd" />
+        </phpcpd>
+    </target>
+
+    <target name="phpdepend" depends="-init" description="Calculate software metrics using PHP_Depend">
+        <phpdepend haltonerror="true">
+            <fileset refid="php.files" />
+            <logger outfile="${build.pdepend.dir}/dependencies.svg" type="jdepend-chart" />
+            <logger outfile="${build.logs.dir}/jdepend.xml" type="jdepend-xml" />
+            <logger outfile="${build.pdepend.dir}/overview-pyramid.svg" type="overview-pyramid" />
+            <logger outfile="${build.logs.dir}/jdepend-summary.xml" type="summary-xml" />
+            <analyzer type="coderank-mode" value="method" />
+        </phpdepend>
+    </target>
+
+    <target name="phpmd" depends="-init" description="Perform project mess detection using PHPMD">
+        <phpmd rulesets="cleancode,codesize,design,naming,unusedcode">
+            <fileset refid="php.files" />
+            <formatter outfile="${build.logs.dir}/pmd.xml" type="xml" />
+        </phpmd>
+    </target>
+
+    <target name="phpcs" depends="-init" description="Find coding standard violations using PHP_CodeSniffer">
+        <phpcodesniffer format="full" standard="PEAR">
+            <fileset refid="php.files" />
+            <formatter outfile="${build.logs.dir}/checkstyle.xml" type="checkstyle" />
+        </phpcodesniffer>
+    </target>
+
+    <target name="phplint" depends="-init" description="Check files for syntax errors">
+        <phplint cachefile="${build.logs.dir}/cachefile.txt" haltonfailure="true">
+            <fileset refid="php.files" />
+        </phplint>
+    </target>
+</project>
