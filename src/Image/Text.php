@@ -1006,11 +1006,14 @@ class Image_Text
             }
 
             if ($this->_options['halign'] == self::IMAGE_TEXT_ALIGN_JUSTIFY) {
-                $box = imagettfbbox($size, 0, $font, $lines[$i]['string']);
-                $countWords = count($output);
-                $restSpace = $block_width - $box[2];
-                $spaceW = $space_width + $cosR * $hyp +
-                    ($countWords > 1 ? (($restSpace) / ($countWords - 1)) : 0);
+                $wordsLength = 0;
+                foreach ($text as $word) {
+                    $box = imagettfbbox($size, 0, $font, $word);
+                    $wordsLength = $wordsLength + $box[2] - $box[0];
+                }
+                $countWords = count($text);
+                $restSpace = $block_width - $wordsLength;
+                $spaceW = $countWords > 1 ? (($restSpace) / ($countWords - 1)) : 0;
             } else {
                 $spaceW = $space_width;
             }
