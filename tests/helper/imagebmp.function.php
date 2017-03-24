@@ -11,7 +11,7 @@ function imagebmp(&$img, $filename = false) {
 	$hei = imagesy($img);
 	$wid_pad = str_pad('', $wid % 4, "\0");
 	
-	$size = 54 + ($wid + $wid_pad) * $hei;
+	$size = 54 + ($wid + intval($wid_pad)) * $hei;
 	
 	//prepare & save header
 	$header['identifier'] = 'BM';
