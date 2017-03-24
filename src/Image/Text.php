@@ -1144,6 +1144,9 @@ class Image_Text
         case IMAGETYPE_BMP:
             $imgout = 'imagebmp';
             break;
+        case IMAGETYPE_GIF:
+            $imgout = 'imagegif';
+            break;
         default:
             throw new Image_Text_Exception('Unsupported image type.');
             break;

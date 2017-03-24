@@ -10,7 +10,8 @@
  * @license  BSD License
  * @link     http://pear.php.net/package/Text_CAPTCHA
  */
-require_once dirname(__FILE__) . '/imageisthesame.php';
+require_once 'Image/Text.php';
+require_once dirname(__FILE__) . '/helper/imageisthesame.php';
 /**
  * Class for testing colorization of the text
  *
@@ -40,6 +41,9 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         if (!extension_loaded('gd')) {
             $this->markTestSkipped("Requires the gd extension");
         }
+        if (!function_exists("createbmp")) {
+            require_once dirname(__FILE__) . '/helper/imagebmp.function.php';
+        }
         $this->_dir = dirname(__FILE__) . '/testimages/color/';
     }
 
@@ -64,7 +68,8 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
                 'background_color' => '#FFFFFF',
                 'color' => array('#00FF00', '#FF0000', '#0000FF'),
                 'shadow_offset' => 1,
-                'shadow_color' => '#000000'
+                'shadow_color' => '#000000',
+                'image_type' => IMAGETYPE_BMP
             )
         );
         return $i;
@@ -82,10 +87,10 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertSame('Image_Text', get_class($i));
         $i->set('color_mode', Image_Text_Colormode::WORD);
-        $i->init()->render();$i->save($this->_dir . 'word.png');
+        $i->init()->render();$i->save($this->_dir . 'word.bmp');
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'word.png',
+                $this->_dir . 'word.bmp',
                 $i->getImg()
             )
         );
@@ -103,10 +108,10 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertSame('Image_Text', get_class($i));
         $i->set('color_mode', Image_Text_Colormode::LINE);
-        $i->init()->render();$i->save($this->_dir . 'line.png');
+        $i->init()->render();$i->save($this->_dir . 'line.bmp');
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'line.png',
+                $this->_dir . 'line.bmp',
                 $i->getImg()
             )
         );
@@ -124,10 +129,10 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertSame('Image_Text', get_class($i));
         $i->set('color_mode', Image_Text_Colormode::PARAGRAPH);
-        $i->init()->render();$i->save($this->_dir . 'paragraph.png');
+        $i->init()->render();$i->save($this->_dir . 'paragraph.bmp');
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'paragraph.png',
+                $this->_dir . 'paragraph.bmp',
                 $i->getImg()
             )
         );

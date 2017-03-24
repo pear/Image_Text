@@ -11,7 +11,7 @@
  * @link     http://pear.php.net/package/Text_CAPTCHA
  */
 require_once 'Image/Text.php';
-require_once dirname(__FILE__) . '/imageisthesame.php';
+require_once dirname(__FILE__) . '/helper/imageisthesame.php';
 /**
  * Class for testing shadowing of the text
  *
@@ -41,6 +41,9 @@ class Shadow_Test extends PHPUnit_Framework_TestCase
         if (!extension_loaded('gd')) {
             $this->markTestSkipped("Requires the gd extension");
         }
+        if (!function_exists("createbmp")) {
+            require_once dirname(__FILE__) . '/helper/imagebmp.function.php';
+        }
         $this->_dir = dirname(__FILE__) . '/testimages/';
     }
 
@@ -63,7 +66,8 @@ class Shadow_Test extends PHPUnit_Framework_TestCase
                 'width' => 400,
                 'height' => 400,
                 'color' => array('#00FF00'),
-                'background_color' => '#FFFFFF'
+                'background_color' => '#FFFFFF',
+                'image_type' => IMAGETYPE_BMP
             )
         );
         return $i;
@@ -80,10 +84,10 @@ class Shadow_Test extends PHPUnit_Framework_TestCase
         $this->assertSame('Image_Text', get_class($i));
         $i->set(array('shadow_offset' => 1, 'shadow_color' => '#000000'));
         $i->init();
-        $i->render();$i->save($this->_dir . 'test-shadow.png');
+        $i->render();$i->save($this->_dir . 'test-shadow.bmp');
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'test-shadow.png',
+                $this->_dir . 'test-shadow.bmp',
                 $i->getImg()
             )
         );

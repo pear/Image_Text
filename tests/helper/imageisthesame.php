@@ -10,13 +10,17 @@
  */
 function imageisthesame($file1, $file2)
 {
+    if(!function_exists('imagecreatefrombmp')) {
+        require_once dirname(__FILE__) . '/imagecreatefrombmp.function.php';
+    }
+
     //echo $file1 . ' - ' . $file2 . "\n";
     if (is_string($file1)) {
         if (!file_exists($file1)) {
             throw new Exception('File 1 does not exist' . $file1);
         }
 
-        $i1 = imagecreatefromstring(file_get_contents($file1));
+        $i1 = imagecreatefrombmp($file1);
         if ($i1 === false) {
             throw new Exception('Image 1 could no be opened' . $file1);
         }
@@ -29,7 +33,7 @@ function imageisthesame($file1, $file2)
             throw new Exception('File 2 does not exist' . $file2);
         }
 
-        $i2 = imagecreatefromstring(file_get_contents($file2));
+        $i2 = imagecreatefrombmp($file2);
         if ($i2 === false) {
             throw new Exception('Image 2 could no be opened' . $file2);
         }

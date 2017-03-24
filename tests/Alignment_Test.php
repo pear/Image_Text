@@ -11,7 +11,7 @@
  * @link     http://pear.php.net/package/Text_CAPTCHA
  */
 require_once 'Image/Text.php';
-require_once dirname(__FILE__) . '/imageisthesame.php';
+require_once dirname(__FILE__) . '/helper/imageisthesame.php';
 /**
  * Class for testing alignment of the text
  *
@@ -41,6 +41,9 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
         if (!extension_loaded('gd')) {
             $this->markTestSkipped("Requires the gd extension");
         }
+        if (!function_exists("createbmp")) {
+            require_once dirname(__FILE__) . '/helper/imagebmp.function.php';
+        }
         $this->_dir = dirname(__FILE__) . '/testimages/align/';
     }
 
@@ -63,7 +66,8 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
                 'width' => 400,
                 'height' => 400,
                 'color' => array('#000000'),
-                'background_color' => '#FFFFFF'
+                'background_color' => '#FFFFFF',
+                'image_type' => IMAGETYPE_BMP
             )
         );
         return $i;
@@ -85,10 +89,10 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertInstanceOf('Image_Text', $i);
         $i->set('halign', Image_Text::IMAGE_TEXT_ALIGN_LEFT);
-        $i->init()->render();$i->save($this->_dir . 'left.png');
+        $i->init()->render();$i->save($this->_dir . 'left.bmp');
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'left.png',
+                $this->_dir . 'left.bmp',
                 $i->getImg()
             )
         );
@@ -110,10 +114,10 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertInstanceOf('Image_Text', $i);
         $i->set('halign', Image_Text::IMAGE_TEXT_ALIGN_RIGHT);
-        $i->init()->render();$i->save($this->_dir . 'right.png');
+        $i->init()->render();$i->save($this->_dir . 'right.bmp');
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'right.png',
+                $this->_dir . 'right.bmp',
                 $i->getImg()
             )
         );
@@ -135,10 +139,10 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertInstanceOf('Image_Text', $i);
         $i->set('halign', Image_Text::IMAGE_TEXT_ALIGN_CENTER);
-        $i->init()->render();$i->save($this->_dir . 'center.png');
+        $i->init()->render();$i->save($this->_dir . 'center.bmp');
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'center.png',
+                $this->_dir . 'center.bmp',
                 $i->getImg()
             )
         );
@@ -160,10 +164,10 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertInstanceOf('Image_Text', $i);
         $i->set('halign', Image_Text::IMAGE_TEXT_ALIGN_JUSTIFY);
-        $i->init()->render();$i->save($this->_dir . 'justify.png');
+        $i->init()->render();$i->save($this->_dir . 'justify.bmp');
         $this->assertTrue(
             imageisthesame(
-                $this->_dir . 'justify.png',
+                $this->_dir . 'justify.bmp',
                 $i->getImg()
             )
         );
