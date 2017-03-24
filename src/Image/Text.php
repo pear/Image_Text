@@ -755,6 +755,7 @@ class Image_Text
             // Usual lining up
 
             if ($beginning_of_line) {
+                $width = 0;
                 $text_line = '';
                 $text_line_next = $token;
                 $beginning_of_line = false;
@@ -763,9 +764,10 @@ class Image_Text
             }
             $bounds = imagettfbbox($size, 0, $font, $text_line_next);
 
+            $prev_width = isset($prev_width) ? $width : 0;
+
             $boundsNew = imagettfbbox($size, 0, $font, $token);
             $width = $width + $spaceWidth + $boundsNew[2] - $boundsNew[0];
-            $prev_width = isset($prev_width) ? $width : 0;
 
             // Handling of automatic new lines
             if ($width > $block_width) {
@@ -796,33 +798,37 @@ class Image_Text
 
                 $text_line = $token;
                 $beginning_of_line = false;
+                $width = 0;
             } else {
                 $text_line = $text_line_next;
             }
         }
-        // Store remaining line
-        $bounds = imagettfbbox($size, 0, $font, $text_line);
-        if ($color_mode === Image_Text_Colormode::PARAGRAPH) {
-            $c = $this->_colors[$para_cnt % $colors_cnt];
-            $i++;
-        } else if ($color_mode === Image_Text_Colormode::LINE) {
-            $c = $this->_colors[$i++ % $colors_cnt];
-        } else {
-            $c = imagecolorallocate($this->_img, 0, 0, 0);
+        if (strlen($text_line) > 0) {
+            // Store remaining line
+            $bounds = imagettfbbox($size, 0, $font, $text_line);
+            if ($color_mode === Image_Text_Colormode::PARAGRAPH) {
+                $c = $this->_colors[$para_cnt % $colors_cnt];
+                $i++;
+            } else if ($color_mode === Image_Text_Colormode::LINE) {
+                $c = $this->_colors[$i++ % $colors_cnt];
+            } else {
+                $c = imagecolorallocate($this->_img, 0, 0, 0);
+            }
+
+            $lines[] = array(
+                'string' => $text_line,
+                'width' => $bounds[2] - $bounds[0],
+                'height' => $bounds[1] - $bounds[7],
+                'left_margin' => $bounds[0],
+                'color' => $c
+            );
+
+            // add last line height, but without the line-spacing
+            $text_height += $this->_options['font_size'];
+
+            $text_width = max($text_width, ($bounds[2] - $bounds[0]));
+
         }
-
-        $lines[] = array(
-            'string' => $text_line,
-            'width' => $bounds[2] - $bounds[0],
-            'height' => $bounds[1] - $bounds[7],
-            'left_margin' => $bounds[0],
-            'color' => $c
-        );
-
-        // add last line height, but without the line-spacing
-        $text_height += $this->_options['font_size'];
-
-        $text_width = max($text_width, ($bounds[2] - $bounds[0]));
 
         if (($text_height > $block_height) && !$force) {
             return false;
