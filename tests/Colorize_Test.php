@@ -82,7 +82,7 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertSame('Image_Text', get_class($i));
         $i->set('color_mode', Image_Text_Colormode::WORD);
-        $i->init()->render();
+        $i->init()->render();$i->save($this->_dir . 'word.png');
         $this->assertTrue(
             imageisthesame(
                 $this->_dir . 'word.png',
@@ -103,7 +103,7 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertSame('Image_Text', get_class($i));
         $i->set('color_mode', Image_Text_Colormode::LINE);
-        $i->init()->render();
+        $i->init()->render();$i->save($this->_dir . 'line.png');
         $this->assertTrue(
             imageisthesame(
                 $this->_dir . 'line.png',
@@ -124,7 +124,7 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertSame('Image_Text', get_class($i));
         $i->set('color_mode', Image_Text_Colormode::PARAGRAPH);
-        $i->init()->render();
+        $i->init()->render();$i->save($this->_dir . 'paragraph.png');
         $this->assertTrue(
             imageisthesame(
                 $this->_dir . 'paragraph.png',

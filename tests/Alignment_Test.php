@@ -85,7 +85,7 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertInstanceOf('Image_Text', $i);
         $i->set('halign', Image_Text::IMAGE_TEXT_ALIGN_LEFT);
-        $i->init()->render();
+        $i->init()->render();$i->save($this->_dir . 'left.png');
         $this->assertTrue(
             imageisthesame(
                 $this->_dir . 'left.png',
@@ -110,7 +110,7 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertInstanceOf('Image_Text', $i);
         $i->set('halign', Image_Text::IMAGE_TEXT_ALIGN_RIGHT);
-        $i->init()->render();
+        $i->init()->render();$i->save($this->_dir . 'right.png');
         $this->assertTrue(
             imageisthesame(
                 $this->_dir . 'right.png',
@@ -135,7 +135,7 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertInstanceOf('Image_Text', $i);
         $i->set('halign', Image_Text::IMAGE_TEXT_ALIGN_CENTER);
-        $i->init()->render();
+        $i->init()->render();$i->save($this->_dir . 'center.png');
         $this->assertTrue(
             imageisthesame(
                 $this->_dir . 'center.png',
@@ -160,7 +160,7 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
         );
         $this->assertInstanceOf('Image_Text', $i);
         $i->set('halign', Image_Text::IMAGE_TEXT_ALIGN_JUSTIFY);
-        $i->init()->render();
+        $i->init()->render();$i->save($this->_dir . 'justify.png');
         $this->assertTrue(
             imageisthesame(
                 $this->_dir . 'justify.png',

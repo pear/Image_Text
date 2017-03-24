@@ -80,7 +80,7 @@ class Shadow_Test extends PHPUnit_Framework_TestCase
         $this->assertSame('Image_Text', get_class($i));
         $i->set(array('shadow_offset' => 1, 'shadow_color' => '#000000'));
         $i->init();
-        $i->render();
+        $i->render();$i->save($this->_dir . 'test-shadow.png');
         $this->assertTrue(
             imageisthesame(
                 $this->_dir . 'test-shadow.png',
