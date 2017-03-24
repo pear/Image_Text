@@ -707,12 +707,14 @@ class Image_Text
 
         $i = 0;
         $para_cnt = 0;
-        $width = 0;
 
         $beginning_of_line = true;
 
         $color_mode = $this->_options['color_mode'];
 
+        $spaceBounds = imagettfbbox($size, 0, $font, ' ');
+        $spaceWidth = $spaceBounds[2] - $spaceBounds[0] - 2;
+        $width = -$spaceWidth;
         // Run through tokens and order them in lines
         foreach ($this->_tokens as $token) {
             // Handle new paragraphs
@@ -733,7 +735,7 @@ class Image_Text
 
                 $lines[] = array(
                     'string' => $text_line,
-                    'width' => $bounds[2] - $bounds[0],
+                    'width' => $width,
                     'height' => $bounds[1] - $bounds[7],
                     'left_margin' => $bounds[0],
                     'color' => $c
@@ -745,6 +747,7 @@ class Image_Text
                 }
                 $para_cnt++;
                 $text_line = '';
+                $width = -$spaceWidth;
                 $beginning_of_line = true;
                 continue;
             }
@@ -759,8 +762,10 @@ class Image_Text
                 $text_line_next = $text_line . ' ' . $token;
             }
             $bounds = imagettfbbox($size, 0, $font, $text_line_next);
+
+            $boundsNew = imagettfbbox($size, 0, $font, $token);
+            $width = $width + $spaceWidth + $boundsNew[2] - $boundsNew[0];
             $prev_width = isset($prev_width) ? $width : 0;
-            $width = $bounds[2] - $bounds[0];
 
             // Handling of automatic new lines
             if ($width > $block_width) {
@@ -790,8 +795,6 @@ class Image_Text
                 }
 
                 $text_line = $token;
-                $bounds = imagettfbbox($size, 0, $font, $text_line);
-                $width = $bounds[2] - $bounds[0];
                 $beginning_of_line = false;
             } else {
                 $text_line = $text_line_next;
@@ -947,7 +950,7 @@ class Image_Text
         $word_cnt = 0;
 
         $space_dimensions = imagettfbbox($size, $angle, $font, ' ');
-        $space_width = $space_dimensions[2] - $space_dimensions[0];
+        $space_width = $space_dimensions[2] - $space_dimensions[0] - 2;
 
         // Go through lines for rendering
         for ($i = 0; $i < $lines_cnt; $i++) {
@@ -971,10 +974,10 @@ class Image_Text
                 $hyp = 0;
                 break;
             case self::IMAGE_TEXT_ALIGN_RIGHT:
-                $hyp = $block_width - $line_width - $left_margin + $i;
+                $hyp = $block_width - $line_width - $left_margin;
                 break;
             case self::IMAGE_TEXT_ALIGN_CENTER:
-                $hyp = ($block_width - $line_width + $i) / 2 - $left_margin;
+                $hyp = ($block_width - $line_width) / 2 - $left_margin;
                 break;
             case self::IMAGE_TEXT_ALIGN_JUSTIFY:
                 $hyp = 0;
@@ -1029,7 +1032,7 @@ class Image_Text
                     $value['color'], $font, $imageText
                 );
 
-                $posx = $posx + $dimensions[2] + $spaceW + 1;
+                $posx = $posx + $dimensions[2] + $spaceW;
             }
         }
 
@@ -1252,7 +1255,5 @@ class Image_Text
             // add a "\n" to mark the end of a paragraph
             $this->_tokens[] = "\n";
         }
-        // we do not need an end paragraph as the last token
-        array_pop($this->_tokens);
     }
 }
