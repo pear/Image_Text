@@ -755,7 +755,6 @@ class Image_Text
             // Usual lining up
 
             if ($beginning_of_line) {
-                $width = 0;
                 $text_line = '';
                 $text_line_next = $token;
                 $beginning_of_line = false;
