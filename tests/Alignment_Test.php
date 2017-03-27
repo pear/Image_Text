@@ -62,9 +62,9 @@ class Alignment_Test extends PHPUnit_Framework_TestCase
                 'font_path' => dirname(__FILE__) . '/data/',
                 'font_file' => 'Vera.ttf',
                 'font_size' => 12,
-                'canvas' => array('width' => 400, 'height' => 200),
-                'width' => 400,
-                'height' => 400,
+                'canvas' => array('width' => 200, 'height' => 200),
+                'width' => 200,
+                'height' => 200,
                 'color' => array('#000000'),
                 'background_color' => '#FFFFFF',
                 'image_type' => IMAGETYPE_PNG
