@@ -61,15 +61,15 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
             array(
                 'font_path' => dirname(__FILE__) . '/data/',
                 'font_file' => 'Vera.ttf',
-                'font_size' => 22,
-                'canvas' => array('width' => 400, 'height' => 200),
-                'width' => 400,
-                'height' => 400,
+                'font_size' => 12,
+                'canvas' => array('width' => 200, 'height' => 100),
+                'width' => 200,
+                'height' => 100,
                 'background_color' => '#FFFFFF',
                 'color' => array('#00FF00', '#FF0000', '#0000FF'),
                 'shadow_offset' => 1,
                 'shadow_color' => '#000000',
-                'image_type' => IMAGETYPE_BMP
+                'image_type' => IMAGETYPE_PNG
             )
         );
         return $i;
