@@ -61,7 +61,7 @@ class Colorize_Test extends PHPUnit_Framework_TestCase
             array(
                 'font_path' => dirname(__FILE__) . '/data/',
                 'font_file' => 'Vera.ttf',
-                'font_size' => 20,
+                'font_size' => 22,
                 'canvas' => array('width' => 400, 'height' => 200),
                 'width' => 400,
                 'height' => 400,
